@@ -326,6 +326,25 @@ html.th-clean main > .head .clean-bg-t { min-width: 0; overflow: hidden; text-ov
 html.th-clean main > .head .clean-bg:is(:hover, :focus-visible)::after { content: attr(data-tip); position: absolute; z-index: 20; top: calc(100% + 6px); left: 0;
   width: max-content; max-width: min(360px, calc(100vw - 32px)); padding: 8px 12px; border-radius: 8px; background: var(--card, var(--background)); color: var(--c-t1);
   box-shadow: var(--shadow-lift), 0 0 0 1px var(--border); font: 400 12px/16px var(--font); white-space: pre-line; overflow-wrap: anywhere; pointer-events: none; }
+/* шапка — одна строка и при открытом правом сайдбаре: пороги — по ширине самой шапки (container query), не окна.
+   Порядок сжатия от наименее важного: заметка → значок «⋯» с подсказкой; «Кратко | Подробно» → в «Ещё»; «Лента | Доска» → в «Ещё»
+   (пункты кладёт main.js headFold; пока меню закрыто, слова в шапке скрыты, а не удалены — ядро их перерисует само).
+   Название сжимается последним (многоточие), статус виден всегда */
+@media (min-width: 761px) {
+  html.th-clean main > .head { flex-wrap: nowrap; container: hd / inline-size; }
+  html.th-clean main > .head h2 { flex: 0 0.001 auto; min-width: 48px; }
+  html.th-clean main > .head :is(.pill, .seg, .menu-wrap, .fs-lupa, .btn) { flex: none; }
+  html.th-clean main > .head .clean-bg { flex: 0 100 auto; min-width: 72px; }
+  html.th-clean main > .head .spacer { flex: 1 1 0; min-width: 0; }
+  @container hd (max-width: 912px) {
+    html.th-clean main > .head .clean-bg { flex: none; width: 24px; min-width: 0; padding: 0; justify-content: center; }
+    html.th-clean main > .head .clean-bg .clean-bg-t { display: none; }
+    html.th-clean main > .head .clean-bg::before { content: ""; width: 16px; height: 16px; background: var(--c-t2);
+      -webkit-mask: url("more.svg") center / 16px no-repeat; mask: url("more.svg") center / 16px no-repeat; }
+  }
+  @container hd (max-width: 752px) { html.th-clean main > .head > .seg.clean-view { display: none; } }
+  @container hd (max-width: 512px) { html.th-clean main > .head > .seg.clean-board { display: none; } }
+}
 /* строка «Доска: открыто 3 · ждала: … · Спросить, чего ждёт» (ядро, dir-recap) не лежит под шапкой ленты: шапка — одна строка.
    Число открытых — бейджем на вкладке «Доска» (main.js), сама строка и кнопка «Спросить» — на доске, целиком и с переносом */
 /* всё, что ядро кладёт строкой под шапку (фоновая работа, «станет мини-хабом…», сводка направления), в ленте скрыто целиком:

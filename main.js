@@ -235,6 +235,34 @@ export default function register(hub) {
     const pill = head.querySelector(":scope > .pill");
     if (pill && chip.previousElementSibling !== pill) pill.after(chip);
   };
+  // «Кратко | Подробно» и «Лента | Доска» при узкой шапке прячет CSS (@container hd); здесь они же — пунктами в «Ещё»:
+  // клик по пункту — клик по спрятанной кнопке (она остаётся в разметке), так режим переключает само ядро
+  const headFold = () => {
+    const head = document.querySelector("main > .head");
+    if (!head) return;
+    for (const s of head.querySelectorAll(":scope > .seg:not(.clean-view, .clean-board)")) {
+      s.classList.add(s.querySelector(".ce-n") || /^(Лента|Feed)/.test(s.textContent) ? "clean-board" : "clean-view");
+    }
+    const menu = head.querySelector(".menu-wrap > .menu");
+    if (!menu || menu.querySelector(".clean-fold-i")) return;
+    const items = [];
+    for (const cls of ["clean-view", "clean-board"]) {
+      const seg = head.querySelector(`:scope > .seg.${cls}`);
+      if (!seg || getComputedStyle(seg).display !== "none") continue;
+      for (const b of seg.children) {
+        const it = hub.el("button", "menu-item check clean-fold-i", b.firstChild.textContent + (b.querySelector(".ce-n") ? ` ${b.querySelector(".ce-n").textContent}` : ""));
+        it.type = "button";
+        it.tabIndex = -1;
+        it.setAttribute("role", "menuitemcheckbox");
+        it.setAttribute("aria-checked", b.getAttribute("aria-pressed"));
+        it.title = b.title;
+        it.addEventListener("click", () => { window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); b.click(); });
+        items.push(it);
+      }
+      items.push(hub.el("div", "menu-sep"));
+    }
+    menu.prepend(...items);
+  };
   setInterval(() => { if (on()) headNote(); }, 20000);   // минуты идут и без перерисовки ядра
   const unAvatars = () => {
     for (const av of document.querySelectorAll(".byline .av[data-clean-av]")) { delete av.dataset.cleanAv; av.style.removeProperty("--clean-av"); }
@@ -397,7 +425,7 @@ export default function register(hub) {
   const sweep = () => {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
-    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate();
+    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); headFold();
   };
   let queued = false;   // лента меняется часто — не чаще кадра
   new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; sweep(); }); } }).observe(document.body, { childList: true, subtree: true, characterData: true });
