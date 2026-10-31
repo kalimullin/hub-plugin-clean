@@ -25,6 +25,16 @@ To give an agent another character, change its icon: the session row menu → Ic
 `hub session icon <name> <emoji>`. Your own pictures: put a file in `a/` and add an “emoji → file” pair to `avatars`
 in both theme files.
 
+## Keys while recording a voice message
+
+Only while Clean is the active theme and a recording is running:
+
+- **Enter** stops the recording and sends it (like the stop button). Works in the message field and outside text fields; Enter in any other field is left alone.
+- **Esc twice within 0.4 s** cancels the recording (like “Cancel”).
+- A single **Esc** does nothing: the recording keeps going.
+
+Tests: `node --test tests/*.test.mjs`.
+
 ## What's inside
 
 - `clean.json`, `clean-dark.json` — colors, font, icons (`i/`, `id/` for dark), avatars (`a/`).
