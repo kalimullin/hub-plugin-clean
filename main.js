@@ -492,6 +492,7 @@ export default function register(hub) {
     const rows = document.querySelectorAll(".feed-inner > .row.out[data-key]");
     if (!kindsOn() || !curKinds) {
       for (const r of document.querySelectorAll(".row[data-clean-kind]")) { delete r.dataset.cleanKind; delete r.dataset.cleanOff; }
+      noneLine();
       return;
     }
     const seqs = kindsOf(curKinds), sel = chosen(curKinds);
@@ -502,6 +503,31 @@ export default function register(hub) {
       r.dataset.cleanKind = k || "none";
       if (sel.size && !(k && sel.has(k))) r.dataset.cleanOff = ""; else delete r.dataset.cleanOff;
     }
+    noneLine();
+  };
+  // «Показать все» из панели и из ленты: снять выбор, перекрасить воронку
+  const resetKinds = (name) => {
+    keep(name, new Set()); markKinds();
+    const b = document.querySelector(".clean-kinds-btn");
+    if (b) paintKinds(name, b);
+  };
+  // пустой результат: под лентой своя строка плагина (в DOM ядра ничего не правим): «Нет сообщений выбранных типов · Показать все».
+  // Ядро перерисовывает ленту целиком — строку каждый раз ставит заново markKinds (его зовёт и наблюдатель); не пусто или фильтр выключен — убираем
+  const noneLine = () => {
+    const feed = document.querySelector("main > .feed");
+    const st = kindsOn() && curKinds ? kindStats(curKinds) : null;
+    const empty = !!(feed && st && st.sel.size && st.total && !st.shown);
+    let line = feed?.querySelector(":scope > .clean-kinds-none");
+    if (!empty) { if (line) { const had = line.contains(document.activeElement); line.remove(); if (had) document.querySelector(".clean-kinds-btn")?.focus({ preventScroll: true }); } return; }
+    if (!line) {
+      line = hub.el("div", "clean-kinds-none");
+      const text = hub.el("span", "clean-kinds-none-t", kt("none") + " · ");
+      const reset = hub.el("button", "clean-kinds-none-reset", kt("reset"));
+      reset.type = "button";
+      reset.addEventListener("click", () => resetKinds(curKinds));
+      line.append(text, reset);
+    }
+    if (feed.lastElementChild !== line) feed.append(line);
   };
   const closeKinds = () => { kindsPop?.remove(); kindsPop = null; document.querySelector(".clean-kinds-btn")?.setAttribute("aria-expanded", "false"); document.removeEventListener("pointerdown", kindsOutside, true); document.removeEventListener("keydown", kindsKey, true); };
   const kindsOutside = (e) => {
@@ -547,7 +573,7 @@ export default function register(hub) {
     pop.setAttribute("aria-label", kt("title"));
     const reset = hub.el("button", "clean-kinds-reset", kt("reset"));
     reset.type = "button";
-    reset.addEventListener("click", () => { keep(name, new Set()); markKinds(); paintKinds(name, btn); });
+    reset.addEventListener("click", () => resetKinds(name));
     pop.append(hub.el("div", "clean-kinds-list"), hub.el("div", "clean-kinds-empty", kt("none")), reset);
     document.body.append(pop);
     kindsPop = pop;

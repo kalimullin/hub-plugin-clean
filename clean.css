@@ -1030,7 +1030,7 @@ html.th-clean .pal-reset:disabled { display: none; }
 }
 
 /* ---- фокус с клавиатуры: плоские плашки темы без тени — кольцо явно ---- */
-html.th-clean :is(.srow, .active-bar button, .navmenu, .clean-fold, .clean-fold-show, .seg button, .fork-toggle, .sgroup-h, .gmore, .btn, .chat-head, .clean-lim, .clean-x, .linkbtn, .gpop-i, .md .code-copy, .clean-kinds-btn, .clean-kinds-reset):focus-visible {
+html.th-clean :is(.srow, .active-bar button, .navmenu, .clean-fold, .clean-fold-show, .seg button, .fork-toggle, .sgroup-h, .gmore, .btn, .chat-head, .clean-lim, .clean-x, .linkbtn, .gpop-i, .md .code-copy, .clean-kinds-btn, .clean-kinds-none-reset, .clean-kinds-reset):focus-visible {
   outline: 2px solid var(--c-ring); outline-offset: 2px; }
 
 /* ---- тихие hover и focus: синего нет ни у наведения, ни у фокуса; подложка --c-hover/--c-fill, рамка --c-line-strong,
@@ -1069,8 +1069,17 @@ html.th-clean .clean-kinds-reset { display: block; width: 100%; min-height: 36px
   color: var(--c-t1); font: 500 14px/20px var(--font); cursor: pointer; text-align: center; }
 html.th-clean .clean-kinds-reset:hover { background: var(--c-hover); }
 html.th-clean :is(.clean-kinds-empty, .clean-kinds-reset)[hidden] { display: none; }
+/* та же фраза под лентой, когда фильтр скрыл всё: текст тёмный, «Показать все» — как ссылки темы (плашка --c-fill, без подчёркивания) */
+html.th-clean .clean-kinds-none { margin-top: 24px; font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); }
+html.th-clean .clean-kinds-none-reset { display: inline; margin: 0; padding: 0 2px; border: 0; border-radius: 4px; background: var(--c-fill);
+  color: var(--c-t1); font: inherit; letter-spacing: inherit; cursor: pointer; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+html.th-clean .clean-kinds-none-reset:hover { background: var(--c-badge); }
 @media (max-width: 760px) {
   html.th-clean .clean-kinds-pop { width: min(320px, calc(100vw - 16px)); }
   html.th-clean .clean-kinds-row { min-height: 44px; }
   html.th-clean .clean-kinds-reset { min-height: 44px; }
+  /* зона нажатия 44: строка в 44, кнопка тянется на всю высоту, плашка остаётся по тексту (::after шире видимого) */
+  html.th-clean .clean-kinds-none { margin-top: 16px; }
+  html.th-clean .clean-kinds-none-reset { position: relative; }
+  html.th-clean .clean-kinds-none-reset::after { content: ""; position: absolute; inset: -12px -8px; }
 }

@@ -31,8 +31,8 @@ When the hub tells which kind each message is (`feed.kinds`), a filter button ap
 or several kinds (progress, report, info, question, failure, conversation) to show only those; “All” is the default.
 A kind is listed only if a message of that kind is drawn in the feed (in the short view the hub folds some messages, so
 their kinds are not offered unless already ticked). No counters: while a filter is active the funnel is filled
-(`aria-pressed="true"`). If nothing matches, the feed shows one line “Нет сообщений выбранных типов” and a “Показать все”
-button. The panel closes on a tap outside and on Esc; focus returns to the funnel. The filter hides the session's own
+(`aria-pressed="true"`). If nothing matches, the same line “Нет сообщений выбранных типов · Показать все” is shown under the feed (and in the
+panel); “Показать все” brings every row back. The panel closes on a tap outside and on Esc; focus returns to the funnel. The filter hides the session's own
 messages only: your messages, cards and steps stay. A message without a kind (a quiet “—” result, or a row loaded with
 “Show earlier”) shows only under “All”. The choice is kept per session. Without `feed.kinds` the button is not drawn.
 The page is not rewritten: rows get a `data-clean-kind` / `data-clean-off` mark and the CSS hides them.
