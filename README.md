@@ -13,7 +13,7 @@ the text.
 Settings → Plugins → paste `https://github.com/kalimullin/hub-plugin-clean` (or search for “clean”) → Check and
 install. Then Settings → Look → Theme → Clean or Clean Dark.
 
-Needs a hub with plugin API 1.30 or newer (the `code-bg` theme color).
+Needs a hub with plugin API 1.30 or newer.
 
 ## Avatars
 
