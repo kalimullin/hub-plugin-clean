@@ -140,6 +140,10 @@
       "steer": {
         "id": "mGWNJGGwrFlE",
         "commonName": "u-turn-to-right"
+      },
+      "filter": {
+        "id": "dmLfMKVnn4jj",
+        "commonName": "filter"
       }
     }
   }
