@@ -449,20 +449,14 @@ export default function register(hub) {
   const KIND_IDS = ["P", "R", "I", "Q", "F", "C"];
   const KT = {
     ru: { all: "Все", title: "Типы сообщений", P: "Ход работы", R: "Отчёт", I: "К сведению", Q: "Вопрос", F: "Сбой", C: "Разговор",
-      none: "Нет сообщений выбранных типов", reset: "Показать все", of: ["из {m} сообщения", "из {m} сообщений", "из {m} сообщений"], shown: "Показано {n}" },
+      none: "Нет сообщений выбранных типов", reset: "Показать все" },
     en: { all: "All", title: "Message types", P: "Progress", R: "Report", I: "FYI", Q: "Question", F: "Failure", C: "Conversation",
-      none: "No messages of the chosen types", reset: "Show all", of: ["of {m} message", "of {m} messages", "of {m} messages"], shown: "Showing {n}" },
+      none: "No messages of the chosen types", reset: "Show all" },
     es: { all: "Todos", title: "Tipos de mensaje", P: "Avance", R: "Informe", I: "Para tu información", Q: "Pregunta", F: "Fallo", C: "Conversación",
-      none: "No hay mensajes de los tipos elegidos", reset: "Mostrar todos", of: ["de {m} mensaje", "de {m} mensajes", "de {m} mensajes"], shown: "Mostrando {n}" },
+      none: "No hay mensajes de los tipos elegidos", reset: "Mostrar todos" },
   };
   const kLang = () => { const l = String(hub.lang || hub.locale || document.documentElement.lang || "ru").slice(0, 2).toLowerCase(); return KT[l] ? l : "ru"; };
   const kt = (k) => T(`web.clean.kinds.${k}`, KT[kLang()][k]);
-  // «Показано 12 из 40 сообщений»: слово после числа склоняется по m (Intl.PluralRules; формы ru: one/few/many, en и es: one/other)
-  const kCount = (n, m) => {
-    const L = kLang(), cat = new Intl.PluralRules(L).select(m), forms = KT[L].of;
-    const form = forms[cat === "one" ? 0 : cat === "few" ? 1 : 2];
-    return `${KT[L].shown.replace("{n}", n)} ${form.replace("{m}", m)}`;
-  };
   const kindsOn = () => on() && (hub.snapshot?.()?.features || []).includes("feed.kinds");
   const KEY = (name) => `clean.feedkinds.${name}`;
   const chosen = (name) => { try { const v = JSON.parse(localStorage.getItem(KEY(name)) || "[]"); return new Set(Array.isArray(v) ? v.filter((k) => KIND_IDS.includes(k)) : []); } catch { return new Set(); } };
@@ -481,14 +475,16 @@ export default function register(hub) {
     return kindsMemo.seqs;
   };
   const kindStats = (name) => {
-    const seqs = kindsOf(name), counts = Object.fromEntries(KIND_IDS.map((k) => [k, 0]));
+    const counts = Object.fromEntries(KIND_IDS.map((k) => [k, 0])), sel = chosen(name);
+    // типы и «есть ли что показать» считаем по строкам, которые ядро сейчас рисует: в режиме «Кратко» ядро часть ответов сворачивает,
+    // и по снимку в панели были бы типы, которых на экране нет («пусто» при отмеченных). Нет нарисованных строк — берём снимок
+    const drawn = [...document.querySelectorAll(".feed-inner > .row.out[data-clean-kind]")];
     let total = 0, shown = 0;
-    const sel = chosen(name);
-    for (const k of seqs.values()) { total++; if (k) counts[k]++; if (!sel.size || (k && sel.has(k))) shown++; }
-    // «Показано» считаем по строкам, которые ядро сейчас рисует: в режиме «Кратко» ядро часть ответов сворачивает, и по снимку
-    // получилось бы «3 из 10» при пустой ленте
-    const drawn = document.querySelectorAll(".feed-inner > .row.out[data-clean-kind]");
-    if (drawn.length) { total = drawn.length; shown = [...drawn].filter((r) => !("cleanOff" in r.dataset)).length; }
+    if (drawn.length) {
+      for (const r of drawn) { const k = r.dataset.cleanKind; total++; if (counts[k] != null) counts[k]++; if (!("cleanOff" in r.dataset)) shown++; }
+    } else {
+      for (const k of kindsOf(name).values()) { total++; if (k) counts[k]++; if (!sel.size || (k && sel.has(k))) shown++; }
+    }
     return { counts, total, shown, sel };
   };
   // метки на строках ленты: data-clean-kind (тип или none) и data-clean-off (строку прячет CSS)
@@ -507,24 +503,29 @@ export default function register(hub) {
       if (sel.size && !(k && sel.has(k))) r.dataset.cleanOff = ""; else delete r.dataset.cleanOff;
     }
   };
-  const closeKinds = () => { kindsPop?.remove(); kindsPop = null; document.removeEventListener("pointerdown", kindsOutside, true); document.removeEventListener("keydown", kindsKey, true); };
-  const kindsOutside = (e) => { if (kindsPop && !kindsPop.contains(e.target) && !e.target.closest?.(".clean-kinds-btn")) closeKinds(); };
+  const closeKinds = () => { kindsPop?.remove(); kindsPop = null; document.querySelector(".clean-kinds-btn")?.setAttribute("aria-expanded", "false"); document.removeEventListener("pointerdown", kindsOutside, true); document.removeEventListener("keydown", kindsKey, true); };
+  const kindsOutside = (e) => {
+    if (!kindsPop || kindsPop.contains(e.target) || e.target.closest?.(".clean-kinds-btn")) return;
+    const b = document.querySelector(".clean-kinds-btn"); closeKinds();
+    // нажатие по пустому месту отдаёт фокус странице уже после pointerdown — возвращаем его на воронку следом;
+    // если нажали на другое управление (поле, кнопку), фокус остаётся у него
+    setTimeout(() => { const a = document.activeElement; if (b?.isConnected && (!a || a === document.body)) b.focus({ preventScroll: true }); }, 0);
+  };
   const kindsKey = (e) => { if (e.key === "Escape" && kindsPop) { const b = document.querySelector(".clean-kinds-btn"); closeKinds(); b?.focus(); } };
   const paintKinds = (name, btn) => {
-    const st = kindStats(name), present = KIND_IDS.filter((k) => st.counts[k] > 0);
-    btn.dataset.n = st.sel.size ? String(st.sel.size) : "";
+    const st = kindStats(name), present = KIND_IDS.filter((k) => st.counts[k] > 0 || st.sel.has(k));
+    btn.setAttribute("aria-pressed", st.sel.size ? "true" : "false");   // фильтр включён — воронка залита (CSS по aria-pressed)
     btn.title = btn.ariaLabel = kt("title");
     btn.setAttribute("aria-expanded", kindsPop ? "true" : "false");
     btn.hidden = !present.length && !st.sel.size;
     if (!kindsPop) return;
     const pop = kindsPop, list = pop.querySelector(".clean-kinds-list");
     list.replaceChildren();
-    const row = (id, label, count, on_) => {
+    const row = (id, label, on_) => {
       const l = hub.el("label", "clean-kinds-row");
       const cb = hub.el("input");
       cb.type = "checkbox"; cb.checked = on_; cb.dataset.kind = id;
       l.append(cb, hub.el("span", "clean-kinds-name", label));
-      if (count != null) l.append(hub.el("span", "clean-kinds-n", String(count)));
       cb.addEventListener("change", () => {
         const sel = chosen(name);
         if (id === "all") sel.clear(); else if (cb.checked) sel.add(id); else sel.delete(id);
@@ -533,13 +534,11 @@ export default function register(hub) {
       });
       return l;
     };
-    list.append(row("all", kt("all"), null, !st.sel.size));
-    for (const k of present) list.append(row(k, kt(k), st.counts[k], st.sel.has(k)));
-    const empty = pop.querySelector(".clean-kinds-empty"), sum = pop.querySelector(".clean-kinds-sum");
+    list.append(row("all", kt("all"), !st.sel.size));
+    for (const k of present) list.append(row(k, kt(k), st.sel.has(k)));
+    const empty = pop.querySelector(".clean-kinds-empty");
     empty.hidden = !(st.sel.size && st.total && !st.shown);
     pop.querySelector(".clean-kinds-reset").hidden = empty.hidden;
-    sum.textContent = st.sel.size ? kCount(st.shown, st.total) : "";
-    sum.hidden = !st.sel.size;
   };
   const openKinds = (name, btn) => {
     closeKinds();
@@ -549,7 +548,7 @@ export default function register(hub) {
     const reset = hub.el("button", "clean-kinds-reset", kt("reset"));
     reset.type = "button";
     reset.addEventListener("click", () => { keep(name, new Set()); markKinds(); paintKinds(name, btn); });
-    pop.append(hub.el("div", "clean-kinds-list"), hub.el("div", "clean-kinds-empty", kt("none")), reset, hub.el("div", "clean-kinds-sum"));
+    pop.append(hub.el("div", "clean-kinds-list"), hub.el("div", "clean-kinds-empty", kt("none")), reset);
     document.body.append(pop);
     kindsPop = pop;
     paintKinds(name, btn);
