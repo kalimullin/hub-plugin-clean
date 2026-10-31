@@ -21,7 +21,8 @@
 //   расписания — маской цвета текста; у сессии со значком вместо персонажа в ленте — серая плашка с маленьким значком;
 // - «Ответить» значком на плавающей панели (как в Slack): подсказка — слова кнопки, « · » перед ней — отдельным знаком,
 //   который тема прячет; раскрытая переписка сессий сворачивается шевроном — у него подпись «Свернуть»; у контекстных
-//   меню списка без заголовка — имя меню для чтения с экрана.
+//   меню списка без заголовка — имя меню для чтения с экрана;
+// - запись голоса с клавиатуры: Enter останавливает и отправляет, двойной Esc отменяет, одиночный Esc запись не трогает.
 const MINE = /(^|:)clean:clean(-dark)?\.json$/;
 const OWNER = new Set(["владелец", "owner"]);   // как называет владельца ядро в событиях (core/reducer.py)
 const on = () => document.documentElement.classList.contains("th-clean");
@@ -466,10 +467,14 @@ export default function register(hub) {
       const acc = snap?.accounts?.on ? snap?.account?.active : null;
       if (acc) line.append(hub.el("span", "limseg limacc", acc));
       const now = Date.now() / 1000;
+      // цвет процента — как LimitsBlock.tone в нативе: экономия — жёлтый (красного и оранжевого «кончается» в ней нет),
+      // иначе 95%+ и «не работает» (limits.status = rejected) — красный, 80–95% — оранжевый, остальное — серый
+      const stopped = snap?.limits?.status === "rejected", eco = !!snap?.economy?.on;
+      const tone = (u) => eco ? "eco" : stopped || u >= 95 ? "high" : u >= 80 ? "warn" : "ok";
       for (const [name, w] of wins) {
         const used = w.resets && w.resets < now ? 0 : Math.round(w.used * 100);
         const seg = hub.el("span", "limseg");
-        seg.dataset.level = used >= 80 ? "high" : "ok";
+        seg.dataset.tone = tone(used);
         const reset = w.resets && w.resets > now ? new Date(w.resets * 1000).toLocaleString(hub.locale || undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
         seg.dataset.full = T(...FULL[name]);
         seg.title = seg.dataset.full + (reset ? ` · ${reset}` : "");   // в строке — короткие названия; полное имя и сброс — в подсказке
@@ -530,6 +535,46 @@ export default function register(hub) {
       tcSaved = null;
     }
   };
+
+  // Запись голоса с клавиатуры. Ядро (recorder.js) на одиночный Esc отменяет запись, на Enter ничего не делает; в теме:
+  // - Enter во время записи — остановить и отправить: нажимается стоп-кнопка ядра (метода записи у плагина нет);
+  // - Esc дважды быстрее VOICE_ESC_MS — отмена (второй Esc отдаётся ядру: оно отменяет, как «Отмена»);
+  // - одиночный Esc запись не трогает: его съедает окно в фазе перехвата раньше ядра (оно ловит Esc на document).
+  // «Идёт запись» — по полоске записи ядра: .recstrip с часами [data-rec-clock] (запись) или с «Отмена» (запись и открытие
+  // микрофона). Слушатель один и постоянный, взводить и снимать нечего: вне записи и вне темы он ничего не делает.
+  // Enter не трогает чужие поля (поиск, диалоги, кнопки), Esc действует где угодно — как у ядра.
+  const VOICE_ESC_MS = 400, SPENT_MS = 800;
+  let lastEsc = 0, spentAt = 0;   // spentAt: когда сработали Enter или двойной Esc — полоска ещё может не успеть смениться
+  const recStrip = () => document.querySelector("form.composer.rec .recstrip");
+  const fieldFocused = (a) => {
+    if (!a || a === document.body) return false;
+    if (a.closest?.("dialog[open], [role=dialog], [role=menu], [role=listbox]")) return true;
+    if (a.matches?.("input, textarea, select, button, a, summary, [role=button], [contenteditable]:not([contenteditable=false])")) {
+      return !a.matches?.("form.composer textarea, form.composer .btn.stop");   // поле ввода «Разговора» и стоп записи — свои
+    }
+    return false;
+  };
+  addEventListener("keydown", (e) => {
+    if (!on() || (e.key !== "Escape" && e.key !== "Enter")) return;
+    const strip = recStrip(), clock = strip?.querySelector("[data-rec-clock]");
+    if (!strip || !strip.querySelector(".linkbtn")) { lastEsc = 0; return; }
+    const spent = e.timeStamp - spentAt < SPENT_MS;
+    if (e.key === "Escape") {
+      if (spent) { e.stopImmediatePropagation(); return; }   // отмена уже ушла, полоска ещё не сменилась
+      if (e.repeat) { e.stopImmediatePropagation(); return; }   // удержание — не второе нажатие
+      if (lastEsc && e.timeStamp - lastEsc <= VOICE_ESC_MS) { lastEsc = 0; spentAt = e.timeStamp; return; }   // отмену сделает ядро
+      lastEsc = e.timeStamp;
+      e.stopImmediatePropagation();
+      return;
+    }
+    if (!clock || spent || e.repeat || e.isComposing || e.shiftKey || e.ctrlKey || e.metaKey || e.altKey || fieldFocused(document.activeElement)) return;
+    const stop = document.querySelector("form.composer.rec .bar > .btn.round.stop");
+    if (!stop) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    spentAt = e.timeStamp;
+    stop.click();
+  }, true);
 
   const sync = () => {
     let id = "";

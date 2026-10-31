@@ -26,6 +26,7 @@ html.th-clean {
   --c-ink: light-dark(#000, #fff);                                         /* точки «работает»: этим цветом с прозрачностью */
   --c-alert: light-dark(#ef4e4e, #cf3a3a);   /* красная заливка с белым текстом: в тёмной 4,9:1 */
   --c-free: light-dark(#1fb141, #4cd46a); --c-free-bg: light-dark(#e7f9eb, #173a22);
+  --c-eco: light-dark(#876200, #ffd60a);   /* жёлтый «режима экономии» в блоке расхода: тёмная охра на светлом (4,5:1+), яркий жёлтый на тёмном */
   --c-busy: light-dark(#a35d1c, #f2b25a); --c-busy-bg: light-dark(#fffbea, #3a2c12);
   --c-key: 0 0 0 1px light-dark(#18181b0d, #ffffff14), 0 1px 2px light-dark(#18181b0d, #0000004d);   /* белая клавиша */
   --c-field: 0 0 2px light-dark(#18181b12, #00000066), 0 2px 4px light-dark(#18181b0a, #0000004d), 0 8px 20px light-dark(#18181b1f, #00000080);
@@ -152,9 +153,13 @@ html.th-clean .clean-lim .limseg { display: inline-flex; gap: 6px; white-space: 
 html.th-clean .clean-lim .limname { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 html.th-clean .clean-lim .limpct { flex: none; }
 html.th-clean .clean-lim .limacc { display: none; }
-html.th-clean .clean-lim .limname { color: var(--c-t3); }
-html.th-clean .clean-lim .limpct { font-weight: 500; color: var(--c-t1); }
-html.th-clean .clean-lim .limseg[data-level="high"] .limpct { color: var(--destructive); }
+html.th-clean .clean-lim .limname { color: var(--muted-foreground); }   /* подписи «5 ч» / «неделя»: --c-t3 (28%) на светлом был слабым по контрасту */
+/* цвет процента — по состоянию, как в нативе (LimitsBlock.tone): обычный — тёмно-серый, 80–95% — оранжевый, 95%+ и «не работает» — красный,
+   экономия — жёлтый; синего и зелёного нет. Состояние ставит main.js в data-tone */
+html.th-clean .clean-lim .limpct { font-weight: 500; color: var(--muted-foreground); }
+html.th-clean .clean-lim .limseg[data-tone="warn"] .limpct { color: var(--warning); }
+html.th-clean .clean-lim .limseg[data-tone="high"] .limpct { color: var(--destructive); }
+html.th-clean .clean-lim .limseg[data-tone="eco"] .limpct { color: var(--c-eco); }
 html.th-clean .clean-lim.limlink { cursor: pointer; }
 html.th-clean main .status .limline { display: none; }
 
@@ -478,7 +483,7 @@ html.th-clean .md :is(strong, b, h1, h2, h3, h4, h5, h6) { font-weight: 500; }
 html.th-clean .md :is(h1, h2, h3, h4, h5, h6) { font-size: 14px; line-height: 20px; margin-block: 0 12px; }
 html.th-clean .md :not(pre) > code { font: 400 13px/1 var(--font-code); color: var(--c-t1); background: none; padding: 0; }
 /* код в тексте (адрес, путь, команда) — той же тихой плашкой, что ссылки, цветом текста: синим он читался как ссылка.
-   Цвет плашки — code-bg темы: ядро даёт им плашку и в «Файлах» (панель справа); здесь — те же поля, что
+   Плашка — тем же цветом, что у ссылок (ядро даёт код плашку и в «Файлах» (панель справа)); здесь — те же поля, что
    у ссылок, вместо тени ядра. Код внутри ссылки — без своей плашки, плашка у ссылки */
 html.th-clean .md :not(pre, a) > code { padding: 0 2px; border-radius: 4px; background: var(--c-fill); box-shadow: none; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 html.th-clean .md a code { background: none; box-shadow: none; }
@@ -697,6 +702,18 @@ html.th-clean .composer .bar > .btn.round.mic { width: 32px; min-width: 0; heigh
   html.th-clean :is(.btn.round.quiet:is(.attach, .mic), .composer .bar > .btn.round.mic):hover { background: var(--c-fill); color: var(--c-t1); }
 }
 html.th-clean .btn.round:is(.attach, .mic) .icon { width: 16px; height: 16px; }
+/* кнопки плагинов в поле ввода (место composer.tools): как микрофон — 32, радиус 8, значок 16; ядро кладёт их общую ширину в --tools-w
+   на .dock-inner, и строка статуса (модель, усилие) уступает им место */
+html.th-clean .slot-composer-tools .btn.round { box-sizing: border-box; min-width: 0; height: 32px; min-height: 0; border: 0; border-radius: 8px; background: none; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .slot-composer-tools .btn.round:hover { background: var(--c-fill); }
+}
+/* only a button that holds nothing but an icon is a 32 px square; a button with text (a dot and a timer) keeps its own width and colour */
+html.th-clean .slot-composer-tools .btn.round:has(> :is(svg, .icon):only-child) { width: 32px; padding: 0; color: var(--muted-foreground); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .slot-composer-tools .btn.round:has(> :is(svg, .icon):only-child):hover { color: var(--c-t1); }
+}
+html.th-clean .slot-composer-tools .btn.round > :is(svg, .icon) { width: 16px; height: 16px; }
 html.th-clean .btn.round.send { width: 32px; height: 32px; border-radius: 8px; background: var(--foreground); }
 @media (hover: hover) and (pointer: fine) {
   html.th-clean .btn.round.send:hover { background: color-mix(in oklch, var(--foreground) 85%, var(--background)); }
@@ -815,10 +832,12 @@ html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-le
     -webkit-mask: url("folder.svg") center / 12px no-repeat; mask: url("folder.svg") center / 12px no-repeat; }
   /* модель и усилие — на нижнем ряду карточки, справа перед микрофоном: статус поднимается на ряд (его место — под карточкой,
      6 зазора + ряд + 12 поля снизу), без «·» между частями; «Отправить» и микрофон — над ним (z-index карточки 1, у кнопок 2) */
-  html.th-clean .dock-inner:has(> form.composer) .status { order: 3; height: var(--row); margin: calc(-1 * (var(--row) + 12px + 6px)) 0 0; padding: 0 var(--tail) 0 0;
+  html.th-clean .dock-inner:has(> form.composer) .status { order: 3; height: var(--row); margin: calc(-1 * (var(--row) + 12px + 6px)) 0 0; padding: 0 calc(var(--tail) + var(--tools-w, 0px)) 0 52px;
     justify-content: flex-end; align-items: center; gap: 2px; pointer-events: none; }
   html.th-clean .dock-inner:has(> form.composer) .status > :is(.stat-par, .stat-mod, .stat-eff) { position: relative; z-index: 2; margin: 0; pointer-events: auto; }
   html.th-clean .status > :is(.stat-par, .stat-mod, .stat-eff)::after { content: none !important; }
+  /* кнопки плагинов съедают ширину строки: в узком окне — короткие подписи модели и усилия, иначе статус налезает на «+» */
+  @container status (max-width: 680px) { html.th-clean .par-long, html.th-clean .mod-long { display: none; } html.th-clean .par-short, html.th-clean .mod-short { display: inline; } }
   html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn { height: 28px; padding: 0 8px; border-radius: 8px; line-height: 28px; }
   html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu { left: auto; right: 0; }
   html.th-clean .dock-inner:has(form.composer.rec) .status > :is(.stat-par, .stat-mod, .stat-eff) { display: none; }   /* идёт запись голоса: полоса записи на весь ряд, меню модели не нужны */
@@ -1137,7 +1156,8 @@ html.th-clean .pal-reset:disabled { display: none; }
   html.th-clean .strip-row[data-k="wait"] { padding-inline: 20px; }   /* лента с полями 16, поле ввода с 12 — полоса «Ждёт вас» шире карточки на 4 */
   html.th-clean .row.mine > .b { width: auto; max-width: 88%; }
   html.th-clean .btn.round.send, html.th-clean .btn.round.quiet:is(.attach, .mic), html.th-clean .composer .bar > .btn.round.mic { width: 36px; height: 36px; }
-  html.th-clean .vf-slot > .btn.round { width: 36px; height: 36px; }
+  html.th-clean .vf-slot > .btn.round, html.th-clean .slot-composer-tools .btn.round:has(> :is(svg, .icon):only-child) { width: 36px; height: 36px; }
+  html.th-clean .slot-composer-tools .btn.round { height: 36px; }
   html.th-clean .status > .stat-left > .stat-dir { display: none; }
 }
 

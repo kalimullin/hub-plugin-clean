@@ -13,7 +13,7 @@ the text.
 Settings → Plugins → paste `https://github.com/kalimullin/hub-plugin-clean` (or search for “clean”) → Check and
 install. Then Settings → Look → Theme → Clean or Clean Dark.
 
-Needs a hub with plugin API 1.30 or newer (the `code-bg` theme color).
+Needs a hub with plugin API 1.30 or newer.
 
 ## Avatars
 
@@ -24,6 +24,16 @@ Sessions with one of these emoji get a character instead (`avatars` in `clean.js
 To give an agent another character, change its icon: the session row menu → Icon, or
 `hub session icon <name> <emoji>`. Your own pictures: put a file in `a/` and add an “emoji → file” pair to `avatars`
 in both theme files.
+
+## Keys while recording a voice message
+
+Only while Clean is the active theme and a recording is running:
+
+- **Enter** stops the recording and sends it (like the stop button). Works in the message field and outside text fields; Enter in any other field is left alone.
+- **Esc twice within 0.4 s** cancels the recording (like “Cancel”).
+- A single **Esc** does nothing: the recording keeps going.
+
+Tests: `node --test tests/*.test.mjs`.
 
 ## What's inside
 
