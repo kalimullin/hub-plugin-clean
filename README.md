@@ -40,6 +40,11 @@ Tests: `node --test tests/*.test.mjs`.
 - `clean.json`, `clean-dark.json` — colors, font, icons (`i/`, `id/` for dark), avatars (`a/`).
 - `clean.css` + `main.js` — layout; active only while Clean or Clean Dark is selected.
 
+## Contributing
+
+Read [DESIGN.md](DESIGN.md) first: it lists the rules the theme keeps (light, modern, consistent) and what a pull
+request has to include — screenshots of every changed screen, light and dark. One pull request, one question.
+
 ## Credits
 
 - Icons by [Icons8](https://icons8.com) (Forma Regular).
