@@ -546,6 +546,7 @@ export default function register(hub) {
     btn.hidden = !present.length && !st.sel.size;
     if (!kindsPop) return;
     const pop = kindsPop, list = pop.querySelector(".clean-kinds-list");
+    const held = list.contains(document.activeElement) ? document.activeElement.dataset.kind : null;   // rows are rebuilt — keep keyboard focus on the same box
     list.replaceChildren();
     const row = (id, label, on_) => {
       const l = hub.el("label", "clean-kinds-row");
@@ -562,6 +563,7 @@ export default function register(hub) {
     };
     list.append(row("all", kt("all"), !st.sel.size));
     for (const k of present) list.append(row(k, kt(k), st.sel.has(k)));
+    if (held) list.querySelector(`input[data-kind="${held}"]`)?.focus({ preventScroll: true });
     const empty = pop.querySelector(".clean-kinds-empty");
     empty.hidden = !(st.sel.size && st.total && !st.shown);
     pop.querySelector(".clean-kinds-reset").hidden = empty.hidden;
