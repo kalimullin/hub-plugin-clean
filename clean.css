@@ -356,19 +356,28 @@ html.th-clean main > .head .pill:is([data-s="idle"], .idle, .free) { color: var(
 html.th-clean main > .head .pill:is([data-s="busy"], [data-s="starting"]) { color: var(--c-busy); background: var(--c-busy-bg); }
 html.th-clean main > .head .pill:is([data-s="dialog"], [data-s="failed"]) { color: #fff; background: var(--c-alert); }
 html.th-clean main > .head .chip { background: var(--c-fill); box-shadow: none; color: var(--c-t1); }
-html.th-clean main > .head .chip:hover { background: var(--c-badge); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean main > .head .chip:hover { background: var(--c-badge); }
+}
 /* «2 задачи в расписании · через 29 мин» — ссылка-бейдж как остальные: без подчёркивания (при наведении темнее подложка),
    значок часов 12 через 4 от слов, цвет значка — текста бейджа (main.js переводит его в маску) */
-html.th-clean main > .head .chip.sched { gap: 4px; text-decoration: none; }
-html.th-clean main > .head .chip.sched .chip-glyph { flex: none; width: 12px; height: 12px; margin: 0; vertical-align: 0; color: var(--c-t2); }
+html.th-clean main > .head .chip.sched { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; text-decoration: none; line-height: 16px; }   /* inline-block, не flex: у flex текст в безымянном узле, многоточия нет; полный текст — title ядра */
+html.th-clean main > .head .chip.sched .chip-glyph { display: inline-block; width: 12px; height: 12px; margin: 0 4px 0 0; vertical-align: -2px; color: var(--c-t2); }
 /* «В фоне · 19 мин» — чип рядом со статусом, размер и подложка как у «3 задачи в расписании»; длинное — многоточием внутри
    (.clean-bg-t), полный текст — по наведению и с клавиатуры (подсказка своя, не title: родной висит) */
 html.th-clean main > .head .clean-bg { position: relative; flex: 0 1 auto; min-width: 0; max-width: 320px; cursor: default; }
-html.th-clean main > .head .clean-bg:hover { background: var(--c-fill); }   /* не кнопка: подложка при наведении не темнеет */
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean main > .head .clean-bg:hover { background: var(--c-fill); }
+}   /* не кнопка: подложка при наведении не темнеет */
 html.th-clean main > .head .clean-bg-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-html.th-clean main > .head .clean-bg:is(:hover, :focus-visible)::after { content: attr(data-tip); position: absolute; z-index: 20; top: calc(100% + 6px); left: 0;
+html.th-clean main > .head .clean-bg:is(:focus-visible)::after { content: attr(data-tip); position: absolute; z-index: 20; top: calc(100% + 6px); left: 0;
   width: max-content; max-width: min(360px, calc(100vw - 32px)); padding: 8px 12px; border-radius: 8px; background: var(--card, var(--background)); color: var(--c-t1);
   box-shadow: var(--shadow-lift), 0 0 0 1px var(--border); font: 400 12px/16px var(--font); white-space: pre-line; overflow-wrap: anywhere; pointer-events: none; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean main > .head .clean-bg:is(:hover)::after { content: attr(data-tip); position: absolute; z-index: 20; top: calc(100% + 6px); left: 0;
+  width: max-content; max-width: min(360px, calc(100vw - 32px)); padding: 8px 12px; border-radius: 8px; background: var(--card, var(--background)); color: var(--c-t1);
+  box-shadow: var(--shadow-lift), 0 0 0 1px var(--border); font: 400 12px/16px var(--font); white-space: pre-line; overflow-wrap: anywhere; pointer-events: none; }
+}
 /* шапка — одна строка и при открытом правом сайдбаре: пороги — по ширине самой шапки (container query), не окна.
    Порядок сжатия от наименее важного: заметка → значок «⋯» с подсказкой; «Кратко | Подробно» → в «Ещё»; «Лента | Доска» → в «Ещё»
    (пункты кладёт main.js headFold; пока меню закрыто, слова в шапке скрыты, а не удалены — ядро их перерисует само).
@@ -379,6 +388,7 @@ html.th-clean main > .head .clean-bg:is(:hover, :focus-visible)::after { content
   html.th-clean main > .head :is(.pill, .seg, .menu-wrap, .fs-lupa, .btn) { flex: none; }
   html.th-clean main > .head .clean-bg { flex: 0 100 auto; min-width: 72px; }
   html.th-clean main > .head .spacer { flex: 1 1 0; min-width: 0; }
+  html.th-clean main > .head > .chips { flex: 0 100 auto; min-width: 56px; }   /* чип расписания сжимается многоточием наравне с заметкой, а не исчезает первым (у ядра basis 0) */
   @container hd (max-width: 912px) {
     html.th-clean main > .head .clean-bg { flex: none; width: 24px; min-width: 0; padding: 0; justify-content: center; }
     html.th-clean main > .head .clean-bg .clean-bg-t { display: none; }
@@ -398,7 +408,10 @@ html.th-clean main > .head .seg .ce-n { display: inline-block; height: 16px; mar
   font: 500 12px/16px var(--font); color: var(--c-t1); opacity: .5; vertical-align: top; }
 /* лупа — значок по центру кнопки 24 (ядро ставит его к левому краю), на одной оси с «Кратко | Подробно» и «Ещё» */
 html.th-clean main > .head .fs-lupa { display: grid; place-items: center; width: 24px; height: 24px; min-height: 0; padding: 0; border-radius: 8px; color: var(--c-t3); }
-html.th-clean main > .head .fs-lupa:hover, html.th-clean main > .head .fs-lupa[aria-pressed="true"] { color: var(--c-t1); background: var(--c-fill); }
+html.th-clean main > .head .fs-lupa[aria-pressed="true"] { color: var(--c-t1); background: var(--c-fill); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean main > .head .fs-lupa:hover { color: var(--c-t1); background: var(--c-fill); }
+}
 html.th-clean main > .head .fs-lupa .icon { width: 16px; height: 16px; color: inherit; }
 /* «Ещё» (DS Dropdown Text Small): 12/16, шеврон вниз 12 — у всех выпадающих (модель, усилие, «Ещё») один, маленький */
 html.th-clean main > .head .menu-wrap > .menu-btn { min-height: 0; height: 24px; padding: 4px 6px 4px 8px; gap: 4px; border-radius: 8px;
@@ -418,7 +431,9 @@ html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn[aria-expanded="tr
 /* остальные кнопки шапки («Остановить», «Поднять») — в масштабе соседних контролов: 24, 12/16, серая подложка без рамки */
 html.th-clean main > .head > .btn:not(.quiet) { min-height: 0; height: 24px; padding: 4px 8px; gap: 4px; border: 0; border-radius: 8px;
   box-shadow: none; background: var(--c-fill); font: 500 12px/16px var(--font); color: var(--c-t1); }
-html.th-clean main > .head > .btn:not(.quiet):hover { background: var(--c-badge); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean main > .head > .btn:not(.quiet):hover { background: var(--c-badge); }
+}
 html.th-clean main > .head > .btn:not(.quiet) .icon { width: 12px; height: 12px; }
 /* «Остановить» на компьютере не нужна: остановка — Esc, подсказка — в строке «Работает»; на телефоне Esc нет */
 @media (min-width: 761px) {
@@ -1149,7 +1164,10 @@ html.th-clean .pal-reset:disabled { display: none; }
   html.th-clean main > .head .clean-bg { max-width: 108px; }   /* шапка на телефоне — две строки; во второй чип с «Кратко | Подробно», лупой и «Ещё» должен остаться в ней */
   html.th-clean main > .head { position: relative; }
   html.th-clean main > .head .clean-bg { position: static; }   /* подсказка — во всю ширину шапки, а не от края чипа: он у правого края */
-  html.th-clean main > .head .clean-bg:is(:hover, :focus-visible)::after { left: 8px; right: 8px; top: calc(100% + 4px); width: auto; max-width: none; }
+  html.th-clean main > .head .clean-bg:is(:focus-visible)::after { left: 8px; right: 8px; top: calc(100% + 4px); width: auto; max-width: none; }
+@media (hover: hover) and (pointer: fine) {
+    html.th-clean main > .head .clean-bg:is(:hover)::after { left: 8px; right: 8px; top: calc(100% + 4px); width: auto; max-width: none; }
+  }
   html.th-clean .feed { padding: 16px 16px 24px; }
   html.th-clean .row.out > .b { padding-right: 0; }
   html.th-clean .dock { padding: 0 12px calc(8px + env(safe-area-inset-bottom, 0px)); }
@@ -1191,7 +1209,9 @@ html.th-clean .board-col h3 .n { flex: none; height: 16px; padding: 0 4px; borde
 html.th-clean .board-col .hint { margin: 0; font: 400 12px/16px var(--font); color: var(--c-t2); }
 html.th-clean .board-card { gap: 4px; padding: 12px 16px; border: 0; border-radius: 12px; background: var(--background); box-shadow: 0 0 0 1px var(--c-line);
   font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); transition: background-color 150ms ease, box-shadow 150ms ease; }
-html.th-clean .board-card:hover { background: var(--c-hover); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .board-card:hover { background: var(--c-hover); }
+}
 html.th-clean .board-card.open { box-shadow: 0 0 0 1px var(--c-line-strong); }
 html.th-clean .board-card .meta { font: 400 12px/16px var(--font); color: var(--c-t2); overflow-wrap: anywhere; }
 html.th-clean .board-card .t { font: 400 14px/20px var(--font); overflow-wrap: anywhere; }
@@ -1204,14 +1224,18 @@ html.th-clean .board-detail { margin: 0; padding: 12px 16px; border: 0; border-r
 /* «Без карточки»: «за сутки» — серым текстом, не бейджем; пояснение 12/16 целиком; длинная цель — до трёх строк */
 html.th-clean .board-unlinked h3 .n { height: auto; padding: 0; background: none; opacity: 1; font: 400 14px/20px var(--font); color: var(--c-t2); }
 html.th-clean .board-unlinked .board-card.static { cursor: default; }
-html.th-clean .board-unlinked .board-card.static:hover { background: var(--background); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .board-unlinked .board-card.static:hover { background: var(--background); }
+}
 html.th-clean .board-unlinked .board-card .t { -webkit-line-clamp: 3; }
 /* сводка направления над колонками (main.js boardRecap): 12/16, «Спросить» — тихая кнопка в строке */
 html.th-clean .clean-recap { margin: 0 0 24px; font: 400 12px/20px var(--font); color: var(--c-t2); overflow-wrap: anywhere; text-wrap: pretty; }
 html.th-clean .clean-recap > * { margin-right: 8px; }
 html.th-clean .clean-recap .dir-wait:not(.muted) { color: var(--c-t1); }
 html.th-clean .clean-recap .btn { display: inline-flex; vertical-align: top; height: 20px; min-height: 0; padding: 0 8px; border-radius: 6px; font: 500 12px/16px var(--font); color: var(--c-t1); background: var(--c-fill); }
-html.th-clean .clean-recap .btn:hover:not(:disabled) { background: var(--c-badge); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .clean-recap .btn:hover:not(:disabled) { background: var(--c-badge); }
+}
 html.th-clean .clean-recap .btn:disabled { color: var(--c-t2); background: none; padding-inline: 0; }
 @media (max-width: 760px) {
   html.th-clean .board { grid-template-columns: minmax(0, 1fr); }
