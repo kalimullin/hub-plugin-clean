@@ -422,7 +422,7 @@ html.th-clean .md :is(strong, b, h1, h2, h3, h4, h5, h6) { font-weight: 500; }
 html.th-clean .md :is(h1, h2, h3, h4, h5, h6) { font-size: 14px; line-height: 20px; margin-block: 0 12px; }
 html.th-clean .md :not(pre) > code { font: 400 13px/1 var(--font-code); color: var(--c-t1); background: none; padding: 0; }
 /* код в тексте (адрес, путь, команда) — той же тихой плашкой, что ссылки, цветом текста: синим он читался как ссылка.
-   Цвет плашки — code-bg темы: ядро даёт им плашку и в «Файлах» (панель справа); здесь — те же поля, что
+   Плашка — тем же цветом, что у ссылок (ядро даёт код плашку и в «Файлах» (панель справа)); здесь — те же поля, что
    у ссылок, вместо тени ядра. Код внутри ссылки — без своей плашки, плашка у ссылки */
 html.th-clean .md :not(pre, a) > code { padding: 0 2px; border-radius: 4px; background: var(--c-fill); box-shadow: none; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 html.th-clean .md a code { background: none; box-shadow: none; }
