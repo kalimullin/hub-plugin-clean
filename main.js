@@ -416,10 +416,14 @@ export default function register(hub) {
       const acc = snap?.accounts?.on ? snap?.account?.active : null;
       if (acc) line.append(hub.el("span", "limseg limacc", acc));
       const now = Date.now() / 1000;
+      // цвет процента — как LimitsBlock.tone в нативе: экономия — жёлтый (красного и оранжевого «кончается» в ней нет),
+      // иначе 95%+ и «не работает» (limits.status = rejected) — красный, 80–95% — оранжевый, остальное — серый
+      const stopped = snap?.limits?.status === "rejected", eco = !!snap?.economy?.on;
+      const tone = (u) => eco ? "eco" : stopped || u >= 95 ? "high" : u >= 80 ? "warn" : "ok";
       for (const [name, w] of wins) {
         const used = w.resets && w.resets < now ? 0 : Math.round(w.used * 100);
         const seg = hub.el("span", "limseg");
-        seg.dataset.level = used >= 80 ? "high" : "ok";
+        seg.dataset.tone = tone(used);
         if (w.resets && w.resets > now) seg.title = new Date(w.resets * 1000).toLocaleString(hub.locale || undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
         const [k, fb] = SHORT[name] || [name, name];
         seg.append(hub.el("span", "limname", T(k, fb)), hub.el("span", "limpct", `${used}%`));

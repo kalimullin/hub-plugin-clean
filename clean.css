@@ -26,6 +26,7 @@ html.th-clean {
   --c-ink: light-dark(#000, #fff);                                         /* точки «работает»: этим цветом с прозрачностью */
   --c-alert: light-dark(#ef4e4e, #cf3a3a);   /* красная заливка с белым текстом: в тёмной 4,9:1 */
   --c-free: light-dark(#1fb141, #4cd46a); --c-free-bg: light-dark(#e7f9eb, #173a22);
+  --c-eco: light-dark(#876200, #ffd60a);   /* жёлтый «режима экономии» в блоке расхода: тёмная охра на светлом (4,5:1+), яркий жёлтый на тёмном */
   --c-busy: light-dark(#a35d1c, #f2b25a); --c-busy-bg: light-dark(#fffbea, #3a2c12);
   --c-key: 0 0 0 1px light-dark(#18181b0d, #ffffff14), 0 1px 2px light-dark(#18181b0d, #0000004d);   /* белая клавиша */
   --c-field: 0 0 2px light-dark(#18181b12, #00000066), 0 2px 4px light-dark(#18181b0a, #0000004d), 0 8px 20px light-dark(#18181b1f, #00000080);
@@ -142,9 +143,13 @@ html.th-clean .aside-foot .slot-sidebar-footer { display: flex; justify-content:
 html.th-clean .clean-lim { display: inline-flex; flex-wrap: nowrap; gap: 6px 12px; font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t3); }
 html.th-clean .clean-lim .limseg { display: inline-flex; gap: 6px; white-space: nowrap; }
 html.th-clean .clean-lim .limacc { display: none; }
-html.th-clean .clean-lim .limname { color: var(--c-t3); }
-html.th-clean .clean-lim .limpct { font-weight: 500; color: var(--c-t1); }
-html.th-clean .clean-lim .limseg[data-level="high"] .limpct { color: var(--destructive); }
+html.th-clean .clean-lim .limname { color: var(--muted-foreground); }   /* подписи «5 ч» / «неделя»: --c-t3 (28%) на светлом был слабым по контрасту */
+/* цвет процента — по состоянию, как в нативе (LimitsBlock.tone): обычный — тёмно-серый, 80–95% — оранжевый, 95%+ и «не работает» — красный,
+   экономия — жёлтый; синего и зелёного нет. Состояние ставит main.js в data-tone */
+html.th-clean .clean-lim .limpct { font-weight: 500; color: var(--muted-foreground); }
+html.th-clean .clean-lim .limseg[data-tone="warn"] .limpct { color: var(--warning); }
+html.th-clean .clean-lim .limseg[data-tone="high"] .limpct { color: var(--destructive); }
+html.th-clean .clean-lim .limseg[data-tone="eco"] .limpct { color: var(--c-eco); }
 html.th-clean .clean-lim.limlink { cursor: pointer; }
 html.th-clean main .status .limline { display: none; }
 
