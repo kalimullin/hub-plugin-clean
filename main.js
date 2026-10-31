@@ -263,6 +263,24 @@ export default function register(hub) {
     }
     menu.prepend(...items);
   };
+  // Сводка направления на «Доске»: ядро кладёт её в шапку (.head-meta > .dir-recap), CSS прячет — шапка не растёт; здесь она же
+  // встаёт первой строкой тела доски и листается с ней. Копия, не перенос: ядро перерисовывает шапку на каждом снимке;
+  // кнопки копии нажимают кнопки оригинала (он остаётся в DOM скрытым)
+  const boardRecap = () => {
+    const body = document.querySelector("main > .boards-body"), src = document.querySelector("main > .head .head-meta > .dir-recap");
+    const mine = body?.querySelector(":scope > .clean-recap");
+    if (!body || !src) { mine?.remove(); return; }
+    const sig = src.outerHTML;
+    if (mine?.dataset.sig === sig) return;
+    const copy = src.cloneNode(true);
+    copy.className = "clean-recap";
+    copy.dataset.sig = sig;
+    copy.querySelectorAll("button").forEach((b, i) => b.addEventListener("click", () => {
+      document.querySelectorAll("main > .head .head-meta > .dir-recap button")[i]?.click();
+      b.disabled = true;
+    }));
+    if (mine) mine.replaceWith(copy); else body.prepend(copy);
+  };
   setInterval(() => { if (on()) headNote(); }, 20000);   // минуты идут и без перерисовки ядра
   const unAvatars = () => {
     for (const av of document.querySelectorAll(".byline .av[data-clean-av]")) { delete av.dataset.cleanAv; av.style.removeProperty("--clean-av"); }
@@ -426,6 +444,7 @@ export default function register(hub) {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
     avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); headFold();
+    boardRecap();
   };
   let queued = false;   // лента меняется часто — не чаще кадра
   new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; sweep(); }); } }).observe(document.body, { childList: true, subtree: true, characterData: true });
@@ -507,7 +526,7 @@ export default function register(hub) {
         unmaskIcons(); unAvatars(); fade(); feedEnd(); unPlaceholders(); unPlate();
         for (const h of document.querySelectorAll(".chat-head[data-clean-label]")) { h.removeAttribute("aria-label"); h.removeAttribute("title"); delete h.dataset.cleanLabel; }
 
-        for (const x of document.querySelectorAll(".search-row .clean-x, .clean-bg, .clean-fold, .clean-fold-show, .clean-send, .clean-bars, .ce-n")) x.remove();
+        for (const x of document.querySelectorAll(".search-row .clean-x, .clean-bg, .clean-fold, .clean-fold-show, .clean-send, .clean-bars, .ce-n, .clean-recap")) x.remove();
       }
       hub.redraw?.();
     }

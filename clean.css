@@ -349,19 +349,11 @@ html.th-clean main > .head .clean-bg:is(:hover, :focus-visible)::after { content
   @container hd (max-width: 752px) { html.th-clean main > .head > .seg.clean-view { display: none; } }
   @container hd (max-width: 512px) { html.th-clean main > .head > .seg.clean-board { display: none; } }
 }
-/* строка «Доска: открыто 3 · ждала: … · Спросить, чего ждёт» (ядро, dir-recap) не лежит под шапкой ленты: шапка — одна строка.
-   Число открытых — бейджем на вкладке «Доска» (main.js), сама строка и кнопка «Спросить» — на доске, целиком и с переносом */
-/* всё, что ядро кладёт строкой под шапку (фоновая работа, «станет мини-хабом…», сводка направления), в ленте скрыто целиком:
-   шапка — одна строка. Фоновая работа и заметки мини-хаба — чипом рядом со статусом (main.js headNote) */
+/* всё, что ядро кладёт строкой под шапку (фоновая работа, «станет мини-хабом…», сводка направления), скрыто целиком:
+   шапка — одна строка и на «Ленте», и на «Доске» (высота одна, переключатель её не двигает). Фоновая работа и заметки
+   мини-хаба — чипом рядом со статусом (main.js headNote); сводка направления «Доска: открыто 3 · …» с кнопкой «Спросить» —
+   первой строкой тела доски (main.js boardRecap), листается вместе с ней */
 html.th-clean main > .head .head-meta { display: none; }
-html.th-clean main:has(> .boards-body) > .head { padding-top: 12px; }
-html.th-clean main:has(> .boards-body) > .head .head-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 0 0 12px;
-  white-space: normal; overflow: visible; }
-html.th-clean main:has(> .boards-body) > .head .head-meta > * { overflow: visible; text-overflow: clip; }
-html.th-clean main:has(> .boards-body) > .head .head-meta > :not(.dir-recap) { display: none; }
-html.th-clean main:has(> .boards-body) > .head .dir-recap { display: block; font: 400 12px/20px var(--font); }
-html.th-clean main:has(> .boards-body) > .head .dir-recap > * { display: inline; overflow: visible; text-overflow: clip; margin-right: 6px; }
-html.th-clean main:has(> .boards-body) > .head .dir-recap > .btn { display: inline-flex; vertical-align: top; height: 20px; }
 /* число открытых задач на «Доске» — как счётчик вкладок */
 html.th-clean main > .head .seg .ce-n { display: inline-block; height: 16px; margin-left: 4px; padding: 0 4px; border-radius: 4px; background: var(--c-badge);
   font: 500 12px/16px var(--font); color: var(--c-t1); opacity: .5; vertical-align: top; }
@@ -1048,7 +1040,7 @@ html.th-clean .pal-reset:disabled { display: none; }
 }
 
 /* ---- фокус с клавиатуры: плоские плашки темы без тени — кольцо явно ---- */
-html.th-clean :is(.srow, .active-bar button, .navmenu, .clean-fold, .clean-fold-show, .seg button, .fork-toggle, .sgroup-h, .gmore, .btn, .chat-head, .clean-lim, .clean-x, .linkbtn, .gpop-i, .md .code-copy):focus-visible {
+html.th-clean :is(.srow, .active-bar button, .navmenu, .clean-fold, .clean-fold-show, .seg button, .fork-toggle, .sgroup-h, .gmore, .btn, .chat-head, .clean-lim, .clean-x, .linkbtn, .gpop-i, .md .code-copy, .board-card):focus-visible {
   outline: 2px solid var(--c-ring); outline-offset: 2px; }
 
 /* ---- тихие hover и focus: синего нет ни у наведения, ни у фокуса; подложка --c-hover/--c-fill, рамка --c-line-strong,
@@ -1062,3 +1054,43 @@ html.th-clean :is(:focus-visible, .opt.pick:has(input:focus-visible), .opt-previ
 html.th-clean :is(main > .head :is(.chip, .back, .fs-lupa), .seg button):focus-visible { outline-offset: -2px; }
 /* полоса ширины списка: с клавиатуры — серой линией --c-ring, не цветом ядра */
 html.th-clean .grip:focus-visible::after { background: var(--c-ring); }
+
+/* ---- «Доска» направления (ядро boards.js): колонки по статусам, карточки задач, колонка «Без карточки». Шкала ленты:
+   14/20 и 12/16, цвета --c-*, карточки r12 с рамкой в 1 px --c-line (как поле и меню), наведение — подложка --c-hover,
+   выбранная — рамка --c-line-strong, кольцо с клавиатуры — серое. Колонки не уходят за правый край: не влезают в ряд — переносятся ---- */
+html.th-clean .board { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: repeat(auto-fit, minmax(256px, 1fr)); gap: 24px 16px; padding-bottom: 0; }
+html.th-clean .board-col { gap: 8px; align-content: start; }
+html.th-clean .board-col h3 { display: flex; align-items: center; gap: 8px; min-height: 24px; margin: 0 0 4px; font: 600 14px/20px var(--font); color: var(--c-t1); }
+/* число задач — как счётчик вкладок: бейдж 16 r4 */
+html.th-clean .board-col h3 .n { flex: none; height: 16px; padding: 0 4px; border-radius: 4px; background: var(--c-badge); opacity: .5;
+  font: 500 12px/16px var(--font); color: var(--c-t1); }
+html.th-clean .board-col .hint { margin: 0; font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .board-card { gap: 4px; padding: 12px 16px; border: 0; border-radius: 12px; background: var(--background); box-shadow: 0 0 0 1px var(--c-line);
+  font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); transition: background-color 150ms ease, box-shadow 150ms ease; }
+html.th-clean .board-card:hover { background: var(--c-hover); }
+html.th-clean .board-card.open { box-shadow: 0 0 0 1px var(--c-line-strong); }
+html.th-clean .board-card .meta { font: 400 12px/16px var(--font); color: var(--c-t2); overflow-wrap: anywhere; }
+html.th-clean .board-card .t { font: 400 14px/20px var(--font); overflow-wrap: anywhere; }
+/* «исполнителя нет» / «работает …» / «сдал, не принято»: плашка r8 внутри карточки, подпись 12/16 */
+html.th-clean .board-fact { gap: 0; margin: 4px -8px -4px; padding: 8px; border-radius: 8px; background: var(--c-fill); font: 400 12px/16px var(--font); color: var(--c-t2); overflow-wrap: anywhere; }
+html.th-clean .board-fact b { font: 500 12px/16px var(--font); color: var(--c-t1); }
+html.th-clean .board-fact.working { background: var(--c-free-bg); }
+html.th-clean .board-fact.unsorted { background: var(--c-busy-bg); }
+html.th-clean .board-detail { margin: 0; padding: 12px 16px; border: 0; border-radius: 12px; background: var(--c-fill); font: 400 14px/20px var(--font); overflow-wrap: anywhere; }
+/* «Без карточки»: «за сутки» — серым текстом, не бейджем; пояснение 12/16 целиком; длинная цель — до трёх строк */
+html.th-clean .board-unlinked h3 .n { height: auto; padding: 0; background: none; opacity: 1; font: 400 14px/20px var(--font); color: var(--c-t2); }
+html.th-clean .board-unlinked .board-card.static { cursor: default; }
+html.th-clean .board-unlinked .board-card.static:hover { background: var(--background); }
+html.th-clean .board-unlinked .board-card .t { -webkit-line-clamp: 3; }
+/* сводка направления над колонками (main.js boardRecap): 12/16, «Спросить» — тихая кнопка в строке */
+html.th-clean .clean-recap { margin: 0 0 24px; font: 400 12px/20px var(--font); color: var(--c-t2); overflow-wrap: anywhere; text-wrap: pretty; }
+html.th-clean .clean-recap > * { margin-right: 8px; }
+html.th-clean .clean-recap .dir-wait:not(.muted) { color: var(--c-t1); }
+html.th-clean .clean-recap .btn { display: inline-flex; vertical-align: top; height: 20px; min-height: 0; padding: 0 8px; border-radius: 6px; font: 500 12px/16px var(--font); color: var(--c-t1); background: var(--c-fill); }
+html.th-clean .clean-recap .btn:hover:not(:disabled) { background: var(--c-badge); }
+html.th-clean .clean-recap .btn:disabled { color: var(--c-t2); background: none; padding-inline: 0; }
+@media (max-width: 760px) {
+  html.th-clean .board { grid-template-columns: minmax(0, 1fr); }
+  html.th-clean .clean-recap { margin-bottom: 16px; }
+  html.th-clean .clean-recap .btn { height: 32px; padding: 0 12px; margin-block: -6px; }   /* палец: кнопка 32, строка по-прежнему 20 */
+}
