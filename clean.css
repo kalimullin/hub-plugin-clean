@@ -138,9 +138,13 @@ html.th-clean .nav-pop .srow.nav .nm { font: 400 14px/20px var(--font); letter-s
 /* лимиты: «5 ч» серым 28%, «10%» Medium; подписи аккаунта нет — клик ведёт к лимитам всех аккаунтов */
 html.th-clean .aside-foot { min-height: 56px; padding: 12px 12px 8px 60px; display: flex; align-items: center; justify-content: flex-end; }
 html.th-clean .aside-foot .counts { display: none; }
-html.th-clean .aside-foot .slot-sidebar-footer { display: flex; justify-content: flex-end; }
-html.th-clean .clean-lim { display: inline-flex; flex-wrap: nowrap; gap: 6px 12px; font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t3); }
-html.th-clean .clean-lim .limseg { display: inline-flex; gap: 6px; white-space: nowrap; }
+html.th-clean .aside-foot .slot-sidebar-footer { display: flex; justify-content: flex-end; flex: 1 1 0; min-width: 0; }
+/* строка не выходит за свои поля (слева — ☰ с точкой): окна, что не влезли целиком, переносятся на вторую строку и срезаются
+   (высота ровно одна строка), первые — «5 ч» и «неделя» — остаются; полный список — в подсказке строки */
+html.th-clean .clean-lim { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; height: 20px; overflow: hidden; min-width: 0; max-width: 100%; gap: 20px 12px; font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t3); }
+html.th-clean .clean-lim .limseg { display: inline-flex; gap: 6px; white-space: nowrap; min-width: 0; }
+html.th-clean .clean-lim .limname { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+html.th-clean .clean-lim .limpct { flex: none; }
 html.th-clean .clean-lim .limacc { display: none; }
 html.th-clean .clean-lim .limname { color: var(--c-t3); }
 html.th-clean .clean-lim .limpct { font-weight: 500; color: var(--c-t1); }

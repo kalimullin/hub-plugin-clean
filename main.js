@@ -431,12 +431,15 @@ export default function register(hub) {
   new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; sweep(); }); } }).observe(document.body, { childList: true, subtree: true, characterData: true });
 
   // лимиты — внизу боковой панели (место sidebar.footer), из снимка ядра: «corp  5 ч 10%  неделя 1%»; доля и сброс — в подсказке
+  // окно без названия (шлюз присылает новые, например seven_day_overage_included) в строку не попадает — сырой ключ вместо подписи хуже, чем ничего
   const SHORT = { five_hour: ["web.limits.short_five_hour", "5 ч"], seven_day: ["web.limits.short_week", "неделя"],
     seven_day_opus: ["web.limits.short_week_opus", "Opus"], seven_day_sonnet: ["web.limits.short_week_sonnet", "Sonnet"] };
+  const FULL = { five_hour: ["web.limits.name_five_hour", "5 часов"], seven_day: ["web.limits.name_week", "Неделя"],
+    seven_day_opus: ["web.limits.name_week_opus", "Неделя · Opus"], seven_day_sonnet: ["web.limits.name_week_sonnet", "Неделя · Sonnet"] };
   hub.addSlot("sidebar.footer", {
     id: "clean-limits",
     render(root, snap) {
-      const wins = on() ? Object.entries(snap?.limits?.windows || {}).filter(([, w]) => typeof w.used === "number") : [];
+      const wins = on() ? Object.entries(snap?.limits?.windows || {}).filter(([name, w]) => name in SHORT && typeof w.used === "number") : [];
       if (!wins.length) { root.replaceChildren(); return; }
       const order = Object.keys(SHORT);
       wins.sort(([a], [b]) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99));
@@ -448,11 +451,14 @@ export default function register(hub) {
         const used = w.resets && w.resets < now ? 0 : Math.round(w.used * 100);
         const seg = hub.el("span", "limseg");
         seg.dataset.level = used >= 80 ? "high" : "ok";
-        if (w.resets && w.resets > now) seg.title = new Date(w.resets * 1000).toLocaleString(hub.locale || undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
-        const [k, fb] = SHORT[name] || [name, name];
+        const reset = w.resets && w.resets > now ? new Date(w.resets * 1000).toLocaleString(hub.locale || undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
+        seg.dataset.full = T(...FULL[name]);
+        seg.title = seg.dataset.full + (reset ? ` · ${reset}` : "");   // в строке — короткие названия; полное имя и сброс — в подсказке
+        const [k, fb] = SHORT[name];
         seg.append(hub.el("span", "limname", T(k, fb)), hub.el("span", "limpct", `${used}%`));
         line.append(seg);
       }
+      line.title = [...line.querySelectorAll(".limseg[data-full]")].map((x) => `${x.dataset.full} ${x.querySelector(".limpct").textContent}`).join(" · ");
       if (acc) {   // аккаунты работают: клик — лимиты всех аккаунтов
         line.classList.add("limlink");
         line.tabIndex = 0;
