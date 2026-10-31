@@ -57,7 +57,9 @@ html.th-clean .clean-fold, html.th-clean .clean-fold-show { flex: none; width: 3
   border: 0; border-radius: 8px; background: none; color: var(--c-t2); cursor: pointer; }
 html.th-clean :is(.clean-fold, .clean-fold-show)::before { content: ""; width: 16px; height: 16px; background: currentColor;
   -webkit-mask: url("sidebar.svg") center / 16px no-repeat; mask: url("sidebar.svg") center / 16px no-repeat; }
-html.th-clean :is(.clean-fold, .clean-fold-show):hover { background: var(--c-hover); color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean :is(.clean-fold, .clean-fold-show):hover { background: var(--c-hover); color: var(--c-t1); }
+}
 html.th-clean .clean-fold-show { display: none; position: absolute; left: 22px; top: 18px; z-index: 3; }
 html.th-clean .app.left-folded .clean-fold-show { display: grid; }
 html.th-clean .app.left-folded main > .head { padding-left: 56px; }
@@ -77,7 +79,9 @@ html.th-clean .search .clean-x { position: absolute; right: 6px; top: 50%; width
   display: grid; place-items: center; border: 0; border-radius: 8px; background: none; color: var(--c-t2); cursor: pointer; }
 html.th-clean .search .clean-x::before { content: ""; width: 12px; height: 12px; background: currentColor;
   -webkit-mask: url("failed.svg") center / 12px no-repeat; mask: url("failed.svg") center / 12px no-repeat; }
-html.th-clean .search .clean-x:hover { background: var(--c-fill); color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .search .clean-x:hover { background: var(--c-fill); color: var(--c-t1); }
+}
 html.th-clean .search:has(#filter:placeholder-shown) .clean-x { display: none; }
 html.th-clean aside:has(#filter:not(:placeholder-shown)) #list .g-tools { display: none; }
 html.th-clean #list > p.hint[data-clean="empty"] { display: grid; justify-items: center; gap: 2px; margin: 40px 12px 0; padding: 0;
@@ -88,7 +92,9 @@ html.th-clean .ce-icon::before { content: ""; width: 20px; height: 20px; backgro
 html.th-clean .ce-title { max-width: 100%; color: var(--c-t1); font: 500 14px/20px var(--font); letter-spacing: -0.1px; overflow-wrap: anywhere; }
 html.th-clean #list .ce-clear { margin-top: 14px; height: 32px; padding: 0 12px; border: 0; border-radius: 8px;
   background: var(--c-fill); color: var(--c-t1); font: 500 12px/16px var(--font); box-shadow: none; }
-html.th-clean #list .ce-clear:hover { background: var(--c-badge); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean #list .ce-clear:hover { background: var(--c-badge); }
+}
 
 /* значки страницы, что нарисованы спрайтом ядра прямо в разметке (поиск, ☰, «Настройки» в меню) — Forma Regular маской */
 html.th-clean svg.icon:is(:has(> use[href$="#i-search"]), :has(> use[href$="#i-menu"]), :has(> use[href$="#i-account"])) { background: currentColor; }
@@ -157,7 +163,9 @@ html.th-clean .active-bar { margin: 0 12px; padding: 2px; gap: 2px; height: 36px
   background: var(--c-fill); box-shadow: none; border: 0; }
 html.th-clean .active-bar button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; min-height: 0;
   padding: 6px 12px; border: 0; border-radius: 6px; font: 500 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); background: transparent; box-shadow: none; }
-html.th-clean .active-bar button:hover { background: var(--c-hover); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .active-bar button:hover { background: var(--c-hover); }
+}
 html.th-clean .active-bar button[aria-pressed="true"] { background: var(--background); box-shadow: none; }
 html.th-clean .c-n { height: 16px; padding: 0 4px; display: inline-grid; place-items: center; border-radius: 4px; background: var(--c-badge);
   font: 500 12px/16px var(--font); color: var(--c-t1); }
@@ -176,7 +184,9 @@ html.th-clean .list[data-clean-fade~="down"] { --fade-bottom: 64px; }
 html.th-clean #list .g-tools { display: flex; flex-direction: column; align-items: stretch; gap: 4px; margin: -12px 0 24px; padding: 0; }
 html.th-clean #list .g-tools .btn { width: 100%; min-height: 0; height: 32px; padding: 0 8px; gap: 8px; justify-content: flex-start; border-radius: 8px;
   font: 400 14px/20px var(--font); color: var(--c-t1); background: var(--c-fill); box-shadow: none; }
-html.th-clean #list .g-tools .btn:hover { background: var(--c-hover); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean #list .g-tools .btn:hover { background: var(--c-hover); }
+}
 html.th-clean details.resting > .btn.danger { min-height: 0; height: 32px; margin: 4px 0 0; padding: 0 8px; gap: 6px; border-radius: 8px; font: 400 12px/16px var(--font); }
 html.th-clean details.resting > .btn.danger .icon { width: 12px; height: 12px; }
 html.th-clean #list .g-tools .btn::before { content: ""; flex: none; width: 16px; height: 16px; background: var(--c-t2);
@@ -191,13 +201,17 @@ html.th-clean .srow .nm { font: 400 14px/20px var(--font); letter-spacing: -0.1p
 html.th-clean :is(.srow:has(> .tag:not(.soft)), .srow:has(> .dot), .srow:has(> .glyph:is([data-s="busy"], [data-s="starting"], [data-s="failed"], [data-s="held"])),
   li.has-forks > .srow) .nm { font-weight: 500; }
 html.th-clean .srow .lb { display: none; }   /* подпись — в подсказке строки */
-html.th-clean .srow:hover { background: var(--c-hover); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .srow:hover { background: var(--c-hover); }
+}
 html.th-clean .srow[aria-current="true"] { background: var(--c-fill); box-shadow: none; }
 /* аватарки и эмодзи в списке — нет (они в ленте); у карточки «Хаб» — своя картинка 24 r6 */
 html.th-clean .list .srow .nm > .avatar { display: none; }
 /* «Хаб» — обычная строка списка: серая плашка только у открытой сессии, как у всех (выбранный таб — один) */
 html.th-clean .list .sgroup.bare .srow { background: none; padding: 6px 8px; min-height: 36px; margin-bottom: 0; }
-html.th-clean .list .sgroup.bare .srow:hover { background: var(--c-hover); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .list .sgroup.bare .srow:hover { background: var(--c-hover); }
+}
 html.th-clean .list .sgroup.bare .srow[aria-current="true"] { background: var(--c-fill); }
 html.th-clean .list .sgroup.bare .srow .nm { display: flex; align-items: center; gap: 8px; font-weight: 500; }
 html.th-clean .list .sgroup.bare .srow .nm > .avatar { display: block; flex: none; width: 24px; height: 24px; border-radius: 6px;
@@ -256,7 +270,11 @@ html.th-clean li.has-forks > .srow.fw-dot::after { padding-right: calc(12px + 6p
 html.th-clean .fork-toggle { right: 8px; height: 16px; min-height: 0; padding: 0 2px 0 4px; gap: 0; border: 0; border-radius: 4px; background: var(--c-badge);
   box-shadow: none; opacity: .4; font: 500 12px/16px var(--font); color: var(--c-t1); }
 html.th-clean li.has-forks:has(> .srow > :is(.dot, .glyph:is([data-s="busy"], [data-s="starting"], [data-s="failed"], [data-s="held"], [data-s="asleep"], [data-s="closed"], [data-s="absent"], [data-s="queued"]))) > .fork-toggle { right: 36px; }
-html.th-clean .fork-toggle:is(:hover, :focus-visible, [aria-expanded="true"]), html.th-clean .fork-toggle:has(.fdot.wants) { opacity: 1; border: 0; }
+html.th-clean .fork-toggle:is(:focus-visible, [aria-expanded="true"]),
+html.th-clean .fork-toggle:has(.fdot.wants) { opacity: 1; border: 0; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .fork-toggle:is(:hover) { opacity: 1; border: 0; }
+}
 html.th-clean .fork-toggle .fdot { width: 3px; height: 3px; margin: 0 2px; background: currentColor; }
 /* шеврон бейджа — 8 в боксе 10: при 12 он был крупнее цифры рядом */
 html.th-clean .fork-toggle .chev { width: 10px; height: 10px; -webkit-mask-size: 8px; mask-size: 8px; }
@@ -269,20 +287,31 @@ html.th-clean .forks > ul { border-left: 0; margin-left: 12px; }
 html.th-clean .sgroup + .sgroup, html.th-clean .sgroup-hw { margin-top: 0; }
 html.th-clean .sgroup { margin-bottom: 24px; }
 html.th-clean .sgroup-h { height: 24px; margin: 0; padding: 4px 4px 4px 8px; gap: 6px; font: 400 12px/16px var(--font); color: var(--c-t3); }
-html.th-clean .sgroup-h:hover { color: var(--c-t2); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .sgroup-h:hover { color: var(--c-t2); }
+}
 html.th-clean .sgroup-h .chev { display: none; }
-html.th-clean .sgroup-h:hover .chev, html.th-clean .sgroup-h:focus-visible .chev, html.th-clean .sgroup-h[aria-expanded="false"] .chev { display: inline-block; }
+html.th-clean .sgroup-h:focus-visible .chev,
+html.th-clean .sgroup-h[aria-expanded="false"] .chev { display: inline-block; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .sgroup-h:hover .chev { display: inline-block; }
+}
 /* значок — ровно по центру кнопки: без полей ядра (1px 6px — значок 16 не помещался в 12 и уходил вправо) и flex, а не
    grid (скрытый символ «⋯» в grid вставал второй строкой и поднимал значок на 2) */
 html.th-clean .gmore { top: 0; right: 4px; width: 24px; height: 24px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
-html.th-clean .gmore:is(:hover, [aria-expanded="true"]) { background: var(--c-fill); color: var(--c-t1); }
+html.th-clean .gmore:is([aria-expanded="true"]) { background: var(--c-fill); color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .gmore:is(:hover) { background: var(--c-fill); color: var(--c-t1); }
+}
 /* контекстные меню списка (группа, сессия) — как остальные меню: без заголовка (вы только что нажали на то, о чём меню),
    r12, отступ 4, пункты 32 r8 14/20; на телефоне — лист снизу, как у ядра */
 html.th-clean .gpop { padding: 4px; border: 0; border-radius: 12px; box-shadow: var(--shadow-lift), 0 0 0 1px var(--border); }
 html.th-clean .gpop.menu > .gpop-t { display: none; }
 html.th-clean .gpop-i { min-height: 32px; padding: 6px 8px; border-radius: 8px; font: 400 14px/20px var(--font); letter-spacing: -0.1px; }
 html.th-clean .gpop-i:not(.danger) { color: var(--c-t1); }
-html.th-clean .gpop-i:hover { background: var(--c-fill); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .gpop-i:hover { background: var(--c-fill); }
+}
 html.th-clean .gpop hr { border-top-color: var(--border); }
 /* меню сообщения по правому клику (ядро, js/ctxmenu.js) — как остальные меню: r12, отступ 4, кольцо 1px вместо рамки (в тёмной
    тема отделяет меню от ленты), пункты 32 r8 14/20, ряд реакций 40 r8; выбранная реакция — плашка --c-fill */
@@ -290,12 +319,17 @@ html.th-clean .ctx-menu { width: 300px; padding: 4px; border-radius: 12px; box-s
 html.th-clean .ctx-menu .cm-row { padding-bottom: 4px; margin-bottom: 4px; }
 html.th-clean .ctx-menu :is(.cm-emoji, .cm-more) { border-radius: 8px; }
 html.th-clean .ctx-menu .cm-more { color: var(--c-t2); }
-html.th-clean .ctx-menu :is(.cm-emoji, .cm-more, .cm-item):hover, html.th-clean .ctx-menu .cm-emoji[aria-pressed="true"] { background: var(--c-fill); }
+html.th-clean .ctx-menu .cm-emoji[aria-pressed="true"] { background: var(--c-fill); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .ctx-menu :is(.cm-emoji, .cm-more, .cm-item):hover { background: var(--c-fill); }
+}
 html.th-clean .ctx-menu .cm-item { min-height: 32px; padding: 6px 8px; border-radius: 8px; gap: 8px; color: var(--c-t1); font: 400 14px/20px var(--font); letter-spacing: -0.1px; }
 html.th-clean .ctx-menu .cm-item .icon { width: 16px; height: 16px; }
 /* поставленная реакция под сообщением: плашка r999 28 без заливки, с тонкой рамкой темы; рамка — по левому краю текста */
 html.th-clean .react-chip { min-height: 28px; padding: 3px 10px; border: 1px solid var(--c-line); border-radius: 999px; background: none; }
-html.th-clean .react-chip:hover { background: var(--c-hover); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .react-chip:hover { background: var(--c-hover); }
+}
 html.th-clean .reactions { margin-top: 6px; }
 
 html.th-clean .gcount { height: 16px; min-width: 0; padding: 0 4px; border-radius: 4px; background: var(--c-badge); opacity: .4;
@@ -392,11 +426,16 @@ html.th-clean .mdp-head { min-height: 56px; padding: 0 12px 0 16px; gap: 8px; bo
 html.th-clean .mdp-name { font: 500 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); }
 html.th-clean .mdp-path { gap: 4px; font: 400 12px/16px var(--font); color: var(--c-t2); }
 html.th-clean .mdp-sep { color: var(--c-t3); opacity: 1; }
-html.th-clean button.mdp-crumb:hover { color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean button.mdp-crumb:hover { color: var(--c-t1); }
+}
 html.th-clean .mdp-acts { gap: 4px; }
 html.th-clean .mdp-acts .btn { display: grid; place-items: center; width: 24px; height: 24px; min-height: 0; padding: 0; border: 0; border-radius: 8px;
   background: transparent; box-shadow: none; color: var(--c-t2); }
-html.th-clean .mdp-acts .btn:hover, html.th-clean .mdp-acts .btn[aria-expanded="true"] { color: var(--c-t1); background: var(--c-fill); }
+html.th-clean .mdp-acts .btn[aria-expanded="true"] { color: var(--c-t1); background: var(--c-fill); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .mdp-acts .btn:hover { color: var(--c-t1); background: var(--c-fill); }
+}
 html.th-clean .mdp-acts .mdp-glyph { width: 16px; height: 16px; min-width: 0; font-size: 0; background: currentColor; }
 html.th-clean .mdp-tab .mdp-glyph { -webkit-mask: url("shortcut.svg") center / 16px no-repeat; mask: url("shortcut.svg") center / 16px no-repeat; }
 html.th-clean .mdp-more .mdp-glyph { -webkit-mask: url("more.svg") center / 16px no-repeat; mask: url("more.svg") center / 16px no-repeat; }
@@ -418,7 +457,9 @@ html.th-clean .mdp-info-path { font: 400 12px/16px var(--font-code, var(--font-m
 html.th-clean .seg { height: 24px; box-sizing: border-box; border: 0; border-radius: 8px; padding: 2px; gap: 2px; overflow: hidden; background: var(--c-fill); }
 html.th-clean .seg button { border: 0; border-radius: 6px; min-height: 0; height: 20px; padding: 2px 8px; font: 500 12px/16px var(--font); color: var(--c-t2); background: transparent; box-shadow: none; }
 html.th-clean .seg button + button { border-left: 0; }
-html.th-clean .seg button:hover { color: var(--c-t1); background: transparent; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .seg button:hover { color: var(--c-t1); background: transparent; }
+}
 html.th-clean .seg button[aria-pressed="true"] { background: var(--background); color: var(--c-t1); box-shadow: none; }
 
 
@@ -450,7 +491,9 @@ html.th-clean .md li > :is(ul, ol) { margin: 4px 0 0; }
    Имя сессии (ядро заворачивает его в code) — шрифтом текста, Medium; путь и адрес в code — моноширинным, цветом текста */
 html.th-clean a:not([class]):not(:has(img, video, svg)) { color: var(--c-t1); text-decoration: none; padding: 0 2px; border-radius: 4px;
   background: var(--c-fill); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
-html.th-clean a:not([class]):not(:has(img, video, svg)):hover { background: var(--c-badge); color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean a:not([class]):not(:has(img, video, svg)):hover { background: var(--c-badge); color: var(--c-t1); }
+}
 html.th-clean .md a:not([class]) code { color: inherit; }
 /* ссылка-картинка (превью вложения): пока картинки нет (файл удалён, не загрузилась), браузер пишет её имя — серым, без
    подчёркивания, а не синей ссылкой */
@@ -459,13 +502,18 @@ html.th-clean .md a[href^="#/s/"] { font-weight: 500; }
 html.th-clean .md a[href^="#/s/"] code { font: inherit; }
 /* текстовые действия («ещё», «свернуть», модель под полем…) — серым 55%, наведение — 90%; подчёркиваний нет нигде */
 html.th-clean .linkbtn { color: var(--c-t2); }
-html.th-clean .linkbtn:hover { color: var(--c-t1); text-decoration: none; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .linkbtn:hover { color: var(--c-t1); text-decoration: none; }
+}
 html.th-clean .clamp-more { margin-top: 4px; font: 400 12px/16px var(--font); }
-html.th-clean :is(.stat-dir, .sched-title .crumb, .job .who-when .who, .plugin-repo, .tool .call .arg a),
-html.th-clean :is(.stat-dir, .sched-title .crumb, .job .who-when .who, .plugin-repo, .tool .call .arg a):hover,
-html.th-clean .tool:hover .call b, html.th-clean .steps-head:hover > span:last-child { text-decoration: none; }
+html.th-clean :is(.stat-dir, .sched-title .crumb, .job .who-when .who, .plugin-repo, .tool .call .arg a) { text-decoration: none; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean :is(.stat-dir, .sched-title .crumb, .job .who-when .who, .plugin-repo, .tool .call .arg a):hover, html.th-clean .tool:hover .call b, html.th-clean .steps-head:hover > span:last-child { text-decoration: none; }
+}
 html.th-clean .row.older .btn { padding: 2px 8px; border: 0; border-radius: 8px; background: var(--c-fill); color: var(--c-t2); font: 400 12px/16px var(--font); }
-html.th-clean .row.older .btn:hover { background: var(--c-badge); color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .row.older .btn:hover { background: var(--c-badge); color: var(--c-t1); }
+}
 
 /* подпись: имя Medium 14/20, время 12/16 серым 28% через 8; «Ответить» — справа в той же строке (при наведении), серым */
 html.th-clean .byline { gap: 8px; font: 500 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); }
@@ -497,8 +545,12 @@ html.th-clean .row > .b > .reply-btn, html.th-clean .row > .b > .reply-box > .me
   box-shadow: none; opacity: 0; transition: opacity 120ms ease; }
 html.th-clean .row > .b > .reply-btn::before, html.th-clean .row > .b > .reply-box > .meta > .reply-btn::before { content: ""; width: 16px; height: 16px;
   background: currentColor; -webkit-mask: url("reply.svg") center / 16px no-repeat; mask: url("reply.svg") center / 16px no-repeat; }
-html.th-clean .row:is(:hover, :focus-within) > .b > .reply-btn, html.th-clean .row:is(:hover, :focus-within) > .b > .reply-box > .meta > .reply-btn { opacity: 1; }
-html.th-clean .row > .b > .reply-btn:hover, html.th-clean .row > .b > .reply-box > .meta > .reply-btn:hover { color: var(--c-t1); background: var(--c-fill); }
+html.th-clean .row:is(:focus-within) > .b > .reply-btn,
+html.th-clean .row:is(:focus-within) > .b > .reply-box > .meta > .reply-btn { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .row:is(:hover) > .b > .reply-btn, html.th-clean .row:is(:hover) > .b > .reply-box > .meta > .reply-btn { opacity: 1; }
+  html.th-clean .row > .b > .reply-btn:hover, html.th-clean .row > .b > .reply-box > .meta > .reply-btn:hover { color: var(--c-t1); background: var(--c-fill); }
+}
 html.th-clean .reply-box > .meta > .clean-dot { display: none; }
 @media (hover: none) {
   html.th-clean .row > .b > .reply-btn, html.th-clean .row > .b > .reply-box > .meta > .reply-btn { opacity: 1; color: var(--c-t3); }
@@ -562,7 +614,9 @@ html.th-clean .tool .call b { font-weight: 500; color: var(--c-t1); }
 html.th-clean .tool .call .arg { color: inherit; }
 html.th-clean .tool .res { color: var(--c-t2); margin-top: 2px; }
 html.th-clean .tool .res .elbow { color: var(--c-t3); }
-html.th-clean .tool:hover .call { color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .tool:hover .call { color: var(--c-t1); }
+}
 html.th-clean .tool pre { padding: 8px 12px; }
 html.th-clean .row:not(.tool):not(.sys) + .row.tool { margin-top: -12px; }
 html.th-clean .row.tool + .row:is(.tool, .sys) { margin-top: -16px; }
@@ -578,7 +632,9 @@ html.th-clean .chat-head { min-height: 48px; padding: 8px 12px 8px 8px; gap: 8px
   letter-spacing: -0.1px; color: var(--c-t2); background: no-repeat center / 100% 100% var(--clean-dash); }
 html.th-clean { --clean-dash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='.75' y='.75' rx='11.25' style='width:calc(100%25 - 1.5px);height:calc(100%25 - 1.5px)' fill='none' stroke='%23000' stroke-opacity='.1' stroke-width='1.5' stroke-dasharray='.1 4.5' stroke-linecap='round'/%3E%3C/svg%3E"); }
 html.th-clean.th-clean-dark { --clean-dash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='.75' y='.75' rx='11.25' style='width:calc(100%25 - 1.5px);height:calc(100%25 - 1.5px)' fill='none' stroke='%23fff' stroke-opacity='.14' stroke-width='1.5' stroke-dasharray='.1 4.5' stroke-linecap='round'/%3E%3C/svg%3E"); }
-html.th-clean .chat-head:hover { background-color: var(--c-hover); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .chat-head:hover { background-color: var(--c-hover); }
+}
 /* карточка — на сетке ленты: рамка выходит за колонки на 8, аватарка и текст — в тех же колонках, что у сообщений и
    строк ошибок (32, через 12 — текст) */
 html.th-clean .chat-group > .b { margin-inline: -8px; }
@@ -594,7 +650,9 @@ html.th-clean .chat-group:has(> .b > .chat-head[aria-expanded="true"]) > .b { po
 html.th-clean .chat-group > .b > .chat-head[aria-expanded="true"] { position: absolute; z-index: 1; top: 8px; right: 8px; width: 32px; min-height: 0; height: 32px;
   padding: 0; justify-content: center; border-radius: 8px; background: none; }
 html.th-clean .chat-group > .b > .chat-head[aria-expanded="true"] > :not(.chat-chev) { display: none; }
-html.th-clean .chat-group > .b > .chat-head[aria-expanded="true"]:hover { background: var(--c-fill); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .chat-group > .b > .chat-head[aria-expanded="true"]:hover { background: var(--c-fill); }
+}
 html.th-clean .chat-group > .b > .chat-head[aria-expanded="true"] > .chat-chev { opacity: 1; color: var(--c-t2); }
 html.th-clean .chat-body { margin: 0; gap: 24px; }
 
@@ -602,7 +660,7 @@ html.th-clean .chat-body { margin: 0; gap: 24px; }
    нижний ряд 32 — слева «+» (заливка) и камера, справа модель ⌄ · усилие ⌄, микрофон и «Отправить» (видна всегда — пустое поле
    с голосом получает кнопку темы, main.js); строка статуса ядра — «язычок» над верхней кромкой (токены · доля · папка).
    Язычок и модель с усилием стоят на якорях (anchor-name на карточке): без их поддержки остаётся прежняя строка под полем ---- */
-html.th-clean .dock { padding: 0 24px 6px; }
+html.th-clean .dock { padding: 0 24px calc(6px + env(safe-area-inset-bottom, 0px)); }   /* env() — запас под viewport-fit=cover; пока его нет у ядра, 0 */
 /* затухание — подложка за полем: от низа окна и на 80 над полем, лента уходит под неё; она позади поля (z -1 в контексте dock),
    поэтому тень и рамка фокуса сверху видны целиком. main.js ведёт --clean-end (0..1) по прокрутке ленты: у самого конца
    затухание сходит на нет, и последнее сообщение читается без дымки (у ленты снизу поле 24) */
@@ -629,14 +687,20 @@ html.th-clean :is(.composer, .dock-inner:has(.vf-slot) form.composer) > .bar.rep
 html.th-clean .composer .reply-chip { height: 24px; display: inline-flex; align-items: center; padding: 0 8px; border: 0; border-radius: 4px;
   background: var(--c-fill); box-shadow: none; font: 400 12px/16px var(--font); color: var(--c-t1); }
 html.th-clean .composer .reply-bar > .btn { min-height: 0; height: 24px; padding: 0 8px; border-radius: 4px; font: 400 12px/16px var(--font); color: var(--c-t2); }
-html.th-clean .composer .reply-bar > .btn:hover { background: var(--c-fill); color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .composer .reply-bar > .btn:hover { background: var(--c-fill); color: var(--c-t1); }
+}
 html.th-clean :is(.btn.round.quiet:is(.attach, .mic), .composer .bar > .btn.round, .vf-slot > .btn.round) { box-sizing: border-box; min-width: 0; min-height: 0; border: 0; }
 html.th-clean .btn.round.quiet:is(.attach, .mic), html.th-clean .composer .bar > .btn.round.quiet { width: 32px; height: 32px; border-radius: 8px; color: var(--muted-foreground); }
 html.th-clean .composer .bar > .btn.round.mic { width: 32px; min-width: 0; height: 32px; padding: 0; border: 0; border-radius: 8px; background: none; color: var(--muted-foreground); }
-html.th-clean :is(.btn.round.quiet:is(.attach, .mic), .composer .bar > .btn.round.mic):hover { background: var(--c-fill); color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean :is(.btn.round.quiet:is(.attach, .mic), .composer .bar > .btn.round.mic):hover { background: var(--c-fill); color: var(--c-t1); }
+}
 html.th-clean .btn.round:is(.attach, .mic) .icon { width: 16px; height: 16px; }
 html.th-clean .btn.round.send { width: 32px; height: 32px; border-radius: 8px; background: var(--foreground); }
-html.th-clean .btn.round.send:hover { background: color-mix(in oklch, var(--foreground) 85%, var(--background)); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .btn.round.send:hover { background: color-mix(in oklch, var(--foreground) 85%, var(--background)); }
+}
 html.th-clean .btn.round.send .icon { width: 16px; height: 16px; }
 html.th-clean .composer .bar > .clean-send { margin-left: auto; display: grid; place-items: center; padding: 0; border: 0; }
 html.th-clean .clean-send::before { content: ""; width: 16px; height: 16px; background: currentColor;
@@ -650,13 +714,17 @@ html.th-clean .status > .stat-left { flex: 1 1 auto; }
 html.th-clean .status > .stat-left > .stat-ctx { order: 1; }
 html.th-clean .status > .stat-left > .stat-ctx::before { content: none; }
 html.th-clean .status > .stat-left > .stat-dir { order: 2; margin-left: auto; padding-left: 12px; color: var(--c-t3); }
-html.th-clean .status > .stat-left > .stat-dir:hover { color: var(--c-t2); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .status > .stat-left > .stat-dir:hover { color: var(--c-t2); }
+}
 html.th-clean .status :is(.stat-left > * + *::before, .stat-mod::after, .stat-eff::after, .clean-sep) { color: var(--c-t3); }
 html.th-clean .status { padding-left: 0; }
 html.th-clean .status > :is(.stat-mod, .stat-eff) { margin-right: 0; }
 html.th-clean .status > :is(.stat-mod, .stat-eff)::after { padding: 0 4px; }
 html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn { height: 24px; padding: 4px 4px 4px 8px; border-radius: 4px; color: inherit; }
-html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn:hover:not(:disabled) { background: var(--c-fill); color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn:hover:not(:disabled) { background: var(--c-fill); color: var(--c-t1); }
+}
 html.th-clean .status > .stat-par { margin-right: 0; }
 html.th-clean .status > .stat-par:has(+ .stat-mod)::after { content: "·"; padding: 0 4px; color: var(--c-t3); }
 html.th-clean .stat-ctx .clean-sep { margin: 0 8px; }
@@ -670,14 +738,20 @@ html.th-clean .slot-host.composer:has(> .vf-slot):not(:has(> .slot:not(.vf-slot)
 html.th-clean .vf-slot { padding: 0; gap: 4px; justify-content: flex-start; }
 /* подсказка кнопок камеры и корзины (data-tip плагина video-feedback) растёт вправо от кнопки: кнопки стоят у левого края
    поля, а подсказка плагина прижата правым краем и уходила под боковую панель, где её обрезала лента */
-html.th-clean .vf-slot [data-tip]:hover::after { right: auto; left: 0; padding: 4px 8px; border-radius: 8px; color: var(--c-t1); font: 400 12px/16px var(--font); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .vf-slot [data-tip]:hover::after { right: auto; left: 0; padding: 4px 8px; border-radius: 8px; color: var(--c-t1); font: 400 12px/16px var(--font); }
+}
 html.th-clean .vf-slot > .btn.round { width: 32px; height: 32px; border-radius: 8px; color: var(--muted-foreground); }
-html.th-clean .vf-slot > .btn.round:hover { background: var(--c-fill); color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .vf-slot > .btn.round:hover { background: var(--c-fill); color: var(--c-t1); }
+}
 /* идёт запись видео-фидбэка: корзина, рядом — красная точка 8 и время через 8 (цифры одной ширины), кнопки без рамок;
    наведение — серая подложка, как у всех; без поддержки якорей микрофон ядра на это время уходит — он стоит под растущей кнопкой записи */
 html.th-clean .vf-slot > .btn.round.vf-rec { width: auto; padding: 0 10px 0 8px; gap: 8px; color: var(--destructive); }
-html.th-clean .vf-slot > .btn.round:is(.vf-rec, .vf-trash):hover { background: var(--c-fill); }
-html.th-clean .vf-slot > .btn.round.vf-rec:hover { color: var(--destructive); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .vf-slot > .btn.round:is(.vf-rec, .vf-trash):hover { background: var(--c-fill); }
+  html.th-clean .vf-slot > .btn.round.vf-rec:hover { color: var(--destructive); }
+}
 html.th-clean .vf-slot .vf-dot { width: 8px; height: 8px; flex: none; }
 html.th-clean .vf-slot .vf-time { font: 500 14px/20px var(--font); font-variant-numeric: tabular-nums; }
 @supports not (anchor-name: --a) { html.th-clean .dock-inner:has(.vf-btn:is(.vf-count, .vf-rec, .vf-work)) form.composer .bar > .btn.round.mic { display: none; } }
@@ -705,7 +779,9 @@ html.th-clean .composer > .attach { left: 12px; }
 html.th-clean .composer .bar { padding-left: 36px; }
 html.th-clean .composer .bar > .mic { order: 0; }
 html.th-clean .btn.round.quiet.attach { background: var(--c-fill); color: var(--c-t1); }
-html.th-clean .btn.round.quiet.attach:hover { background: color-mix(in oklch, var(--c-t1) 10%, transparent); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .btn.round.quiet.attach:hover { background: color-mix(in oklch, var(--c-t1) 10%, transparent); }
+}
 html.th-clean .btn.round.attach .icon { -webkit-mask: url("plus.svg") center / 16px no-repeat !important; mask: url("plus.svg") center / 16px no-repeat !important; }
 html.th-clean .dock-inner:has(.vf-slot) form.composer .bar { padding-left: 72px; }
 html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-left: 0; }
@@ -713,7 +789,7 @@ html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-le
   /* высота ряда кнопок (--row) и место справа под микрофон с «Отправить» (--tail: 12 + 32 + 8, с микрофоном + 4 + 32) */
   html.th-clean .dock-inner { --row: 32px; --tail: 52px; container: status / inline-size; }
   html.th-clean .dock-inner:has(form.composer .bar > .btn.round.mic) { --tail: 88px; }
-  html.th-clean .dock { padding-bottom: 10px; }   /* + 6 зазора под карточкой (там пустая дорожка статуса) = 16 до низа окна */
+  html.th-clean .dock { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }   /* + 6 зазора под карточкой (там пустая дорожка статуса) = 16 до низа окна */
   /* язычок занимает 24 над карточкой — лента заканчивается выше него */
   html.th-clean main:has(.dock-inner > form.composer) .feed { padding-bottom: 56px; }   /* 24 язычок + 32 воздуха: последнее сообщение не липнет к нему */
   /* задачи сессии и очередь над полем: язычок вылезает на 24 над карточкой, под ним нужен свой воздух: 6 зазор dock-inner + 30 = 24 язычок + 12 */
@@ -810,7 +886,9 @@ html.th-clean .composer.rec .recstrip > .hint { grid-area: 1 / 3 / 2 / 5; justif
 html.th-clean .composer.rec .recstrip > .spacer { display: none; }
 html.th-clean .composer.rec .recstrip > .linkbtn { grid-area: 2 / 1 / 3 / 4; justify-self: start; height: var(--row, 32px); padding: 0 12px; margin-left: -4px; border-radius: 8px;
   font: 400 14px/20px var(--font); color: var(--c-t2); text-decoration: none; }
-html.th-clean .composer.rec .recstrip > .linkbtn:hover { background: var(--c-fill); color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .composer.rec .recstrip > .linkbtn:hover { background: var(--c-fill); color: var(--c-t1); }
+}
 html.th-clean .composer.rec .rec-dot { width: 8px; height: 8px; margin: 0 2px; }
 html.th-clean .composer.rec .recstrip > * { animation-name: clean-rise; animation-duration: 160ms; animation-timing-function: var(--ease-out); animation-fill-mode: backwards; }
 html.th-clean .composer.rec .recstrip > .rec-dot { animation: clean-rise 160ms var(--ease-out) backwards, rec-pulse 1.2s ease-in-out 160ms infinite; }
@@ -819,7 +897,9 @@ html.th-clean .composer.rec .recstrip > .linkbtn { animation-delay: 40ms; }
 html.th-clean .composer.rec .bar > .btn.round { grid-area: 2 / 4; justify-self: end; }
 html.th-clean .composer.rec .bar > .btn.round.stop { width: 72px; border: 0; border-radius: 8px; background: var(--foreground); color: var(--background); box-shadow: none;
   animation: clean-pill 280ms var(--ease-in-out) backwards; }
-html.th-clean .composer.rec .bar > .btn.round.stop:hover { background: color-mix(in oklch, var(--foreground) 85%, var(--background)); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .composer.rec .bar > .btn.round.stop:hover { background: color-mix(in oklch, var(--foreground) 85%, var(--background)); }
+}
 html.th-clean .composer.rec .bar > .btn.round.stop .icon { display: none; }
 @media (prefers-reduced-motion: reduce) {
   html.th-clean .composer.rec .bar > .btn.round.stop { animation: clean-rise 160ms var(--ease-out) both; }
@@ -843,7 +923,9 @@ html.th-clean .composer.rec .bar > .btn.round:disabled > .spin-dot { margin: 0; 
   html.th-clean .slot-host.composer:has(> .vf-slot):not(:has(> .slot:not(.vf-slot))) { left: auto; right: 88px; bottom: 18px; transition: transform 160ms var(--ease-out); }
   html.th-clean .dock-inner:not(:has(form.composer .bar > .btn.round.mic)) .slot-host.composer:has(> .vf-slot) { transform: translateX(40px); }
   html.th-clean .vf-slot { justify-content: flex-end; }
-  html.th-clean .vf-slot [data-tip]:hover::after { left: auto; right: 0; }
+  @media (hover: hover) and (pointer: fine) {
+    html.th-clean .vf-slot [data-tip]:hover::after { left: auto; right: 0; }
+  }
   html.th-clean .dock-inner:has(.vf-slot) form.composer .bar { padding-left: 36px; }
   html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-left: 0; }
   html.th-clean .dock-inner { --tail: 56px; }
@@ -878,24 +960,34 @@ html.th-clean .composer.rec .bar > .btn.round:disabled > .spin-dot { margin: 0; 
 html.th-clean .menu { border-radius: 12px; padding: 4px; }
 html.th-clean .menu .menu-item { min-height: 32px; padding: 6px 8px; border-radius: 8px; font: 400 14px/20px var(--font); letter-spacing: -0.1px; }
 html.th-clean .menu .menu-item:not(.danger) { color: var(--c-t1); }
-html.th-clean .menu .menu-item:hover { background: var(--c-fill); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .menu .menu-item:hover { background: var(--c-fill); }
+}
 html.th-clean .menu .menu-text { font: 400 12px/16px var(--font); color: var(--c-t2); }
 html.th-clean .btn:not(.round):not(.quiet) { border-radius: 8px; box-shadow: none; }
 /* у кнопок в покое рамки нет: вторичная — серая подложка 5%, наведение — 10%; так же чипы-фильтры (расписание), варианты
    ответа в карточке вопроса, вложения в поле; бейджи — r4 */
 html.th-clean .btn:where(:not(.round, .quiet, .primary, .solid, .action)) { border-color: transparent; background: var(--c-fill); }
-html.th-clean .btn:where(:not(.round, .quiet, .primary, .solid, .action)):hover { background: var(--c-badge); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .btn:where(:not(.round, .quiet, .primary, .solid, .action)):hover { background: var(--c-badge); }
+}
 html.th-clean .chip { border: 0; border-radius: 8px; background: var(--c-fill); color: var(--c-t1); }
-html.th-clean .chip:hover { background: var(--c-badge); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .chip:hover { background: var(--c-badge); }
+}
 html.th-clean .pill, html.th-clean .cmd-row .by { border: 0; border-radius: 4px; }
 html.th-clean .opt { border-color: transparent; background: var(--c-fill); }
-html.th-clean .opt:hover { background: var(--c-badge); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .opt:hover { background: var(--c-badge); }
+}
 html.th-clean .pchip { border: 0; background: var(--c-fill); }
 html.th-clean .module-cmd { border: 0; border-radius: 12px; }
 html.th-clean .upd { border-radius: 12px; }
 /* «Копировать» у кода — тихая кнопка, как «Ответить»: без рамки и тени, на подложке блока кода; под курсором — темнее */
 html.th-clean .md .code-copy { width: 24px; height: 24px; border: 0; border-radius: 8px; box-shadow: none; background: var(--muted); color: var(--c-t2); }
-html.th-clean .md .code-copy:hover { color: var(--c-t1); background-image: linear-gradient(var(--c-fill), var(--c-fill)); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .md .code-copy:hover { color: var(--c-t1); background-image: linear-gradient(var(--c-fill), var(--c-fill)); }
+}
 
 html.th-clean .btn.primary, html.th-clean .btn.solid { background: var(--foreground); color: var(--background); border-color: transparent; }
 /* карточки ожидания (вопрос, разрешение, подключение): граница — внутренняя линия 1px поверх содержимого (::after), а не
@@ -918,7 +1010,9 @@ html.th-clean .card .card-head { border-radius: 0; }
 html.th-clean .card:not(.frozen, .sent) .card-head { gap: 8px; justify-content: flex-start; background: color-mix(in srgb, var(--c-alert) 7%, var(--background)); color: var(--c-t1); }
 html.th-clean .card:not(.frozen, .sent) .card-head::before { content: ""; width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--c-alert); }
 html.th-clean .card:not(.frozen, .sent) .card-head .card-x { margin-left: auto; color: var(--c-t2); }
-html.th-clean .card:not(.frozen, .sent) .card-head .card-x:hover { background: var(--c-fill); color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .card:not(.frozen, .sent) .card-head .card-x:hover { background: var(--c-fill); color: var(--c-t1); }
+}
 /* полоса «Ждёт вас» под карточкой — тем же знаком: точка вместо красной полосы слева и красного слова */
 html.th-clean .strip-row[data-k="wait"] { box-shadow: none; padding-inline: 16px; }   /* точка — в одной колонке с точкой шапки карточки, кнопка — по правому краю её содержимого */
 html.th-clean .strip-row[data-k="wait"] .k { display: inline-flex; align-items: center; gap: 8px; color: var(--c-t1); font: 500 14px/20px var(--font); }
@@ -930,7 +1024,7 @@ html.th-clean .strip-row[data-k="wait"] .k::before { content: ""; width: 8px; he
    кнопки 12/16 цветом --c-t2, строка 24 (видимая часть язычка: 4 + 16 + 4), радиус 12. main.js кладёт строки очереди из общей
    полосы ядра в div.clean-queue; вопросы, разрешения и «Не дошло» остаются в полосе. Нижние 8 плашки спрятаны под язычком
    токенов (он позиционирован, плашка — нет), без язычка — под карточкой. Фон и размытие — те же, что у язычка ---- */
-html.th-clean .clean-queue { box-sizing: border-box; margin-inline: 20px; padding: 0 0 8px; border-radius: 12px 12px 0 0; max-height: 40vh; overflow-y: auto;
+html.th-clean .clean-queue { box-sizing: border-box; margin-inline: 20px; padding: 0 0 8px; border-radius: 12px 12px 0 0; max-height: 40vh; max-height: 40dvh; overflow-y: auto;
   font: 400 12px/16px var(--font); color: var(--c-t2);
   background: linear-gradient(var(--c-fill), var(--c-fill)), var(--background); }
 @supports (backdrop-filter: blur(1px)) {
@@ -953,7 +1047,9 @@ html.th-clean .clean-queue .strip-row > button.t { color: var(--c-t2); font: inh
 html.th-clean .clean-queue .strip-row > .strip-urg { color: var(--c-t3); font: 400 12px/16px var(--font); }
 html.th-clean .clean-queue .strip-row .btn { flex: none; box-sizing: border-box; height: 24px; min-height: 0; padding: 0 6px; gap: 4px; border: 0; border-radius: 6px; box-shadow: none;
   background: none; color: var(--c-t2); font: 400 12px/16px var(--font); letter-spacing: 0; display: inline-flex; align-items: center; margin-inline: -2px; }
-html.th-clean .clean-queue .strip-row .btn:hover:not(:disabled) { background: var(--c-hover); color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .clean-queue .strip-row .btn:hover:not(:disabled) { background: var(--c-hover); color: var(--c-t1); }
+}
 html.th-clean .clean-queue .strip-row .btn:disabled { opacity: .5; }
 html.th-clean .clean-queue .btn.clean-now::before, html.th-clean .clean-queue .btn.clean-del::before { content: ""; flex: none; width: 16px; height: 16px; background: currentColor;
   -webkit-mask: var(--clean-i) center / 16px no-repeat; mask: var(--clean-i) center / 16px no-repeat; }
@@ -971,7 +1067,9 @@ html.th-clean .clean-queue .strip-row[data-clean="more"] { padding-left: 36px; }
 html.th-clean .clean-queue .strip-row.strip-more::before { content: none; }
 html.th-clean .clean-queue .strip-toggle { display: inline-flex; align-items: center; height: 24px; width: auto; min-height: 0; padding: 0; font: 400 12px/16px var(--font); color: var(--c-t2); }
 html.th-clean .clean-queue .strip-sum .strip-toggle { flex: 1; }
-html.th-clean .clean-queue .strip-toggle:hover { color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .clean-queue .strip-toggle:hover { color: var(--c-t1); }
+}
 html.th-clean .clean-queue :is(.strip-toggle, .strip-row > button.t):focus-visible { outline: 2px solid var(--c-ring); outline-offset: 2px; border-radius: 6px; }
 html.th-clean .clean-queue .strip-row .btn:focus-visible { outline: 2px solid var(--c-ring); outline-offset: 0; }
 @media (max-width: 760px) {
@@ -997,14 +1095,18 @@ html.th-clean .gpop.palette > .gpop-t, html.th-clean .gpop.palette > .pal-own { 
 html.th-clean .gpop.palette > .pal-grid { display: contents; }
 html.th-clean .pal-e { width: 56px; height: 56px; aspect-ratio: auto; border-radius: 12px; }
 html.th-clean .pal-e:not(:has(> .kit-img)) { display: none; }
-html.th-clean .pal-e:hover { background: var(--c-hover); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .pal-e:hover { background: var(--c-hover); }
+}
 html.th-clean .pal-e .pal-av.kit-img { width: 44px; height: 44px; border-radius: 10px; background-size: cover; background-position: center; }
 html.th-clean .pal-e.on { box-shadow: none; }
 html.th-clean .pal-e.on .pal-av { box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--foreground); }   /* кольцо — вокруг картинки, не вокруг ячейки */
 html.th-clean .pal-e:focus-visible, html.th-clean .pal-reset:focus-visible { outline: 2px solid var(--c-ring); outline-offset: 2px; }
 html.th-clean .pal-reset { grid-column: 1 / -1; justify-self: stretch; width: 100%; min-height: 32px; margin-top: 4px; padding: 6px 8px; border: 0; border-radius: 8px; background: none;
   font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t2); text-align: center; cursor: pointer; }
-html.th-clean .pal-reset:hover { background: var(--c-hover); color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .pal-reset:hover { background: var(--c-hover); color: var(--c-t1); }
+}
 html.th-clean .pal-reset:disabled { display: none; }
 @media (max-width: 760px) {
   html.th-clean .gpop.palette { grid-template-columns: repeat(4, minmax(0, 1fr)); justify-items: center; }
@@ -1031,7 +1133,7 @@ html.th-clean .pal-reset:disabled { display: none; }
   html.th-clean main > .head .clean-bg:is(:hover, :focus-visible)::after { left: 8px; right: 8px; top: calc(100% + 4px); width: auto; max-width: none; }
   html.th-clean .feed { padding: 16px 16px 24px; }
   html.th-clean .row.out > .b { padding-right: 0; }
-  html.th-clean .dock { padding: 0 12px 8px; }
+  html.th-clean .dock { padding: 0 12px calc(8px + env(safe-area-inset-bottom, 0px)); }
   html.th-clean .strip-row[data-k="wait"] { padding-inline: 20px; }   /* лента с полями 16, поле ввода с 12 — полоса «Ждёт вас» шире карточки на 4 */
   html.th-clean .row.mine > .b { width: auto; max-width: 88%; }
   html.th-clean .btn.round.send, html.th-clean .btn.round.quiet:is(.attach, .mic), html.th-clean .composer .bar > .btn.round.mic { width: 36px; height: 36px; }
@@ -1046,7 +1148,9 @@ html.th-clean :is(.srow, .active-bar button, .navmenu, .clean-fold, .clean-fold-
 /* ---- тихие hover и focus: синего нет ни у наведения, ни у фокуса; подложка --c-hover/--c-fill, рамка --c-line-strong,
    кольцо с клавиатуры --c-ring. Здесь — то, что приходит из ядра и плагинов: картинка во вложении (ядро lightbox.css и
    chat-images красят outline в --primary), поле поиска по чату (ядро feed.css) ---- */
-html.th-clean :is(.thumbs img, .attach-list img, .tool-img, .opt-img, .feed img.ci-thumb, .feed img.ci-full):hover { outline-color: var(--c-line-strong); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean :is(.thumbs img, .attach-list img, .tool-img, .opt-img, .feed img.ci-thumb, .feed img.ci-full):hover { outline-color: var(--c-line-strong); }
+}
 html.th-clean .fs-row input:focus-visible { outline: 0; border-color: var(--c-line-strong); }
 /* кольцо с клавиатуры одного цвета везде: ядро красит outline в --ring (светлая тема — #c9c9d0, 1,6:1: у ссылок и чипов его не видно) */
 html.th-clean :is(:focus-visible, .opt.pick:has(input:focus-visible), .opt-preview:focus-visible, .limlink:focus-visible, .quote-bar .linkbtn:focus-visible, .ctx-menu button:focus-visible, .menu-item:focus-visible) { outline-color: var(--c-ring); }
@@ -1093,4 +1197,18 @@ html.th-clean .clean-recap .btn:disabled { color: var(--c-t2); background: none;
   html.th-clean .board { grid-template-columns: minmax(0, 1fr); }
   html.th-clean .clean-recap { margin-bottom: 16px; }
   html.th-clean .clean-recap .btn { height: 32px; padding: 0 12px; margin-block: -6px; }   /* палец: кнопка 32, строка по-прежнему 20 */
+}
+
+/* ---- касание и телефон (чек-лист «нативности», Emil Kowalski): нажатие не подсвечивается системой и не зумит, страница не
+   тянется за край, у кнопок нет выделения текста. Наведение — только у мыши: все :hover темы живут в
+   @media (hover: hover) and (pointer: fine) (на касании :hover залипает до следующего тапа) ---- */
+html.th-clean, html.th-clean body { overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+/* строка списка: плашку наведения рисует ядро (.srow:hover → --row-plate), на касании она оставалась бы после тапа */
+@media (hover: none) { html.th-clean .srow:hover:not([aria-current="true"]) { background: none; box-shadow: none; } }
+html.th-clean :is(button, .btn, [role="button"], summary, select, a, .srow, .sgroup-h, .menu-item, .gpop-i, .cm-item) { touch-action: manipulation; }
+html.th-clean :is(button, .btn, [role="button"], summary, .menu-item, .gpop-i, .cm-item) { -webkit-user-select: none; user-select: none; }
+/* iOS приближает страницу при фокусе в поле со шрифтом меньше 16: на телефоне поля — 16 (ядро отдаёт 16, тема сводила до 14) */
+@media (max-width: 760px) {
+  html.th-clean.th-clean :is(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="button"], [type="submit"]), select, textarea) { font-size: 16px; }
+  html.th-clean.th-clean .composer textarea { line-height: 24px; }
 }

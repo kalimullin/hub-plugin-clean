@@ -514,6 +514,23 @@ export default function register(hub) {
     for (const m of list) for (const n of m.addedNodes) if (n.classList?.contains("palette") && n.classList.contains("gpop")) placePalette(n);
   }).observe(document.body, { childList: true });
 
+  // theme-color у ядра — по системной схеме (prefers-color-scheme), а Clean светлая или тёмная сама по себе: на телефоне
+  // строка состояния и адресная строка красились бы чужим цветом. Пока тема выбрана — оба тега получают цвет шелла
+  // (--c-shell в clean.css: фон под окнами; читать его из стиля нельзя — при первом запуске таблица ещё не загружена),
+  // при выключении — свои прежние значения
+  let tcSaved = null;
+  const themeColor = () => {
+    const metas = [...document.querySelectorAll('meta[name="theme-color"]')];
+    if (!metas.length) return;
+    if (on()) {
+      tcSaved ??= metas.map((m) => m.content);
+      for (const m of metas) m.content = document.documentElement.classList.contains("th-clean-dark") ? "#121214" : "#f1f1f3";
+    } else if (tcSaved) {
+      metas.forEach((m, i) => { if (tcSaved[i]) m.content = tcSaved[i]; });
+      tcSaved = null;
+    }
+  };
+
   const sync = () => {
     let id = "";
     try { id = JSON.parse(localStorage.getItem("hub.theme") || "null")?.id || ""; } catch { /* нет */ }
@@ -530,6 +547,7 @@ export default function register(hub) {
       }
       hub.redraw?.();
     }
+    themeColor();
     sweep();
   };
   addEventListener("hub-theme", sync);
