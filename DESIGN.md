@@ -68,7 +68,8 @@ together with the code that follows it, and with a reason.
   - Text buttons: 32px, radius 8, `--c-fill` background, `12/16` weight 500.
   - Badges: 16px high, radius 4. Pills and chips follow the status colors only.
 - **Status colors are fixed.** Red `--c-alert`, green `--c-free`, orange `--c-busy`, yellow `--c-eco`. A new state
-  reuses one of them; it does not get its own hue.
+  reuses one of them; it does not get its own hue. A band that states a status
+  (the MCP login band above the chat) is tinted with `--c-busy-bg` or `--c-free-bg`, with no border.
 - **Reuse before you build.** Before a new control, find the existing one that looks like it and copy its box:
   size, radius, padding, icon size, hover fill, focus ring. A new component that matches none of them needs a
   reason in the PR.

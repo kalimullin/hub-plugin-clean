@@ -140,6 +140,14 @@
       "steer": {
         "id": "mGWNJGGwrFlE",
         "commonName": "u-turn-to-right"
+      },
+      "key": {
+        "id": "kVKdB5BnYQ0h",
+        "commonName": "key-security"
+      },
+      "check": {
+        "id": "mjbmZaqL8EJr",
+        "commonName": "checkmark"
       }
     }
   }

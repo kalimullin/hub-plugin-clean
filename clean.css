@@ -1256,3 +1256,43 @@ html.th-clean :is(button, .btn, [role="button"], summary, .menu-item, .gpop-i, .
   html.th-clean.th-clean :is(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"], [type="button"], [type="submit"]), select, textarea) { font-size: 16px; }
   html.th-clean.th-clean .composer textarea { line-height: 24px; }
 }
+
+/* ---- "MCP waits for a login" above the chat (core mcpwait.js): a row per server. The tone comes from the status tokens:
+   waiting is the orange --c-busy-bg, "signed in" the green --c-free-bg (lighter than the grey shell, and set apart from
+   the white window); no frame and no lines between rows. The icon is Forma Regular, a key (a check once signed in),
+   drawn as a mask in the text color. Buttons and the field follow the theme: 32, r8, 12/16 and 14/20, the field on a
+   --c-fill plate, a grey frame instead of a ring on focus. In the dark theme the tone is halved toward the window ---- */
+html.th-clean .mcpwait { border: 0; background: none; }
+html.th-clean .mcpwait-row { min-height: 48px; padding: 8px 24px; gap: 12px; border: 0;
+  background: light-dark(var(--c-busy-bg), color-mix(in oklab, var(--c-busy-bg) 50%, var(--background)));
+  font: 400 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .mcpwait-row:has(> .mcpwait-ok) { background: light-dark(var(--c-free-bg), color-mix(in oklab, var(--c-free-bg) 50%, var(--background))); }
+html.th-clean .mcpwait-ic { width: 16px; height: 16px; color: var(--c-busy); }
+html.th-clean .mcpwait-row:has(> .mcpwait-ok) .mcpwait-ic { color: color-mix(in oklch, var(--c-free) 75%, var(--c-ink)); }
+html.th-clean .mcpwait-ic > * { display: none; }
+html.th-clean .mcpwait-ic::before { content: ""; width: 16px; height: 16px; background: currentColor;
+  -webkit-mask: url("key.svg") center / 16px no-repeat; mask: url("key.svg") center / 16px no-repeat; }
+html.th-clean .mcpwait-row:has(> .mcpwait-ok) .mcpwait-ic::before { -webkit-mask-image: url("check.svg"); mask-image: url("check.svg"); }
+html.th-clean .mcpwait-t b { font-weight: 500; }
+html.th-clean .mcpwait-who { color: var(--c-t2); }
+html.th-clean :is(.mcpwait-wait, .mcpwait-ok, .mcpwait-err) { font: 400 12px/16px var(--font); }
+html.th-clean :is(.mcpwait-wait, .mcpwait-ok) { color: var(--c-t2); }
+html.th-clean .mcpwait-err { color: color-mix(in oklch, var(--c-alert) 75%, var(--c-ink)); }
+html.th-clean .mcpwait-wait::before { border: 2px solid var(--c-line); border-top-color: var(--c-t2); }
+html.th-clean .mcpwait-row .btn { box-sizing: border-box; height: 32px; min-height: 0; padding: 0 12px; border: 0;
+  font: 500 12px/16px var(--font); }
+html.th-clean .mcpwait-row .btn.primary { background: var(--foreground); color: var(--background); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .mcpwait-row .btn.primary:hover { background: color-mix(in oklch, var(--foreground) 85%, var(--background)); }
+}
+html.th-clean .mcpwait-link input { box-sizing: border-box; height: 32px; padding: 0 12px; border: 0; border-radius: 8px;
+  background: var(--c-fill); box-shadow: none; color: var(--c-t1); font: 400 14px/20px var(--font); }
+html.th-clean .mcpwait-link input::placeholder { color: var(--c-t2); }
+html.th-clean .mcpwait-link input:not(:placeholder-shown) { background: var(--background); box-shadow: 0 0 0 1px var(--c-line); }
+html.th-clean .mcpwait-link input:focus, html.th-clean .mcpwait-link input:focus-visible { background: var(--background); outline: 0;
+  box-shadow: 0 0 0 1px var(--c-line-strong); }
+@media (max-width: 760px) {
+  html.th-clean .mcpwait-row { padding: 12px 16px; row-gap: 8px; }
+  html.th-clean .mcpwait-row .btn { height: 40px; }
+  html.th-clean .mcpwait-link input { height: 40px; }
+}
