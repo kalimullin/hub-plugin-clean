@@ -397,10 +397,10 @@ export default function register(hub) {
   const sweep = () => {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
-    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate();
+    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); markKinds();
   };
   let queued = false;   // лента меняется часто — не чаще кадра
-  new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; sweep(); }); } }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  new MutationObserver(() => { if (on()) markKinds(); if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; sweep(); }); } }).observe(document.body, { childList: true, subtree: true, characterData: true });
 
   // лимиты — внизу боковой панели (место sidebar.footer), из снимка ядра: «corp  5 ч 10%  неделя 1%»; доля и сброс — в подсказке
   const SHORT = { five_hour: ["web.limits.short_five_hour", "5 ч"], seven_day: ["web.limits.short_week", "неделя"],
@@ -441,6 +441,145 @@ export default function register(hub) {
     },
   });
 
+  // фильтр ленты по типам сообщений (ядро: признак feed.kinds, у ответа сессии в ленте msg_kind). Кнопка — в шапке сессии
+  // (место session.header), панель с флажками — в body (у шапки при стекле backdrop-filter: fixed внутри неё считался бы от шапки).
+  // Ядро не трогаем: строкам ответа ставим data-clean-kind / data-clean-off по снимку, прячет CSS. Фильтр действует только на ответы
+  // сессии (class out): слова владельца, шаги и карточки остаются. Тип приходит только в ленте, загруженной из /api/timeline:
+  // старые строки из «Показать раньше» (/api/history) типа не несут — их видно только при «Все»
+  const KIND_IDS = ["P", "R", "I", "Q", "F", "C"];
+  const KT = {
+    ru: { all: "Все", title: "Типы сообщений", P: "Ход работы", R: "Отчёт", I: "К сведению", Q: "Вопрос", F: "Сбой", C: "Разговор",
+      none: "Нет сообщений выбранных типов", reset: "Показать все", of: ["из {m} сообщения", "из {m} сообщений", "из {m} сообщений"], shown: "Показано {n}" },
+    en: { all: "All", title: "Message types", P: "Progress", R: "Report", I: "FYI", Q: "Question", F: "Failure", C: "Conversation",
+      none: "No messages of the chosen types", reset: "Show all", of: ["of {m} message", "of {m} messages", "of {m} messages"], shown: "Showing {n}" },
+    es: { all: "Todos", title: "Tipos de mensaje", P: "Avance", R: "Informe", I: "Para tu información", Q: "Pregunta", F: "Fallo", C: "Conversación",
+      none: "No hay mensajes de los tipos elegidos", reset: "Mostrar todos", of: ["de {m} mensaje", "de {m} mensajes", "de {m} mensajes"], shown: "Mostrando {n}" },
+  };
+  const kLang = () => { const l = String(hub.lang || hub.locale || document.documentElement.lang || "ru").slice(0, 2).toLowerCase(); return KT[l] ? l : "ru"; };
+  const kt = (k) => T(`web.clean.kinds.${k}`, KT[kLang()][k]);
+  // «Показано 12 из 40 сообщений»: слово после числа склоняется по m (Intl.PluralRules; формы ru: one/few/many, en и es: one/other)
+  const kCount = (n, m) => {
+    const L = kLang(), cat = new Intl.PluralRules(L).select(m), forms = KT[L].of;
+    const form = forms[cat === "one" ? 0 : cat === "few" ? 1 : 2];
+    return `${KT[L].shown.replace("{n}", n)} ${form.replace("{m}", m)}`;
+  };
+  const kindsOn = () => on() && (hub.snapshot?.()?.features || []).includes("feed.kinds");
+  const KEY = (name) => `clean.feedkinds.${name}`;
+  const chosen = (name) => { try { const v = JSON.parse(localStorage.getItem(KEY(name)) || "[]"); return new Set(Array.isArray(v) ? v.filter((k) => KIND_IDS.includes(k)) : []); } catch { return new Set(); } };
+  const keep = (name, set) => { try { if (set.size) localStorage.setItem(KEY(name), JSON.stringify([...set])); else localStorage.removeItem(KEY(name)); } catch { /* нет места — выбор живёт до перезагрузки */ } };
+  let curKinds = "";      // сессия, чья лента на экране (её слот отрисовал кнопку последним)
+  let kindsPop = null;    // открытая панель
+  let kindsMemo = { src: null, name: "", seqs: new Map() };
+  // seq ответа → тип (null — без типа); по ссылке на массив ленты, пока она не сменилась
+  const kindsOf = (name) => {
+    const live = hub.snapshot?.()?.timelines?.[name] || [];
+    if (kindsMemo.src !== live || kindsMemo.name !== name || kindsMemo.n !== live.length) {
+      const seqs = new Map();
+      for (const it of live) if (it.kind === "out") seqs.set(it.seq, KIND_IDS.includes(it.msg_kind) ? it.msg_kind : null);
+      kindsMemo = { src: live, name, n: live.length, seqs };
+    }
+    return kindsMemo.seqs;
+  };
+  const kindStats = (name) => {
+    const seqs = kindsOf(name), counts = Object.fromEntries(KIND_IDS.map((k) => [k, 0]));
+    let total = 0, shown = 0;
+    const sel = chosen(name);
+    for (const k of seqs.values()) { total++; if (k) counts[k]++; if (!sel.size || (k && sel.has(k))) shown++; }
+    // «Показано» считаем по строкам, которые ядро сейчас рисует: в режиме «Кратко» ядро часть ответов сворачивает, и по снимку
+    // получилось бы «3 из 10» при пустой ленте
+    const drawn = document.querySelectorAll(".feed-inner > .row.out[data-clean-kind]");
+    if (drawn.length) { total = drawn.length; shown = [...drawn].filter((r) => !("cleanOff" in r.dataset)).length; }
+    return { counts, total, shown, sel };
+  };
+  // метки на строках ленты: data-clean-kind (тип или none) и data-clean-off (строку прячет CSS)
+  const markKinds = () => {
+    const rows = document.querySelectorAll(".feed-inner > .row.out[data-key]");
+    if (!kindsOn() || !curKinds) {
+      for (const r of document.querySelectorAll(".row[data-clean-kind]")) { delete r.dataset.cleanKind; delete r.dataset.cleanOff; }
+      return;
+    }
+    const seqs = kindsOf(curKinds), sel = chosen(curKinds);
+    for (const r of rows) {
+      const seq = parseInt(r.dataset.key, 10);
+      if (!seqs.has(seq)) { delete r.dataset.cleanKind; delete r.dataset.cleanOff; continue; }   // не из снимка (старые строки, ещё не пришедшие) — не трогаем
+      const k = seqs.get(seq);
+      r.dataset.cleanKind = k || "none";
+      if (sel.size && !(k && sel.has(k))) r.dataset.cleanOff = ""; else delete r.dataset.cleanOff;
+    }
+  };
+  const closeKinds = () => { kindsPop?.remove(); kindsPop = null; document.removeEventListener("pointerdown", kindsOutside, true); document.removeEventListener("keydown", kindsKey, true); };
+  const kindsOutside = (e) => { if (kindsPop && !kindsPop.contains(e.target) && !e.target.closest?.(".clean-kinds-btn")) closeKinds(); };
+  const kindsKey = (e) => { if (e.key === "Escape" && kindsPop) { const b = document.querySelector(".clean-kinds-btn"); closeKinds(); b?.focus(); } };
+  const paintKinds = (name, btn) => {
+    const st = kindStats(name), present = KIND_IDS.filter((k) => st.counts[k] > 0);
+    btn.dataset.n = st.sel.size ? String(st.sel.size) : "";
+    btn.title = btn.ariaLabel = kt("title");
+    btn.setAttribute("aria-expanded", kindsPop ? "true" : "false");
+    btn.hidden = !present.length && !st.sel.size;
+    if (!kindsPop) return;
+    const pop = kindsPop, list = pop.querySelector(".clean-kinds-list");
+    list.replaceChildren();
+    const row = (id, label, count, on_) => {
+      const l = hub.el("label", "clean-kinds-row");
+      const cb = hub.el("input");
+      cb.type = "checkbox"; cb.checked = on_; cb.dataset.kind = id;
+      l.append(cb, hub.el("span", "clean-kinds-name", label));
+      if (count != null) l.append(hub.el("span", "clean-kinds-n", String(count)));
+      cb.addEventListener("change", () => {
+        const sel = chosen(name);
+        if (id === "all") sel.clear(); else if (cb.checked) sel.add(id); else sel.delete(id);
+        keep(name, sel);
+        markKinds(); paintKinds(name, btn);
+      });
+      return l;
+    };
+    list.append(row("all", kt("all"), null, !st.sel.size));
+    for (const k of present) list.append(row(k, kt(k), st.counts[k], st.sel.has(k)));
+    const empty = pop.querySelector(".clean-kinds-empty"), sum = pop.querySelector(".clean-kinds-sum");
+    empty.hidden = !(st.sel.size && st.total && !st.shown);
+    pop.querySelector(".clean-kinds-reset").hidden = empty.hidden;
+    sum.textContent = st.sel.size ? kCount(st.shown, st.total) : "";
+    sum.hidden = !st.sel.size;
+  };
+  const openKinds = (name, btn) => {
+    closeKinds();
+    const pop = hub.el("div", "clean-kinds-pop");
+    pop.setAttribute("role", "dialog");
+    pop.setAttribute("aria-label", kt("title"));
+    const reset = hub.el("button", "clean-kinds-reset", kt("reset"));
+    reset.type = "button";
+    reset.addEventListener("click", () => { keep(name, new Set()); markKinds(); paintKinds(name, btn); });
+    pop.append(hub.el("div", "clean-kinds-list"), hub.el("div", "clean-kinds-empty", kt("none")), reset, hub.el("div", "clean-kinds-sum"));
+    document.body.append(pop);
+    kindsPop = pop;
+    paintKinds(name, btn);
+    const r = btn.getBoundingClientRect();
+    const w = pop.offsetWidth, h = pop.offsetHeight;
+    pop.style.left = `${Math.max(8, Math.min(r.right - w, innerWidth - w - 8))}px`;
+    pop.style.top = `${Math.max(8, Math.min(r.bottom + 6, innerHeight - h - 8))}px`;
+    document.addEventListener("pointerdown", kindsOutside, true);
+    document.addEventListener("keydown", kindsKey, true);
+    pop.querySelector("input")?.focus();
+  };
+  hub.addSlot("session.header", {
+    id: "clean-feed-kinds",
+    render(root, snap, ctx) {
+      const name = ctx?.session?.name || "";
+      if (!kindsOn() || !name) { root.replaceChildren(); if (curKinds === name || !name) curKinds = ""; closeKinds(); markKinds(); return; }
+      curKinds = name;
+      let btn = root.querySelector(".clean-kinds-btn");
+      if (!btn) {
+        btn = hub.el("button", "btn quiet clean-kinds-btn");
+        btn.type = "button";
+        btn.setAttribute("aria-haspopup", "dialog");
+        btn.addEventListener("click", () => { if (kindsPop) closeKinds(); else openKinds(curKinds, btn); paintKinds(curKinds, btn); });
+        root.replaceChildren(btn);
+      }
+      paintKinds(name, btn);
+      markKinds();
+    },
+  });
+
   // значок сессии: ядро ставит попап на левый верхний угол аватарки, по которой кликнули (у DOMRect есть x и y), — и закрывает её.
   // Тема сдвигает попап сразу после появления (до кадра): ниже аватарки, не влезает — выше, потом справа и слева.
   // Окно для телефона — нижняя шторка ядра, там ничего не двигаем
@@ -474,10 +613,10 @@ export default function register(hub) {
     if (was !== on()) {
       for (const b of document.querySelectorAll(".byline[data-clean]")) delete b.dataset.clean;
       if (!on()) {
-        unmaskIcons(); unAvatars(); fade(); feedEnd(); unPlaceholders(); unPlate();
+        unmaskIcons(); unAvatars(); fade(); feedEnd(); unPlaceholders(); unPlate(); closeKinds(); markKinds();
         for (const h of document.querySelectorAll(".chat-head[data-clean-label]")) { h.removeAttribute("aria-label"); h.removeAttribute("title"); delete h.dataset.cleanLabel; }
 
-        for (const x of document.querySelectorAll(".search-row .clean-x, .clean-bg, .clean-fold, .clean-fold-show, .clean-send, .clean-bars, .ce-n")) x.remove();
+        for (const x of document.querySelectorAll(".search-row .clean-x, .clean-bg, .clean-fold, .clean-fold-show, .clean-send, .clean-bars, .ce-n, .clean-kinds-btn")) x.remove();
       }
       hub.redraw?.();
     }

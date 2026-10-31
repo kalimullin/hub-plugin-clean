@@ -25,6 +25,15 @@ To give an agent another character, change its icon: the session row menu → Ic
 `hub session icon <name> <emoji>`. Your own pictures: put a file in `a/` and add an “emoji → file” pair to `avatars`
 in both theme files.
 
+## Feed filter
+
+When the hub tells which kind each message is (`feed.kinds`), a filter button appears in the session header. Tick one
+or several kinds (progress, report, info, question, failure, conversation) to show only those; “All” is the default.
+A kind is listed only if the loaded feed has it. The filter hides the session's own messages only: your messages, cards
+and steps stay. A message without a kind (a quiet “—” result, or a row loaded with “Show earlier”) shows only under
+“All”. The choice is kept per session. Without `feed.kinds` the button is not drawn. The page is not rewritten: rows
+get a `data-clean-kind` / `data-clean-off` mark and the CSS hides them.
+
 ## What's inside
 
 - `clean.json`, `clean-dark.json` — colors, font, icons (`i/`, `id/` for dark), avatars (`a/`).

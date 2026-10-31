@@ -1030,7 +1030,7 @@ html.th-clean .pal-reset:disabled { display: none; }
 }
 
 /* ---- фокус с клавиатуры: плоские плашки темы без тени — кольцо явно ---- */
-html.th-clean :is(.srow, .active-bar button, .navmenu, .clean-fold, .clean-fold-show, .seg button, .fork-toggle, .sgroup-h, .gmore, .btn, .chat-head, .clean-lim, .clean-x, .linkbtn, .gpop-i, .md .code-copy):focus-visible {
+html.th-clean :is(.srow, .active-bar button, .navmenu, .clean-fold, .clean-fold-show, .seg button, .fork-toggle, .sgroup-h, .gmore, .btn, .chat-head, .clean-lim, .clean-x, .linkbtn, .gpop-i, .md .code-copy, .clean-kinds-btn, .clean-kinds-reset):focus-visible {
   outline: 2px solid var(--c-ring); outline-offset: 2px; }
 
 /* ---- тихие hover и focus: синего нет ни у наведения, ни у фокуса; подложка --c-hover/--c-fill, рамка --c-line-strong,
@@ -1044,3 +1044,37 @@ html.th-clean :is(:focus-visible, .opt.pick:has(input:focus-visible), .opt-previ
 html.th-clean :is(main > .head :is(.chip, .back, .fs-lupa), .seg button):focus-visible { outline-offset: -2px; }
 /* полоса ширины списка: с клавиатуры — серой линией --c-ring, не цветом ядра */
 html.th-clean .grip:focus-visible::after { background: var(--c-ring); }
+
+/* ---- фильтр ленты по типам сообщений (ядро: признак feed.kinds): кнопка в шапке сессии, панель с флажками в body.
+   Прячет строки ответа сессии с data-clean-off (ставит main.js по снимку); слова владельца, шаги и карточки остаются ---- */
+html.th-clean .feed-inner > .row[data-clean-off] { display: none; }
+html.th-clean .clean-kinds-btn { flex: none; position: relative; width: 44px; height: 44px; padding: 0; display: grid; place-items: center;
+  border: 0; border-radius: 8px; background: none; color: var(--c-t2); cursor: pointer; }
+html.th-clean .clean-kinds-btn[hidden] { display: none; }
+html.th-clean .clean-kinds-btn::before { content: ""; width: 20px; height: 20px; background: currentColor;
+  -webkit-mask: url("filter.svg") center / 20px no-repeat; mask: url("filter.svg") center / 20px no-repeat; }
+html.th-clean .clean-kinds-btn:is(:hover, [aria-expanded="true"]) { background: var(--c-hover); color: var(--c-t1); }
+html.th-clean .clean-kinds-btn[data-n]:not([data-n=""]) { color: var(--c-t1); }
+html.th-clean .clean-kinds-btn[data-n]:not([data-n=""])::after { content: attr(data-n); position: absolute; top: 6px; right: 6px; min-width: 16px; height: 16px;
+  padding: 0 4px; box-sizing: border-box; border-radius: 8px; background: var(--c-t1); color: var(--background);
+  font: 600 11px/16px var(--font); text-align: center; }
+html.th-clean .clean-kinds-pop { position: fixed; z-index: 100; width: 260px; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: auto; padding: 4px;
+  border-radius: 12px; background: var(--background); box-shadow: var(--shadow-lift), 0 0 0 1px var(--border); color: var(--c-t1); }
+html.th-clean .clean-kinds-row { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 6px 8px; border-radius: 8px; cursor: pointer;
+  font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); }
+html.th-clean .clean-kinds-row:hover { background: var(--c-fill); }
+html.th-clean .clean-kinds-row input { flex: none; width: 18px; height: 18px; margin: 0; accent-color: var(--c-t1); cursor: pointer; }
+html.th-clean .clean-kinds-row input:focus-visible { outline: 2px solid var(--c-ring); outline-offset: 2px; }
+html.th-clean .clean-kinds-name { flex: 1; min-width: 0; }
+html.th-clean .clean-kinds-n { flex: none; color: var(--c-t2); font-variant-numeric: tabular-nums; }
+html.th-clean .clean-kinds-empty { padding: 8px 8px 4px; font: 400 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .clean-kinds-reset { display: block; width: 100%; min-height: 36px; margin-top: 2px; padding: 6px 8px; border: 0; border-radius: 8px; background: var(--c-fill);
+  color: var(--c-t1); font: 500 14px/20px var(--font); cursor: pointer; text-align: center; }
+html.th-clean .clean-kinds-reset:hover { background: var(--c-hover); }
+html.th-clean .clean-kinds-sum { padding: 6px 8px 4px; font: 400 13px/18px var(--font); color: var(--c-t2); }
+html.th-clean :is(.clean-kinds-empty, .clean-kinds-reset, .clean-kinds-sum)[hidden] { display: none; }
+@media (max-width: 760px) {
+  html.th-clean .clean-kinds-pop { width: min(320px, calc(100vw - 16px)); }
+  html.th-clean .clean-kinds-row { min-height: 44px; }
+  html.th-clean .clean-kinds-reset { min-height: 44px; }
+}
