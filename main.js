@@ -247,7 +247,7 @@ export default function register(hub) {
     const menu = head.querySelector(".menu-wrap > .menu");
     if (!menu || menu.querySelector(".clean-fold-i")) return;
     const items = [];
-    for (const cls of ["clean-view", "clean-board"]) {
+    for (const cls of ["clean-board"]) {   // «Кратко | Подробно» — отдельным пунктом «Подробность» (moreItems)
       const seg = head.querySelector(`:scope > .seg.${cls}`);
       if (!seg || getComputedStyle(seg).display !== "none") continue;
       for (const b of seg.children) {
@@ -263,6 +263,47 @@ export default function register(hub) {
       items.push(hub.el("div", "menu-sep"));
     }
     menu.prepend(...items);
+  };
+  // Меню «Ещё» треда: «Модель: <текущая>» (открывает штатное меню модели ядра, уровень — в нём же), «Подробность: <текущая>»
+  // (переключает «Кратко | Подробно») и «Закончить и усыпить» вместо ядерного «Усыпить» (то же действие и тот же диалог:
+  // сессия сдаёт дела и засыпает). Ядро перерисовывает меню на каждом снимке — вставка идемпотентна
+  const MORE = { ru: { model: "Модель", detail: "Подробность", finish: "Закончить и усыпить" },
+    en: { model: "Model", detail: "Detail", finish: "Finish and Sleep" },
+    es: { model: "Modelo", detail: "Detalle", finish: "Terminar y dormir" } };
+  const moreItems = () => {
+    const head = document.querySelector("main > .head");
+    const menu = head?.querySelector(".menu-wrap > .menu");
+    if (!menu) return;
+    const w = MORE[hub.lang] || (RU ? MORE.ru : MORE.en);
+    const sleep = T("web.main.sleep", "");
+    for (const b of menu.querySelectorAll(":scope > .menu-item:not(.clean-more-i)")) {
+      if (sleep && b.textContent === sleep) b.textContent = w.finish;
+    }
+    if (menu.querySelector(".clean-more-i")) return;
+    const modelBtn = () => document.querySelector(".dock .stat-mod > .menu-btn");
+    const item = (text, title, onClick) => {
+      const it = hub.el("button", "menu-item clean-more-i", text);
+      it.type = "button";
+      it.tabIndex = -1;
+      it.setAttribute("role", "menuitem");
+      if (title) it.title = title;
+      it.addEventListener("click", onClick);
+      return it;
+    };
+    const items = [];
+    const mb = modelBtn();
+    if (mb) {
+      const label = (mb.querySelector(".mod-long") || mb).textContent.trim();
+      // opening another menu replaces the open one (the core keeps a single open key), so no explicit close is needed
+      items.push(item(`${w.model}: ${label}`, mb.title, () => modelBtn()?.click()));
+    }
+    const seg = head.querySelector(":scope > .seg.clean-view");
+    if (seg) {
+      const [brief, full] = seg.children, now = brief.getAttribute("aria-pressed") === "true";
+      items.push(item(`${w.detail}: ${(now ? brief : full).textContent.trim()}`, seg.getAttribute("aria-label"),
+        () => { window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); (now ? full : brief).click(); }));
+    }
+    if (items.length) menu.prepend(...items, hub.el("div", "menu-sep clean-more-i"));
   };
   // Сводка направления на «Доске»: ядро кладёт её в шапку (.head-meta > .dir-recap), CSS прячет — шапка не растёт; здесь она же
   // встаёт первой строкой тела доски и листается с ней. Копия, не перенос: ядро перерисовывает шапку на каждом снимке;
@@ -444,7 +485,7 @@ export default function register(hub) {
   const sweep = () => {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
-    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); headFold();
+    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); headFold(); moreItems();
     boardRecap();
   };
   let queued = false;   // лента меняется часто — не чаще кадра
