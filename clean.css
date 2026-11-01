@@ -851,8 +851,10 @@ html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-le
     justify-content: flex-end; align-items: center; gap: 2px; pointer-events: none; }
   html.th-clean .dock-inner:has(> form.composer) .status > :is(.stat-par, .stat-mod, .stat-eff) { position: relative; z-index: 2; margin: 0; pointer-events: auto; }
   html.th-clean .status > :is(.stat-par, .stat-mod, .stat-eff)::after { content: none !important; }
-  /* кнопки плагинов съедают ширину строки: в узком окне — короткие подписи модели и усилия, иначе статус налезает на «+» */
-  @container status (max-width: 680px) { html.th-clean .par-long, html.th-clean .mod-long { display: none; } html.th-clean .par-short, html.th-clean .mod-short { display: inline; } }
+  /* Plugin buttons eat the row width: in a narrow window the executor label shortens, otherwise the status runs into «+».
+     The model label («Opus 5.5») is not shortened by the theme: the row holds only executors, model and effort (the folder
+     sits in the tab above), so there is room; below 520 px the core shortens it itself. */
+  @container status (max-width: 680px) { html.th-clean .par-long { display: none; } html.th-clean .par-short { display: inline; } }
   html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn { height: 28px; padding: 0 8px; border-radius: 8px; line-height: 28px; }
   html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu { left: auto; right: 0; }
   html.th-clean .dock-inner:has(form.composer.rec) .status > :is(.stat-par, .stat-mod, .stat-eff) { display: none; }   /* идёт запись голоса: полоса записи на весь ряд, меню модели не нужны */
