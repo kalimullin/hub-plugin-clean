@@ -25,11 +25,14 @@ test("a short model label is shown together with hiding the full one", () => {
   }
 });
 
-test("the theme neither hides nor zeroes the model and effort buttons, except during voice recording", () => {
-  const rules = css.split("\n").filter((l) => /\.stat-(mod|eff)\b/.test(l) && !/^\s*\/[*]/.test(l));
+test("the model control stays openable: .stat-mod is never display:none outside voice recording", () => {
+  // The model leaves the composer row (it is the «Модель: …» item of the thread's ⋯ menu), but that item clicks the core's button,
+  // so the control and its menu must stay in the layout (zero size), not be removed.
+  const rules = css.split("\n").filter((l) => /\.stat-mod\b/.test(l) && !/^\s*\/[*]/.test(l));
   for (const l of rules) {
-    const hidden = /display:\s*none|visibility:\s*hidden|font-size:\s*0\b|width:\s*0\b|opacity:\s*0\b/.test(l);
-    if (hidden) assert.match(l, /form\.composer\.rec|vf-/, `model buttons are hidden outside voice recording: ${l.trim().slice(0, 120)}`);
+    if (/display:\s*none|visibility:\s*hidden/.test(l)) assert.match(l, /form\.composer\.rec|vf-/, `.stat-mod is hidden outside voice recording: ${l.trim().slice(0, 120)}`);
   }
-  assert.doesNotMatch(css, /\.menu-btn[^{}]*\.stat-(mod|eff)[^{}]*\{[^}]*(text-overflow|font-size:\s*0)/);
+  assert.match(css, /\.status > \.stat-eff \{ display: none; \}/, "the effort button leaves the composer row");
+  assert.match(css, /\.stat-mod \.mod-eff \{ display: block; \}/, "the effort section of the model menu is shown at any width");
+  assert.match(css, /\.status > \.stat-mod > \.menu-btn \{[^}]*pointer-events: none/, "the model button in the row takes no pointer input");
 });

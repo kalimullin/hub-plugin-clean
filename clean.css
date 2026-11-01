@@ -858,6 +858,13 @@ html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-le
   html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn { height: 28px; padding: 0 8px; border-radius: 8px; line-height: 28px; }
   html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu { left: auto; right: 0; }
   html.th-clean .dock-inner:has(form.composer.rec) .status > :is(.stat-par, .stat-mod, .stat-eff) { display: none; }   /* идёт запись голоса: полоса записи на весь ряд, меню модели не нужны */
+  /* The model and the reasoning level live in the thread's «Ещё» menu («Модель: …»), not in the composer row, which keeps only the
+     executors chip. The core's model control stays in the DOM with zero size: the menu item clicks its button and the core opens its
+     own model menu (the level is a section of that menu, shown at any width) from this spot above the row. */
+  html.th-clean .status > .stat-eff { display: none; }
+  html.th-clean .status > .stat-mod, html.th-clean .status > .stat-par + .stat-mod { display: block; position: relative; flex: none; width: 0; height: 0; margin: 0; }
+  html.th-clean .status > .stat-mod > .menu-btn { position: absolute; inset: 0 auto auto 0; width: 0; height: 0; padding: 0; margin: 0; overflow: hidden; opacity: 0; pointer-events: none; }
+  html.th-clean .stat-mod .mod-eff { display: block; }
   /* камера видео-фидбэка — на нижнем ряду, справа от «+» (дно dock-inner — на 6 ниже карточки: пустая дорожка статуса) */
   html.th-clean .slot-host.composer:has(> .vf-slot):not(:has(> .slot:not(.vf-slot))) { left: 48px; bottom: 18px; }
   /* поля нет — язычок и строка остаются обычной строкой под лентой */
