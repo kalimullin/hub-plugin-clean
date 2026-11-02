@@ -767,7 +767,7 @@ html.th-clean .dock-inner { position: relative; }
    из неё вверх, поверх поля */
 html.th-clean .dock .status { height: 24px; flex-wrap: nowrap; overflow: visible; position: relative; z-index: 3; }
 html.th-clean .slot-host.composer:has(> .vf-slot):not(:has(> .slot:not(.vf-slot))) { position: absolute; z-index: 2; left: 42px; bottom: 42px; }
-html.th-clean .vf-slot { padding: 0; gap: 4px; justify-content: flex-start; }
+html.th-clean .vf-slot { padding: 0; gap: 8px; justify-content: flex-start; }
 /* подсказка кнопок камеры и корзины (data-tip плагина video-feedback) растёт вправо от кнопки: кнопки стоят у левого края
    поля, а подсказка плагина прижата правым краем и уходила под боковую панель, где её обрезала лента */
 @media (hover: hover) and (pointer: fine) {
@@ -791,7 +791,6 @@ html.th-clean .vf-slot .vf-btn.vf-idle .icon, html.th-clean .vf-slot .vf-trash .
 html.th-clean .vf-slot .vf-btn.vf-idle .icon { -webkit-mask: url("video-call.svg") center / 16px no-repeat; mask: url("video-call.svg") center / 16px no-repeat; }
 html.th-clean .vf-slot .vf-trash .icon { -webkit-mask: url("trash.svg") center / 16px no-repeat; mask: url("trash.svg") center / 16px no-repeat; }
 html.th-clean .vf-slot :is(.vf-btn.vf-idle, .vf-trash) .icon > * { display: none; }
-html.th-clean .dock-inner:has(.vf-slot) form.composer .bar { padding-left: 66px; }
 /* ошибка поля (команда, микрофон) — над рядом кнопок: ряд остаётся внизу, где скрепка и камера */
 html.th-clean .composer > :is(.bar, .sr) { order: 2; }
 /* запись голоса: полоса записи — на весь ряд, скрепки (ядро прячет) и камеры нет */
@@ -808,14 +807,12 @@ html.th-clean .recstrip { font: 400 12px/16px var(--font); font-variant-numeric:
 /* «+» (значок «добавить» Forma) в серой подложке — прежняя скрепка ядра: тот же выбор файла; микрофон — справа, рядом
    с «Отправить» (как в образце), а не слева у «+» */
 html.th-clean .composer > .attach { left: 12px; }
-html.th-clean .composer .bar { padding-left: 36px; }
 html.th-clean .composer .bar > .mic { order: 0; }
 html.th-clean .btn.round.quiet.attach { background: var(--c-fill); color: var(--c-t1); }
 @media (hover: hover) and (pointer: fine) {
   html.th-clean .btn.round.quiet.attach:hover { background: color-mix(in oklch, var(--c-t1) 10%, transparent); }
 }
 html.th-clean .btn.round.attach .icon { -webkit-mask: url("plus.svg") center / 16px no-repeat !important; mask: url("plus.svg") center / 16px no-repeat !important; }
-html.th-clean .dock-inner:has(.vf-slot) form.composer .bar { padding-left: 72px; }
 html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-left: 0; }
 @supports (anchor-name: --a) {
   /* высота ряда кнопок (--row) и место справа под микрофон с «Отправить» (--tail: 12 + 32 + 8, с микрофоном + 4 + 32) */
@@ -847,14 +844,10 @@ html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-le
     -webkit-mask: url("folder.svg") center / 12px no-repeat; mask: url("folder.svg") center / 12px no-repeat; }
   /* модель и усилие — на нижнем ряду карточки, справа перед микрофоном: статус поднимается на ряд (его место — под карточкой,
      6 зазора + ряд + 12 поля снизу), без «·» между частями; «Отправить» и микрофон — над ним (z-index карточки 1, у кнопок 2) */
-  html.th-clean .dock-inner:has(> form.composer) .status { order: 3; height: var(--row); margin: calc(-1 * (var(--row) + 12px + 6px)) 0 0; padding: 0 calc(var(--tail) + var(--tools-w, 0px)) 0 52px;
-    justify-content: flex-end; align-items: center; gap: 2px; pointer-events: none; }
+  html.th-clean .dock-inner:has(> form.composer) .status { order: 3; height: var(--row); margin: calc(-1 * (var(--row) + 12px + 6px)) 0 0; padding: 0 var(--fit-r, calc(var(--tail) + var(--tools-w, 0px))) 0 var(--fit-l, 52px);
+    justify-content: flex-end; align-items: center; gap: 8px; pointer-events: none; }
   html.th-clean .dock-inner:has(> form.composer) .status > :is(.stat-par, .stat-mod, .stat-eff) { position: relative; z-index: 2; margin: 0; pointer-events: auto; }
   html.th-clean .status > :is(.stat-par, .stat-mod, .stat-eff)::after { content: none !important; }
-  /* Plugin buttons eat the row width: in a narrow window the executor label shortens, otherwise the status runs into «+».
-     The model label («Opus 5.5») is not shortened by the theme: the row holds only executors, model and effort (the folder
-     sits in the tab above), so there is room; below 520 px the core shortens it itself. */
-  @container status (max-width: 680px) { html.th-clean .par-long { display: none; } html.th-clean .par-short { display: inline; } }
   html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn { height: 28px; padding: 0 8px; border-radius: 8px; line-height: 28px; }
   html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu { left: auto; right: 0; }
   html.th-clean .dock-inner:has(form.composer.rec) .status > :is(.stat-par, .stat-mod, .stat-eff) { display: none; }   /* идёт запись голоса: полоса записи на весь ряд, меню модели не нужны */
@@ -865,8 +858,6 @@ html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-le
 }
 @media (max-width: 760px) {
   html.th-clean .composer > .attach { left: 12px; }
-  html.th-clean .composer .bar { padding-left: 40px; }
-  html.th-clean .dock-inner:has(.vf-slot) form.composer .bar { padding-left: 80px; }
   html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-left: 0; }
   @supports (anchor-name: --a) {
     html.th-clean .dock-inner { --row: 36px; --tail: 56px; }
@@ -956,13 +947,12 @@ html.th-clean .composer.rec .bar > .btn.round:disabled > .spin-dot { margin: 0; 
 @supports (anchor-name: --a) {
   /* камера видео-фидбэка — справа, рядом с микрофоном (его левый край — 12 + 32 + 8 + 32 от края карточки, камера — через 4); без
      микрофона (в поле есть текст, голоса нет) камера сдвигается к «Отправить»; запись видео — корзина и красное время тем же рядом */
-  html.th-clean .slot-host.composer:has(> .vf-slot):not(:has(> .slot:not(.vf-slot))) { left: auto; right: 88px; bottom: 18px; transition: transform 160ms var(--ease-out); }
-  html.th-clean .dock-inner:not(:has(form.composer .bar > .btn.round.mic)) .slot-host.composer:has(> .vf-slot) { transform: translateX(40px); }
+  html.th-clean .slot-host.composer:has(> .vf-slot):not(:has(> .slot:not(.vf-slot))) { left: auto; right: calc(12px + 2 * var(--row, 32px) + 16px); bottom: 18px; transition: transform 160ms var(--ease-out); }
+  html.th-clean .dock-inner:not(:has(form.composer .bar > .btn.round.mic)) .slot-host.composer:has(> .vf-slot) { transform: translateX(calc(var(--row, 32px) + 8px)); }
   html.th-clean .vf-slot { justify-content: flex-end; }
   @media (hover: hover) and (pointer: fine) {
     html.th-clean .vf-slot [data-tip]:hover::after { left: auto; right: 0; }
   }
-  html.th-clean .dock-inner:has(.vf-slot) form.composer .bar { padding-left: 36px; }
   html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-left: 0; }
   html.th-clean .dock-inner { --tail: 56px; }
   html.th-clean .dock-inner:has(form.composer .bar > .btn.round.mic) { --tail: 92px; }
@@ -980,15 +970,54 @@ html.th-clean .composer.rec .bar > .btn.round:disabled > .spin-dot { margin: 0; 
   html.th-clean .composer.rec .clean-bars { animation-name: clean-swap-in-phone; }
   html.th-clean .composer.rec .btn.round.stop::before { left: 10px; }
   @supports (anchor-name: --a) {
-    html.th-clean .slot-host.composer:has(> .vf-slot):not(:has(> .slot:not(.vf-slot))) { right: 96px; }
-    html.th-clean .dock-inner:not(:has(form.composer .bar > .btn.round.mic)) .slot-host.composer:has(> .vf-slot) { transform: translateX(44px); }
-    html.th-clean .dock-inner:has(.vf-slot) form.composer .bar { padding-left: 40px; }
     html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-left: 0; }
     html.th-clean .dock-inner { --tail: 60px; }
     html.th-clean .dock-inner:has(form.composer .bar > .btn.round.mic) { --tail: 100px; }
     html.th-clean .dock-inner:has(.vf-slot):not(:has(form.composer .bar > .btn.round.mic)) { --tail: 96px; }
     html.th-clean .dock-inner:has(.vf-slot):has(form.composer .bar > .btn.round.mic) { --tail: 140px; }
   }
+}
+
+/* ---- bottom row and status line: nothing overlaps ----
+   The room is shared by the real width, not by a button count. fit.js measures the row (the free room between «+» and the
+   nearest button on the right) and puts classes on .dock-inner; this block holds only what they switch on.
+   1. The whole bottom row — «+», the status line, plugin buttons, camera, mic, send — is one line with an 8px gap.
+   2. Plugin buttons that do not fit one line with «+», camera, mic and send (.clean-up) wrap to a row above (as many rows as
+      needed); the mic and send stay on the bottom one.
+   3. The status line gives way by steps: short labels (.clean-fit-short) → an ellipsis (.clean-fit-shrink) → effort goes into
+      the model menu (.clean-fit-noeff) → the model (.clean-fit-nomod) → the executors (.clean-fit-nopar).
+   Below 520px the core hides effort and the model next to the executors by itself — here it does not decide: the room does. */
+html.th-clean .dock-inner:is(*, :has(.vf-slot)) form.composer .bar { padding-left: calc(var(--row, 32px) + 8px); }   /* 8 from «+» */
+html.th-clean .dock-inner form.composer:not(.rec) .bar:not(.reply-bar) { flex-wrap: nowrap; gap: 8px; }
+html.th-clean .dock-inner form.composer:not(.rec) .bar:not(.reply-bar) > :is(.mic, .send, .clean-send, .slot) { flex: none; }
+/* the camera sits between the plugin buttons and the mic (absolutely, over the row): the row leaves it room — a button plus 8 on each side */
+html.th-clean .dock-inner:has(.vf-slot) form.composer:not(.rec) .bar:not(.reply-bar) > .mic,
+html.th-clean .dock-inner:has(.vf-slot) form.composer:not(.rec) .bar:not(.reply-bar):not(:has(> .mic)) > .send:not(.clean-send) { margin-left: calc(var(--row, 32px) + 8px); }
+html.th-clean .dock-inner.clean-up form.composer:not(.rec) .bar:not(.reply-bar) { flex-wrap: wrap; justify-content: flex-end; row-gap: 0; }
+html.th-clean .dock-inner.clean-up form.composer:not(.rec) .bar:not(.reply-bar) > .slot-composer-tools { order: 1; margin-bottom: 8px; }
+html.th-clean .dock-inner.clean-up form.composer:not(.rec) .bar:not(.reply-bar)::after { content: ""; order: 2; flex: 0 0 100%; height: 0; }
+html.th-clean .dock-inner.clean-up form.composer:not(.rec) .bar:not(.reply-bar) > :is(.mic, .send, .clean-send) { order: 3; }
+/* a recording (voice or video) is on: no room for plugin buttons in the row — same as for the model and effort */
+html.th-clean .composer.rec .bar > .slot-composer-tools { display: none !important; }
+html.th-clean .dock-inner:has(.vf-btn:is(.vf-count, .vf-rec, .vf-work)) form.composer .bar > .slot-composer-tools { display: none !important; }   /* !important: a slot may carry its own display in style */
+@supports (anchor-name: --a) {
+  html.th-clean .dock-inner .status > .stat-eff, html.th-clean .dock-inner .status > .stat-par + .stat-mod { display: block; }
+  /* on a touch screen the core stretches the button with negative margins (−12 −8): it reached over «+» and the neighbours — the
+     box of the button is the button itself, and a finger gets the height of the whole row */
+  html.th-clean .dock-inner .status > :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn { margin: 0; }
+  @media (pointer: coarse) { html.th-clean .dock-inner .status > :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn { height: var(--row, 36px); line-height: var(--row, 36px); } }
+  html.th-clean .dock-inner .status > :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn::after { display: inline-block; }
+  html.th-clean .dock-inner .status :is(.par-long, .mod-long) { display: inline; }
+  html.th-clean .dock-inner .status :is(.par-short, .mod-short) { display: none; }
+  html.th-clean .dock-inner .status .stat-mod .mod-eff { display: none; }
+  html.th-clean .dock-inner.clean-fit-short .status :is(.par-long, .mod-long) { display: none; }
+  html.th-clean .dock-inner.clean-fit-short .status :is(.par-short, .mod-short) { display: inline; }
+  html.th-clean .dock-inner.clean-fit-shrink .status > :is(.stat-par, .stat-mod, .stat-eff) { flex: 0 1 auto; min-width: 0; }
+  html.th-clean .dock-inner.clean-fit-shrink .status > :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  html.th-clean .dock-inner.clean-fit-noeff .status > .stat-eff { display: none; }
+  html.th-clean .dock-inner.clean-fit-noeff .status .stat-mod .mod-eff { display: block; }
+  html.th-clean .dock-inner.clean-fit-nomod .status > .stat-mod { display: none; }
+  html.th-clean .dock-inner.clean-fit-nopar .status > .stat-par { display: none; }
 }
 
 /* ---- кнопки, карточки вопросов, таблицы, код, настройки ---- */

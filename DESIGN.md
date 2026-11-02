@@ -67,6 +67,12 @@ together with the code that follows it, and with a reason.
   - Menus: padding 4, radius 12, items 32px high, radius 8, `14/20` text, no title row.
   - Text buttons: 32px, radius 8, `--c-fill` background, `12/16` weight 500.
   - Badges: 16px high, radius 4. Pills and chips follow the status colors only.
+- **Nothing overlaps in the composer row.** Between neighbours in the bottom row of the card («+», status chips, plugin
+  buttons, camera, mic, send) there are 8px at every width and for any number of plugin buttons. Room is shared by
+  the measured width (`fit.js`), not by a button count or a container step: chip labels shorten, then ellipsize, then
+  effort goes into the model menu, then the model, then the executors give way; plugin buttons that do not fit one
+  row move to a row above. A new element in that row is checked by `tests/status-row.test.mjs` and the width matrix
+  (0/1/3/5 plugin buttons at 1440…320, light and dark), and a PR that changes the row shows the table.
 - **Status colors are fixed.** Red `--c-alert`, green `--c-free`, orange `--c-busy`, yellow `--c-eco`. A new state
   reuses one of them; it does not get its own hue. A band that states a status
   (the MCP login band above the chat) is tinted with `--c-busy-bg` or `--c-free-bg`, with no border.

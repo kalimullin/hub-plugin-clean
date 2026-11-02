@@ -23,12 +23,17 @@
 //   который тема прячет; раскрытая переписка сессий сворачивается шевроном — у него подпись «Свернуть»; у контекстных
 //   меню списка без заголовка — имя меню для чтения с экрана;
 // - запись голоса с клавиатуры: Enter останавливает и отправляет, двойной Esc отменяет, одиночный Esc запись не трогает.
+// - bottom row of the composer card (+, status chips, plugin buttons, camera, mic, send): room is shared by the measured
+//   width and nothing overlaps (fit.js).
+import { mountFit } from "./fit.js";
+
 const MINE = /(^|:)clean:clean(-dark)?\.json$/;
 const OWNER = new Set(["владелец", "owner"]);   // как называет владельца ядро в событиях (core/reducer.py)
 const on = () => document.documentElement.classList.contains("th-clean");
 
 export default function register(hub) {
   hub.addStyle("clean.css");
+  const fit = mountFit(on);   // composer bottom row: room is shared by the real width (fit.js)
   const T = (k, fb) => { try { const v = hub.t?.(k); return v && v !== k ? v : fb; } catch { return fb; } };
   const names = () => ({ hub: T("web.who.hub", "Хаб"), core: T("web.who.core", "ядро") });
 
@@ -446,6 +451,7 @@ export default function register(hub) {
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
     avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); headFold();
     boardRecap();
+    fit.hook();
   };
   let queued = false;   // лента меняется часто — не чаще кадра
   new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; sweep(); }); } }).observe(document.body, { childList: true, subtree: true, characterData: true });
@@ -607,7 +613,7 @@ export default function register(hub) {
       for (const b of document.querySelectorAll(".byline[data-clean]")) delete b.dataset.clean;
       if (!on()) {
         for (const b of document.querySelectorAll(".lightbox.clean-tall")) b.classList.remove("clean-tall");
-        unmaskIcons(); unAvatars(); fade(); feedEnd(); unPlaceholders(); unPlate();
+        unmaskIcons(); unAvatars(); fade(); feedEnd(); unPlaceholders(); unPlate(); fit.reset();
         for (const h of document.querySelectorAll(".chat-head[data-clean-label]")) { h.removeAttribute("aria-label"); h.removeAttribute("title"); delete h.dataset.cleanLabel; }
 
         for (const x of document.querySelectorAll(".search-row .clean-x, .clean-bg, .clean-fold, .clean-fold-show, .clean-send, .clean-bars, .ce-n, .clean-recap")) x.remove();

@@ -25,11 +25,11 @@ test("a short model label is shown together with hiding the full one", () => {
   }
 });
 
-test("the theme neither hides nor zeroes the model and effort buttons, except during voice recording", () => {
+test("the theme neither hides nor zeroes the model and effort buttons, except during voice recording and by the steps of fit.js", () => {
   const rules = css.split("\n").filter((l) => /\.stat-(mod|eff)\b/.test(l) && !/^\s*\/[*]/.test(l));
   for (const l of rules) {
     const hidden = /display:\s*none|visibility:\s*hidden|font-size:\s*0\b|width:\s*0\b|opacity:\s*0\b/.test(l);
-    if (hidden) assert.match(l, /form\.composer\.rec|vf-/, `model buttons are hidden outside voice recording: ${l.trim().slice(0, 120)}`);
+    if (hidden) assert.match(l, /form\.composer\.rec|vf-|clean-fit-|\.mod-eff/, `model buttons are hidden outside voice recording: ${l.trim().slice(0, 120)}`);
   }
   assert.doesNotMatch(css, /\.menu-btn[^{}]*\.stat-(mod|eff)[^{}]*\{[^}]*(text-overflow|font-size:\s*0)/);
 });
