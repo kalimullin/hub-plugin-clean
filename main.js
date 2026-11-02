@@ -14,7 +14,7 @@
 // - аватарки у всех авторов ленты: картинка темы по значку сессии, иначе — из набора темы по имени; в «ответила на ваше
 //   сообщение» — аватарка ответившей вместо ●;
 // - кнопка «Скрыть список» рядом с поиском и «Показать список» в углу у скрытого списка — нажимают родную полосу ядра;
-// - «Новая группа», «Разложить по группам» и «Вернуть стандартные группы» — каждая строкой на всю ширину сразу под группами; край списка при прокрутке — плавно;
+// - «Новая группа», «Разложить по группам» и «Сбросить группы» — каждая строкой на всю ширину сразу под группами; край списка при прокрутке — плавно;
 // - по макету на DS: подсказки «Найти…» и «Задача или вопрос хабу…», «·» в строках «работает» и под полем — отдельным
 //   серым знаком, «Esc для остановки», число на бейдже исполнителей, «Отправить» видна и в пустом поле с голосом;
 // - число открытых задач — бейджем на вкладке «Доска» (строка-сводка ядра прячется из шапки CSS); значок часов в бейдже
@@ -300,7 +300,7 @@ export default function register(hub) {
     }
   };
   // «+ Группа», «Авто» и «Сброс» — сразу под группами (до спящих), каждая своей строкой и словами, что она делает
-  const G = RU ? { add: "Новая группа", auto: "Разложить по группам", reset: "Вернуть стандартные группы" }
+  const G = RU ? { add: "Новая группа", auto: "Разложить по группам", reset: "Сбросить группы" }
     : { add: "New group", auto: "Sort into groups", reset: "Restore default groups" };
   const groupTools = () => {
     const list = document.getElementById("list"), tools = list?.querySelector(":scope > .g-tools");
@@ -309,7 +309,11 @@ export default function register(hub) {
     if (rest && tools.nextElementSibling !== rest) list.insertBefore(tools, rest);
     for (const [sel, text] of [[".add-group", G.add], [".auto", G.auto], [".btn:not(.add-group, .auto)", G.reset]]) {
       const b = tools.querySelector(`:scope > ${sel}`);
-      if (b && b.textContent !== text) b.textContent = text;
+      if (!b) continue;
+      // label in a span: ellipsis works only on a block child of a flex button, so a long translation stays on one line
+      let s = b.firstElementChild;
+      if (s?.tagName !== "SPAN" || b.children.length !== 1 || b.childNodes.length !== 1) { s = document.createElement("span"); b.replaceChildren(s); }
+      if (s.textContent !== text) s.textContent = text;
     }
   };
   // край списка при прокрутке — плавно: маска только с той стороны, куда есть что листать

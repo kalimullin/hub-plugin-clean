@@ -184,7 +184,7 @@ html.th-clean .list[data-clean-fade] { --fade-top: 0px; --fade-bottom: 0px;
   mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent); }
 html.th-clean .list[data-clean-fade~="up"] { --fade-top: 24px; }
 html.th-clean .list[data-clean-fade~="down"] { --fade-bottom: 64px; }
-/* «Новая группа», «Разложить по группам» (и «Вернуть стандартные группы», когда раскладка своя) — под группами, до спящих
+/* «Новая группа», «Разложить по группам» (и «Сбросить группы», когда раскладка своя) — под группами, до спящих
    (main.js переносит): каждая кнопкой на всю ширину, своей строкой, значок слева */
 html.th-clean #list .g-tools { display: flex; flex-direction: column; align-items: stretch; gap: 4px; margin: -12px 0 24px; padding: 0; }
 html.th-clean #list .g-tools .btn { width: 100%; min-height: 0; height: 32px; padding: 0 8px; gap: 8px; justify-content: flex-start; border-radius: 8px;
@@ -194,6 +194,7 @@ html.th-clean #list .g-tools .btn { width: 100%; min-height: 0; height: 32px; pa
 }
 html.th-clean details.resting > .btn.danger { min-height: 0; height: 32px; margin: 4px 0 0; padding: 0 8px; gap: 6px; border-radius: 8px; font: 400 12px/16px var(--font); }
 html.th-clean details.resting > .btn.danger .icon { width: 12px; height: 12px; }
+html.th-clean #list .g-tools .btn > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 html.th-clean #list .g-tools .btn::before { content: ""; flex: none; width: 16px; height: 16px; background: var(--c-t2);
   -webkit-mask: var(--g-ic) center / 16px no-repeat; mask: var(--g-ic) center / 16px no-repeat; }
 html.th-clean #list .g-tools .add-group { --g-ic: url("plus.svg"); }
