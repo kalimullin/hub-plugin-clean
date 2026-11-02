@@ -33,6 +33,15 @@ time of the last activity on the right (now, 2m, 3h, 5d). The open session is a 
 no second line. The text comes from the session snapshot the core already sends (`out_head`, or `gist` when the session has not written to you); the working directory
 stays in the row's tooltip. The choice is stored in the browser.
 
+## Chat avatars
+
+Settings → Look → Clean theme → “Chat avatars” (on by default). Every chat in the session list gets a picture in front of its
+name, in two sizes by level, not by type: first level (specialists, directions, anything in a group) and second level
+(executors under their parent). Compact list: 16 and 12; detailed list: 32 and 24, centred on the two lines. Specialists and
+executors show a character from the theme's kit: the session's own icon, else the icon of whoever started it, else one
+picked by the name. A direction is not an agent, so it gets a compass icon on a grey tile of the same size and shape. Click a
+picture to change the icon (not for directions). Off — names only.
+
 ## Keys while recording a voice message
 
 Only while Clean is the active theme and a recording is running:

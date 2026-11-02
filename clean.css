@@ -1379,3 +1379,29 @@ html.th-clean .mcpwait-link input:focus, html.th-clean .mcpwait-link input:focus
   html.th-clean .mcpwait-row .btn { height: 40px; }
   html.th-clean .mcpwait-link input { height: 40px; }
 }
+
+/* ---- «Аватарки у чатов» (настройка «Вид», по умолчанию включена; main.js rowFaces): тип строки — data-clean-k (agent / exec / other / dir),
+   картинка — --clean-face. Размеров два, по уровню, не по типу: первый уровень (специалисты, направления) и второй (исполнители под родителем,
+   внутри .forks). Компактный список: 16 и 12; подробный: 32 и 24, по центру двух строк. Направление — тот же размер и форма, что у специалиста,
+   плитка с компасом (значок — сетка 16/20 по размеру плитки). Узлов в строке не прибавилось: картинка — .txt::before, компас — .nm::before;
+   родной узел ядра .nm > .avatar остаётся невидимой кнопкой поверх картинки — по клику открывается выбор значка (не у направлений) ---- */
+html.th-clean.th-clean-av #list .srow[data-clean-k] { --av: 16px; --av-r: 4px; --av-gap: 8px; --av-left: 0px; --ic: 12px; }
+html.th-clean.th-clean-av #list .forks .srow[data-clean-k] { --av: 12px; --av-r: 3px; --av-left: 2px; --av-gap: 10px; --ic: 10px; }
+html.th-clean.th-clean-detail.th-clean-av #list .srow[data-clean-k] { --av: 32px; --av-r: 8px; --av-gap: 12px; --ic: 20px; }
+html.th-clean.th-clean-detail.th-clean-av #list .forks .srow[data-clean-k] { --av: 24px; --av-r: 6px; --av-left: 4px; --av-gap: 8px; --ic: 16px; }
+html.th-clean.th-clean-av #list .srow[data-clean-k] > .txt { position: relative; line-height: 20px; padding-left: calc(var(--av) + var(--av-gap) + var(--av-left)); }
+html.th-clean.th-clean-av #list .srow[data-clean-k] > .txt::before, html.th-clean.th-clean-av #list .srow[data-clean-k] .nm > .avatar {
+  content: ""; position: absolute; left: var(--av-left); top: calc(50% - var(--av) / 2); width: var(--av); height: var(--av); border-radius: var(--av-r); }
+html.th-clean.th-clean-av #list .srow[data-clean-k] > .txt::before { background: var(--clean-face, var(--c-fill)) center / cover;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--foreground) 10%, transparent); }
+html.th-clean.th-clean-av #list .srow[data-clean-k] .nm > .avatar { display: block; z-index: 1; background: none !important; font-size: 0; color: transparent; }
+html.th-clean.th-clean-av #list .srow[data-clean-k="dir"] .nm > .avatar { display: none; }
+html.th-clean.th-clean-av #list .srow[data-clean-k="dir"] > .txt::before { background: var(--c-fill); box-shadow: none; }
+html.th-clean.th-clean-av #list .srow[data-clean-k="dir"] .nm::before { content: ""; position: absolute; left: calc(var(--av-left) + (var(--av) - var(--ic)) / 2);
+  top: calc(50% - var(--ic) / 2); width: var(--ic); height: var(--ic); background: var(--c-t2);
+  -webkit-mask: url("compass.svg") center / contain no-repeat; mask: url("compass.svg") center / contain no-repeat; }
+/* спит — картинка тише, как и имя */
+html.th-clean.th-clean-av #list .srow[data-clean-k]:has(> .glyph:is([data-s="asleep"], [data-s="closed"], [data-s="absent"], [data-s="queued"])) > .txt::before,
+html.th-clean.th-clean-av #list .srow[data-clean-k="dir"]:has(> .glyph:is([data-s="asleep"], [data-s="closed"], [data-s="absent"], [data-s="queued"])) .nm::before { opacity: .5; }
+/* подробный: строка в одну строку (нет превью) — под плитку 32 нужно 44, у списка с двумя строками высота своя */
+html.th-clean.th-clean-detail.th-clean-av #list .srow[data-clean-d]:not([data-clean-two], .forks .srow) { min-height: 44px; }

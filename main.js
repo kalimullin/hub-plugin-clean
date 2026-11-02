@@ -462,7 +462,9 @@ export default function register(hub) {
     title: RU ? "Тема Clean" : "Clean theme",
     hint: RU ? "Действует, пока выбрана тема Clean." : "Applies while the Clean theme is selected.",
     options: [{ key: "detail", on: false, label: RU ? "Подробный список сессий" : "Detailed session list",
-      hint: RU ? "Под названием проект и папка, справа время. Без галочки список компактный." : "Project and folder under the name, time on the right. Unchecked, the list is compact." }],
+      hint: RU ? "Под названием проект и папка, справа время. Без галочки список компактный." : "Project and folder under the name, time on the right. Unchecked, the list is compact." },
+    { key: "avatars", on: true, label: RU ? "Аватарки у чатов" : "Chat avatars",
+      hint: RU ? "У специалистов и исполнителей — аватарка, у направлений — значок. Без галочки — только названия." : "Specialists and executors get an avatar, directions get an icon. Unchecked, names only." }],
   });
   const WORDS = RU ? AGO.ru : AGO.en;
   const rowName = (r) => {
@@ -491,6 +493,30 @@ export default function register(hub) {
     const txt = r.querySelector(":scope > .txt");
     if (txt) delete txt.dataset.cleanPrev;
   };
+  // «Аватарки у чатов» (настройка «Вид», по умолчанию включена): тип строки — data-clean-k (agent / exec / other / dir), картинка — --clean-face,
+  // рисует clean.css. Специалист и исполнитель — лицо из набора темы: свой значок сессии, иначе значок того, кто её поднял, иначе
+  // одно и то же по имени (как в ленте); направление — значок-компас без лица. Строки не получают новых узлов (ядро их пересобирает)
+  const rowFaces = () => {
+    const rows = document.querySelectorAll("#list .srow:not(.nav, .queued)");
+    const clear = (r) => { delete r.dataset.cleanK; r.style.removeProperty("--clean-face"); };
+    if (!document.documentElement.classList.contains("th-clean-av")) { for (const r of document.querySelectorAll("#list .srow[data-clean-k]")) clear(r); return; }
+    const snap = hub.snapshot?.() || {}, list = snap.sessions || [], dirs = snap.directions || [], kit = kitAvatars();
+    const pool = Object.values(kit).filter((u) => /\.jpe?g\b/.test(u));
+    const own = (x) => (x?.icon && /\.jpe?g\b/.test(kit[x.icon] || "") ? kit[x.icon] : "");
+    const face = (x) => {
+      let up = x, u = own(x);
+      for (let i = 0; !u && up?.raised_by && i < 5; i++) { up = list.find((y) => y.name === up.raised_by); u = own(up); }
+      return u || pool[hash((up || x).name) % pool.length] || "";
+    };
+    for (const r of rows) {
+      const s = sessionFor(rowName(r), list);
+      if (!s || s.kind === "hub") { if (r.dataset.cleanK) clear(r); continue; }
+      const k = s.role === "agent" ? "agent" : dirs.includes(s.name) || s.backlog ? "dir" : r.closest("li.forks") ? "exec" : "other";
+      put(r, "cleanK", k);
+      const u = k === "dir" ? "" : face(s), v = u ? `url("${u}")` : "";
+      if (v) { if (r.style.getPropertyValue("--clean-face") !== v) r.style.setProperty("--clean-face", v); } else if (r.style.getPropertyValue("--clean-face")) r.style.removeProperty("--clean-face");
+    }
+  };
   // On every snapshot the core merges rows into the old nodes and erases foreign attributes (reconcile.js, syncAttrs),
   // ours too. For a moment the detailed list is shorter (rows are single-line), and when it is scrolled to the bottom
   // the core immediately cuts the scroll to the new, smaller bottom (list.scrollTop = keep); once the rows are
@@ -504,13 +530,18 @@ export default function register(hub) {
     l.dataset.cleanKeepOn = "1";
     l.addEventListener("scroll", () => { listTop = l.scrollTop; }, { passive: true });
     new MutationObserver(() => {
-      if (!on() || !document.documentElement.classList.contains("th-clean-detail")) return;
+      if (!on()) return;
+      rowFaces();   // the same erasing takes our avatar attributes too
+      if (!document.documentElement.classList.contains("th-clean-detail")) return;
       if (l.scrollTop < l.scrollHeight - l.clientHeight - 1) return;   // not at the bottom: nothing to cut
       rowDetail();
       if (l.scrollTop < listTop) l.scrollTop = listTop;
-    }).observe(l, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-clean-d"] });
+    }).observe(l, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-clean-d", "data-clean-k", "style"] });
   };
-  const detailClass = () => document.documentElement.classList.toggle("th-clean-detail", !!hub.option?.("detail"));
+  const detailClass = () => {
+    document.documentElement.classList.toggle("th-clean-detail", !!hub.option?.("detail"));
+    document.documentElement.classList.toggle("th-clean-av", !!hub.option?.("avatars"));
+  };
   detailClass();
   addEventListener("hub-redraw", () => { detailClass(); sweep(); });
   setInterval(() => { if (on()) rowDetail(); }, 20000);   // минуты идут и без перерисовки ядра
@@ -518,7 +549,7 @@ export default function register(hub) {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
     avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); headFold();
-    boardRecap(); rowDetail(); keepList();
+    boardRecap(); rowDetail(); rowFaces(); keepList();
     fit.hook();
   };
   let queued = false;   // лента меняется часто — не чаще кадра
