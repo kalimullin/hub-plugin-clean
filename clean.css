@@ -384,7 +384,7 @@ html.th-clean main > .head .clean-bg:is(:focus-visible)::after { content: attr(d
    Название сжимается последним (многоточие), статус виден всегда */
 @media (min-width: 761px) {
   html.th-clean main > .head { flex-wrap: nowrap; container: hd / inline-size; }
-  html.th-clean main > .head h2 { flex: 0 0.001 auto; min-width: 48px; }
+  html.th-clean main > .head h2 { flex: 0 0.001 auto; min-width: 2ch; }   /* shrink floor: two letters plus ellipsis; a fixed 48px stretched short titles ("Хаб" is 32px) and pushed the status pill away */
   html.th-clean main > .head :is(.pill, .seg, .menu-wrap, .fs-lupa, .btn) { flex: none; }
   html.th-clean main > .head .clean-bg { flex: 0 100 auto; min-width: 72px; }
   html.th-clean main > .head .spacer { flex: 1 1 0; min-width: 0; }
