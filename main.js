@@ -23,9 +23,12 @@
 //   который тема прячет; раскрытая переписка сессий сворачивается шевроном — у него подпись «Свернуть»; у контекстных
 //   меню списка без заголовка — имя меню для чтения с экрана;
 // - запись голоса с клавиатуры: Enter останавливает и отправляет, двойной Esc отменяет, одиночный Esc запись не трогает.
+// - «Подробный» список сессий (настройка в «Настройки → Вид», по умолчанию выключена): во второй строке проект и папка
+//   (рабочая копия), справа — время последней активности; строка открытой сессии — карточкой (rowDetail);
 // - bottom row of the composer card (+, status chips, plugin buttons, camera, mic, send): room is shared by the measured
 //   width and nothing overlaps (fit.js).
 import { mountFit } from "./fit.js";
+import { AGO, detailOf, sessionFor } from "./rows.js";
 
 const MINE = /(^|:)clean:clean(-dark)?\.json$/;
 const OWNER = new Set(["владелец", "owner"]);   // как называет владельца ядро в событиях (core/reducer.py)
@@ -65,7 +68,7 @@ export default function register(hub) {
     if (!on()) return;
     for (const r of document.querySelectorAll("#list .srow")) {
       const nm = r.querySelector(".nm"), lb = r.querySelector(".lb")?.textContent?.trim();
-      const t = [nm?.title || nm?.textContent?.trim(), lb].filter(Boolean).join("\n");
+      const t = [nm?.title || nm?.textContent?.trim(), lb, r.dataset.cleanTip].filter(Boolean).join("\n");
       if (t && r.title !== t) r.title = t;
     }
   };
@@ -446,11 +449,53 @@ export default function register(hub) {
   const unPlate = () => {
     for (const host of document.querySelectorAll(".strip-host:has(> .clean-queue)")) delete host.dataset.sig;
   };
+  // «Подробный» вид списка (настройка темы, hub.addOptions → «Настройки → Вид»; выбор хранит ядро в localStorage):
+  // первая строка — имя и справа время последней активности (now, 2м, 3ч), вторая — проект и папка рабочей копии
+  // моноширинным; нет папки — только проект, нет рабочей папки — второй строки нет. Данные — из снимка (cwd, since,
+  // state): ветки в снимке нет, поэтому «папка» — имя рабочей копии из .claude/worktrees/<имя>. Строки не получают
+  // новых узлов (ядро их пересобирает) — только атрибуты, а текст рисует clean.css через attr()
+  hub.addOptions({
+    title: RU ? "Тема Clean" : "Clean theme",
+    hint: RU ? "Действует, пока выбрана тема Clean." : "Applies while the Clean theme is selected.",
+    options: [{ key: "detail", on: false, label: RU ? "Подробный список сессий" : "Detailed session list",
+      hint: RU ? "Под названием проект и папка, справа время. Без галочки список компактный." : "Project and folder under the name, time on the right. Unchecked, the list is compact." }],
+  });
+  const WORDS = RU ? AGO.ru : AGO.en;
+  const rowName = (r) => {
+    const nm = r.querySelector(".nm");
+    const text = [...(nm?.childNodes || [])].filter((n) => n.nodeType === 3).map((n) => n.nodeValue.trim()).filter(Boolean).pop();
+    return text || "";
+  };
+  const put = (node, key, v) => { if (v) { if (node.dataset[key] !== v) node.dataset[key] = v; } else if (key in node.dataset) delete node.dataset[key]; };
+  const rowDetail = () => {
+    const detail = document.documentElement.classList.contains("th-clean-detail");
+    const rows = document.querySelectorAll("#list .srow:not(.nav, .queued)");
+    if (!detail) { for (const r of document.querySelectorAll("#list .srow[data-clean-d]")) clearDetail(r); return; }
+    const list = hub.snapshot?.()?.sessions || [], now = Date.now() / 1000;
+    for (const r of rows) {
+      const d = detailOf(sessionFor(rowName(r), list), now, WORDS);
+      if (!d) { if (r.dataset.cleanD) clearDetail(r); continue; }
+      const txt = r.querySelector(":scope > .txt");
+      put(r, "cleanD", "1"); put(r, "cleanTip", d.cwd); put(r, "cleanAgo", d.ago); put(r, "cleanTwo", d.proj ? "1" : "");
+      r.style.setProperty("--clean-ago-w", `${d.ago.length * 7 + 8}px`);
+      if (txt) { put(txt, "cleanProj", d.proj); put(txt, "cleanSub", d.sub); }
+    }
+  };
+  const clearDetail = (r) => {
+    for (const k of ["cleanD", "cleanAgo", "cleanTwo", "cleanTip"]) delete r.dataset[k];
+    r.style.removeProperty("--clean-ago-w");
+    const txt = r.querySelector(":scope > .txt");
+    if (txt) { delete txt.dataset.cleanProj; delete txt.dataset.cleanSub; }
+  };
+  const detailClass = () => document.documentElement.classList.toggle("th-clean-detail", !!hub.option?.("detail"));
+  detailClass();
+  addEventListener("hub-redraw", () => { detailClass(); sweep(); });
+  setInterval(() => { if (on()) rowDetail(); }, 20000);   // минуты идут и без перерисовки ядра
   const sweep = () => {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
     avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); headFold();
-    boardRecap();
+    boardRecap(); rowDetail();
     fit.hook();
   };
   let queued = false;   // лента меняется часто — не чаще кадра

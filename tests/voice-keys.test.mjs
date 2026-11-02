@@ -43,7 +43,7 @@ async function scene({ theme = true, rec = "recording", focus = null, stopButton
     setInterval: () => 0, CSS: { escape: (x) => x },
   });
   const mod = await import(MAIN + "?s=" + Math.random());
-  await mod.default({ addStyle() {}, addSlot() {}, el: (t) => node(t), t: (k) => k, snapshot: () => ({}), redraw() {}, locale: "ru" });
+  await mod.default({ addStyle() {}, addSlot() {}, addOptions() {}, option: () => false, el: (t) => node(t), t: (k) => k, snapshot: () => ({}), redraw() {}, locale: "ru" });
   const keys = s.listeners.filter((l) => l.type === "keydown");
   s.keys = keys;
   // нажатие: возвращает, что с ним сделал плагин

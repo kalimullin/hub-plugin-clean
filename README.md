@@ -25,6 +25,13 @@ To give an agent another character, change its icon: the session row menu → Ic
 `hub session icon <name> <emoji>`. Your own pictures: put a file in `a/` and add an “emoji → file” pair to `avatars`
 in both theme files.
 
+## Detailed session list
+
+Settings → Look → Clean theme → “Detailed session list” (off by default, so the list stays compact). Each row then
+shows the project and folder under the name (monospace, from the session's working directory: `<project>/.claude/worktrees/<folder>`,
+or just the last folder) and the time of the last activity on the right (now, 2m, 3h, 5d). The open session is a card.
+The core does not give the git branch, so the folder is the working copy's name. The choice is stored in the browser.
+
 ## Keys while recording a voice message
 
 Only while Clean is the active theme and a recording is running:
