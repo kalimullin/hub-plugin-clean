@@ -109,3 +109,10 @@ test("sort by last message: the option is on by default, the order goes through 
   assert.match(main, /hub\.addOrder\(/);
   assert.match(css, /html\.th-clean\.th-clean-recent #list \{ overflow-anchor: none; \}/);
 });
+
+test("time in a row is the time the list is sorted by: a result that arrived without a state change is “now”, not the old since", () => {
+  assert.equal(agoText({ state: "idle", since: NOW - 20 * 86400, out_head_ts: NOW - 30 }, NOW, AGO.en), "now");
+  assert.equal(agoText({ state: "idle", since: NOW - 3 * 3600, out_head_ts: NOW - 7200 }, NOW, AGO.en), "2h", "the later of the two wins");
+  assert.equal(agoText({ state: "idle", since: NOW - 3600, out_head_ts: NOW - 7200 }, NOW, AGO.en), "1h", "an older result does not make it older");
+  assert.equal(agoText({ state: "idle", since: NOW - 3 * 3600, out_head_ts: NOW - 60 }, NOW, AGO.en), "1m");
+});

@@ -1,11 +1,11 @@
 // «Подробный» список сессий (main.js rowDetail): чистые части — что и откуда берётся из снимка, чтобы проверять без браузера.
 // Данные — только те, что ядро уже отдаёт в снимке сессий: out_head (начало последнего ответа; нет — gist.text), since, state, cwd (для подсказки).
 
-// подпись времени: работает — «сейчас» (since у такой сессии — начало хода, а не последняя активность); иначе — сколько прошло
+// подпись времени: работает — «сейчас» (since у такой сессии — начало хода, а не последняя активность); иначе — сколько прошло с последнего сообщения (lastAt)
 export const AGO = { ru: { now: "сейчас", m: "м", h: "ч", d: "д" }, en: { now: "now", m: "m", h: "h", d: "d" } };
 export function agoText(s, now, words = AGO.en) {
   if (s.state === "busy" || s.state === "starting") return words.now;
-  const sec = Math.max(0, now - (s.since || now));
+  const sec = Math.max(0, now - (lastAt(s) || now));   // the same time the list is sorted by
   if (sec < 60) return words.now;
   return sec < 3600 ? Math.floor(sec / 60) + words.m : sec < 86400 ? Math.floor(sec / 3600) + words.h : Math.floor(sec / 86400) + words.d;
 }
