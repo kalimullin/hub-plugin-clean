@@ -36,6 +36,7 @@ export function sessionFor(name, list) {
 
 // что рисовать в строке: превью, время, полный путь для подсказки; null — строка остаётся компактной
 export function detailOf(s, now, words) {
-  if (!s || s.kind === "hub") return null;
+  if (!s) return null;
+  if (s.kind === "hub") return { prev: flat(s.out_head || s.gist?.text), ago: "", cwd: "" };   // «Хаб»: превью как у всех; он всегда на связи — времени нет, подсказка — своя
   return { prev: flat(s.out_head || s.gist?.text), ago: agoText(s, now, words), cwd: s.cwd || "" };
 }

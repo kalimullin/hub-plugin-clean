@@ -49,13 +49,13 @@ test("the row finds its session by the shown name, a child under its parent too 
   assert.equal(sessionFor("nope", list), null);
 });
 
-test("what a row shows: the hub stays compact, an empty chat has no second line, the full path goes to the tooltip", () => {
+test("what a row shows: the hub has the preview but no time, an empty chat has no second line, the full path goes to the tooltip", () => {
   const s = { name: "flash", kind: "work", state: "idle", since: NOW - 120, cwd: "/u/dev/p/.claude/worktrees/flash-fix", out_head: "Fixed **the flash** on reload…" };
   assert.deepEqual(detailOf(s, NOW, AGO.en), { prev: "Fixed the flash on reload", ago: "2m", cwd: s.cwd });
   assert.equal(detailOf({ ...s, out_head: null, gist: { text: "The gist of the turn" } }, NOW, AGO.en).prev, "The gist of the turn", "an executor that never wrote to the owner: the gist of its turn");
   assert.deepEqual(detailOf({ ...s, out_head: null }, NOW, AGO.en), { prev: "", ago: "2m", cwd: s.cwd });
   assert.deepEqual(detailOf({ ...s, cwd: "", out_head: undefined }, NOW, AGO.en), { prev: "", ago: "2m", cwd: "" });
-  assert.equal(detailOf({ ...s, kind: "hub" }, NOW, AGO.en), null);
+  assert.deepEqual(detailOf({ ...s, kind: "hub" }, NOW, AGO.en), { prev: "Fixed the flash on reload", ago: "", cwd: "" });
   assert.equal(detailOf(null, NOW, AGO.en), null);
 });
 

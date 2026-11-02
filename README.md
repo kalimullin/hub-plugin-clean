@@ -25,6 +25,23 @@ To give an agent another character, change its icon: the session row menu → Ic
 `hub session icon <name> <emoji>`. Your own pictures: put a file in `a/` and add an “emoji → file” pair to `avatars`
 in both theme files.
 
+### Chat avatars in the session list
+
+Settings → Look → Clean theme → “Chat avatars” (on by default). Specialists and executors get a character, the Hub is
+the same size as a specialist with the same ring (its own icon, or the theme's picture `avatar-hub.png`), directions get
+a Forma tile. Click a picture to change the icon (the core's picker). In the detailed list the Hub has the preview of its
+last message like every other chat.
+
+A direction's tile shows a compass until you give it an icon. Icons are picked by a session that has the Icons8 MCP and
+are kept on your machine, not in this repository (`chat-icons/` is git-ignored: the map holds your chat names):
+
+    python3 tools/chat-icons.py need                         # directions without an icon (default http://127.0.0.1:8787)
+    python3 tools/chat-icons.py add <chat> <file.svg|->      # SVG from get_icon_svg, platform "forma-regular"
+    python3 tools/chat-icons.py word <word> <file.svg|->     # any chat with this whole word in its name or description
+
+Reload the page after a change. No map, or a chat that is not in it — the compass. The Hub can have an entry too
+(`add hub …`): it shows when the Hub has no icon of its own.
+
 ## Detailed session list
 
 Settings → Look → Clean theme → “Detailed session list” (off by default, so the list stays compact). Each row then

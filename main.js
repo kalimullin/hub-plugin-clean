@@ -473,13 +473,15 @@ export default function register(hub) {
     return text || "";
   };
   const put = (node, key, v) => { if (v) { if (node.dataset[key] !== v) node.dataset[key] = v; } else if (key in node.dataset) delete node.dataset[key]; };
+  // the session of a row: by the name in it; the hub row carries its own label ("Хаб"), not the session name — it is the first row of the list
+  const rowSession = (r, list, firstRow) => sessionFor(rowName(r), list) || (r === firstRow ? list.find((x) => x.kind === "hub") : null);
   const rowDetail = () => {
     const detail = document.documentElement.classList.contains("th-clean-detail");
     const rows = document.querySelectorAll("#list .srow:not(.nav, .queued)");
     if (!detail) { for (const r of document.querySelectorAll("#list .srow[data-clean-d]")) clearDetail(r); return; }
-    const list = hub.snapshot?.()?.sessions || [], now = Date.now() / 1000;
+    const list = hub.snapshot?.()?.sessions || [], now = Date.now() / 1000, firstRow = document.querySelector("#list .sgroup.bare .srow");
     for (const r of rows) {
-      const d = detailOf(sessionFor(rowName(r), list), now, WORDS);
+      const d = detailOf(rowSession(r, list, firstRow), now, WORDS);
       if (!d) { if (r.dataset.cleanD) clearDetail(r); continue; }
       const txt = r.querySelector(":scope > .txt");
       put(r, "cleanD", "1"); put(r, "cleanTip", d.cwd); put(r, "cleanAgo", d.ago); put(r, "cleanTwo", d.prev || r.parentElement?.classList.contains("has-forks") ? "1" : "");   // исполнители: «N ›» живёт внизу справа, поэтому и без превью строка двухэтажная
@@ -493,12 +495,30 @@ export default function register(hub) {
     const txt = r.querySelector(":scope > .txt");
     if (txt) delete txt.dataset.cleanPrev;
   };
-  // «Аватарки у чатов» (настройка «Вид», по умолчанию включена): тип строки — data-clean-k (agent / exec / other / dir), картинка — --clean-face,
-  // рисует clean.css. Специалист и исполнитель — лицо из набора темы: свой значок сессии, иначе значок того, кто её поднял, иначе
-  // одно и то же по имени (как в ленте); направление — значок-компас без лица. Строки не получают новых узлов (ядро их пересобирает)
+  // «Аватарки у чатов» (настройка «Вид», по умолчанию включена): тип строки — data-clean-k (agent / exec / other / dir / hub), картинка —
+  // --clean-face, рисует clean.css. Специалист и исполнитель — лицо из набора темы: свой значок сессии, иначе значок того, кто её
+  // поднял, иначе одно и то же по имени (как в ленте); «Хаб» — свой значок, иначе картинка темы avatar-hub.png; направление — плитка со
+  // значком Forma. Плитка (data-clean-tile) — у направления всегда, у «Хаба» только без своего значка и с подобранной иконкой.
+  // Иконка плитки — по подобранной карте chat-icons/map.json (tools/chat-icons.py; локальная, в репозиторий не попадает): сначала
+  // имя чата, потом слово из имени или описания; нет карты или чата в ней — компас. Строки не получают новых узлов (ядро их пересобирает)
+  let chatIcons = null;
+  const iconBase = new URL("chat-icons/", import.meta.url).href;
+  fetch(iconBase + "map.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((m) => {
+    chatIcons = { names: m?.names || {}, words: m?.words || {} };
+    if (on()) rowFaces();
+  });
+  const chatIcon = (name, about) => {
+    if (!chatIcons) return "";
+    let f = chatIcons.names[name];
+    if (!f) {
+      const toks = `${name} ${about || ""}`.toLowerCase().split(/[^a-z0-9а-яё]+/);
+      f = Object.entries(chatIcons.words).find(([w]) => toks.includes(w))?.[1];
+    }
+    return f && /^[\w-]+\.svg$/.test(f) ? `url("${iconBase}${f}")` : "";
+  };
   const rowFaces = () => {
     const rows = document.querySelectorAll("#list .srow:not(.nav, .queued)");
-    const clear = (r) => { delete r.dataset.cleanK; r.style.removeProperty("--clean-face"); };
+    const clear = (r) => { for (const k of ["cleanK", "cleanTile"]) delete r.dataset[k]; r.style.removeProperty("--clean-face"); r.style.removeProperty("--clean-ic"); };
     if (!document.documentElement.classList.contains("th-clean-av")) { for (const r of document.querySelectorAll("#list .srow[data-clean-k]")) clear(r); return; }
     const snap = hub.snapshot?.() || {}, list = snap.sessions || [], dirs = snap.directions || [], kit = kitAvatars();
     const pool = Object.values(kit).filter((u) => /\.jpe?g\b/.test(u));
@@ -508,13 +528,18 @@ export default function register(hub) {
       for (let i = 0; !u && up?.raised_by && i < 5; i++) { up = list.find((y) => y.name === up.raised_by); u = own(up); }
       return u || pool[hash((up || x).name) % pool.length] || "";
     };
+    const firstRow = document.querySelector("#list .sgroup.bare .srow");
+    const setVar = (r, k, v) => { if (v) { if (r.style.getPropertyValue(k) !== v) r.style.setProperty(k, v); } else if (r.style.getPropertyValue(k)) r.style.removeProperty(k); };
     for (const r of rows) {
-      const s = sessionFor(rowName(r), list);
-      if (!s || s.kind === "hub") { if (r.dataset.cleanK) clear(r); continue; }
-      const k = s.role === "agent" ? "agent" : dirs.includes(s.name) || s.backlog ? "dir" : r.closest("li.forks") ? "exec" : "other";
+      const s = rowSession(r, list, firstRow);
+      if (!s) { if (r.dataset.cleanK) clear(r); continue; }
+      const hubRow = s.kind === "hub";
+      const k = hubRow ? "hub" : s.role === "agent" ? "agent" : dirs.includes(s.name) || s.backlog ? "dir" : r.closest("li.forks") ? "exec" : "other";
       put(r, "cleanK", k);
-      const u = k === "dir" ? "" : face(s), v = u ? `url("${u}")` : "";
-      if (v) { if (r.style.getPropertyValue("--clean-face") !== v) r.style.setProperty("--clean-face", v); } else if (r.style.getPropertyValue("--clean-face")) r.style.removeProperty("--clean-face");
+      const u = k === "dir" ? "" : hubRow ? own(s) : face(s), ic = k === "dir" ? chatIcon(s.name, s.about) : hubRow && !u ? chatIcon("hub", "") : "";
+      put(r, "cleanTile", k === "dir" || (hubRow && !u && ic) ? "1" : "");
+      setVar(r, "--clean-face", u ? `url("${u}")` : "");
+      setVar(r, "--clean-ic", ic);
     }
   };
   // On every snapshot the core merges rows into the old nodes and erases foreign attributes (reconcile.js, syncAttrs),
@@ -536,7 +561,7 @@ export default function register(hub) {
       if (l.scrollTop < l.scrollHeight - l.clientHeight - 1) return;   // not at the bottom: nothing to cut
       rowDetail();
       if (l.scrollTop < listTop) l.scrollTop = listTop;
-    }).observe(l, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-clean-d", "data-clean-k", "style"] });
+    }).observe(l, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-clean-d", "data-clean-k", "data-clean-tile", "style"] });
   };
   const detailClass = () => {
     document.documentElement.classList.toggle("th-clean-detail", !!hub.option?.("detail"));
