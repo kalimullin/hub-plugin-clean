@@ -491,6 +491,25 @@ export default function register(hub) {
     const txt = r.querySelector(":scope > .txt");
     if (txt) delete txt.dataset.cleanPrev;
   };
+  // On every snapshot the core merges rows into the old nodes and erases foreign attributes (reconcile.js, syncAttrs),
+  // ours too. For a moment the detailed list is shorter (rows are single-line), and when it is scrolled to the bottom
+  // the core immediately cuts the scroll to the new, smaller bottom (list.scrollTop = keep); once the rows are
+  // two-line again the position does not come back: the list "throws you back" to the middle. So in the same
+  // microtask, before painting, we put the attributes and the position back. The position comes from the scroll
+  // event: a cut that has already happened cannot be read
+  let listTop = 0;
+  const keepList = () => {
+    const l = document.getElementById("list");
+    if (!l || l.dataset.cleanKeepOn) return;
+    l.dataset.cleanKeepOn = "1";
+    l.addEventListener("scroll", () => { listTop = l.scrollTop; }, { passive: true });
+    new MutationObserver(() => {
+      if (!on() || !document.documentElement.classList.contains("th-clean-detail")) return;
+      if (l.scrollTop < l.scrollHeight - l.clientHeight - 1) return;   // not at the bottom: nothing to cut
+      rowDetail();
+      if (l.scrollTop < listTop) l.scrollTop = listTop;
+    }).observe(l, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-clean-d"] });
+  };
   const detailClass = () => document.documentElement.classList.toggle("th-clean-detail", !!hub.option?.("detail"));
   detailClass();
   addEventListener("hub-redraw", () => { detailClass(); sweep(); });
@@ -499,7 +518,7 @@ export default function register(hub) {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
     avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); headFold();
-    boardRecap(); rowDetail();
+    boardRecap(); rowDetail(); keepList();
     fit.hook();
   };
   let queued = false;   // лента меняется часто — не чаще кадра
