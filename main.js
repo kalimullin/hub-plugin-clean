@@ -576,6 +576,27 @@ export default function register(hub) {
     stop.click();
   }, true);
 
+  // Tall shots (a phone screenshot, ~390x2400): the core fits any image into the window by height, so they shrink to a
+  // strip. The lightbox is the core's node, so only a class is set on it (the core never writes it): CSS lays the image
+  // out at screen width (never above its natural size) with vertical scrolling. Idempotent: re-evaluated on every
+  // image load, so paging resets it.
+  const TALL_RATIO = 2;
+  const tallMark = (e) => {
+    const i = e.target;
+    if (!on() || !i?.matches?.(".lb-img")) return;
+    const box = i.closest(".lightbox");
+    if (!box) return;
+    const tall = e.type === "load" && i.naturalWidth > 0 && i.naturalHeight / i.naturalWidth > TALL_RATIO;
+    box.classList.toggle("clean-tall", tall);
+    box.scrollTop = 0;
+    // keys scroll the focused element's scroller: the core focuses ✕, which is position: fixed here, so its scroller is
+    // the page (overflow hidden under an open lightbox) and PageDown / ↓ / End do nothing — focus the lightbox itself
+    if (tall) { box.tabIndex = -1; box.focus?.({ preventScroll: true }); }
+  };
+  // on document, not window: a load event never reaches window listeners (the DOM spec drops Window from its path)
+  document.addEventListener("load", tallMark, true);
+  document.addEventListener("error", tallMark, true);
+
   const sync = () => {
     let id = "";
     try { id = JSON.parse(localStorage.getItem("hub.theme") || "null")?.id || ""; } catch { /* нет */ }
@@ -585,6 +606,7 @@ export default function register(hub) {
     if (was !== on()) {
       for (const b of document.querySelectorAll(".byline[data-clean]")) delete b.dataset.clean;
       if (!on()) {
+        for (const b of document.querySelectorAll(".lightbox.clean-tall")) b.classList.remove("clean-tall");
         unmaskIcons(); unAvatars(); fade(); feedEnd(); unPlaceholders(); unPlate();
         for (const h of document.querySelectorAll(".chat-head[data-clean-label]")) { h.removeAttribute("aria-label"); h.removeAttribute("title"); delete h.dataset.cleanLabel; }
 

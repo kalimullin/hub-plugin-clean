@@ -1191,6 +1191,26 @@ html.th-clean :is(.srow, .active-bar button, .navmenu, .clean-fold, .clean-fold-
 @media (hover: hover) and (pointer: fine) {
   html.th-clean :is(.thumbs img, .attach-list img, .tool-img, .opt-img, .feed img.ci-thumb, .feed img.ci-full):hover { outline-color: var(--c-line-strong); }
 }
+/* tall shot in the lightbox (main.js sets .clean-tall from the natural ratio): opens at screen width and scrolls, never
+   above its natural size (a small 100x300 stays as drawn, centred; the auto margins centre it only while it fits, a
+   taller one starts at the top and scrolls). A click still zooms to natural size (.zoom is the core's), arrows and
+   swipe are untouched */
+html.th-clean .lightbox.clean-tall { overflow: auto; place-items: start center; overscroll-behavior: contain; }
+html.th-clean .lightbox.clean-tall { outline: 0; }
+html.th-clean .lightbox.clean-tall :is(.lb-btn, .lb-bar) { position: fixed; }
+html.th-clean .lightbox.clean-tall .lb-img { max-height: none; margin: auto; }
+/* the file pill: the core's zoom state is a dark pill that wraps in two lines when the name is long; here it is one
+   line where the core's own caption stands (centred, its text on the same line: 12 px + half the 8 px padding = 16 px) with the name shrinking to an ellipsis */
+html.th-clean .lightbox:is(.clean-tall, .zoom) .lb-bar { left: 50%; right: auto; bottom: 12px; transform: translateX(-50%);
+  box-sizing: border-box; width: max-content; max-width: calc(100vw - 32px); white-space: nowrap;
+  padding: var(--space-1) var(--space-3); border-radius: 9999px; background: rgb(0 0 0 / 0.7); }
+html.th-clean .lightbox:is(.clean-tall, .zoom) .lb-bar :is(.lb-count, .lb-open) { flex: none; }
+html.th-clean .lightbox:is(.clean-tall, .zoom) .lb-name { min-width: 0; max-width: 50vw; }
+@media (max-width: 760px) {
+  html.th-clean .lightbox.clean-tall { padding: 56px 0 72px; }
+  html.th-clean .lightbox.clean-tall .lb-img { max-width: 100vw; border-radius: 0; }
+}
+html.th-clean .lightbox.clean-tall.zoom .lb-img { width: auto; max-width: none; margin: 0 auto; }
 html.th-clean .fs-row input:focus-visible { outline: 0; border-color: var(--c-line-strong); }
 /* кольцо с клавиатуры одного цвета везде: ядро красит outline в --ring (светлая тема — #c9c9d0, 1,6:1: у ссылок и чипов его не видно) */
 html.th-clean :is(:focus-visible, .opt.pick:has(input:focus-visible), .opt-preview:focus-visible, .limlink:focus-visible, .quote-bar .linkbtn:focus-visible, .ctx-menu button:focus-visible, .menu-item:focus-visible) { outline-color: var(--c-ring); }
