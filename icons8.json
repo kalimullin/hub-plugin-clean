@@ -148,6 +148,10 @@
       "check": {
         "id": "mjbmZaqL8EJr",
         "commonName": "checkmark"
+      },
+      "tune": {
+        "id": "GFCWATn4CKtS",
+        "commonName": "horizontal-settings-mixer"
       }
     }
   }
