@@ -734,14 +734,17 @@ html.th-clean .composer > .prompt { padding-right: 0 !important; }
 html.th-clean .composer .to-line { font: 400 12px/16px var(--font); color: var(--c-t2); }
 html.th-clean .composer .bar { padding-left: 30px; margin-top: 0; min-height: 32px; gap: 4px; }
 html.th-clean .composer .bar > .mic { order: -1; }
-/* «Ответ на «…»» над рядом кнопок — плашкой DS 24 (серая, 12/16), «Отмена» — текстом 12/16 */
-html.th-clean :is(.composer, .dock-inner:has(.vf-slot) form.composer) > .bar.reply-bar { padding-left: 0; min-height: 24px; gap: 8px; }
-html.th-clean .composer .reply-chip { height: 24px; display: inline-flex; align-items: center; padding: 0 8px; border: 0; border-radius: 4px;
-  background: var(--c-fill); box-shadow: none; font: 400 12px/16px var(--font); color: var(--c-t1); }
-html.th-clean .composer .reply-bar > .btn { min-height: 0; height: 24px; padding: 0 8px; border-radius: 4px; font: 400 12px/16px var(--font); color: var(--c-t2); }
+/* «Ответ на «…»» над рядом кнопок — плашка DS 24 (серая, 12/16) во всю ширину поля, «Отмена» — тихой кнопкой внутри справа;
+   цитата — в одну строку с многоточием, отмена не сжимается */
+html.th-clean :is(.composer, .dock-inner:has(.vf-slot) form.composer) > .bar.reply-bar { box-sizing: border-box; width: 100%; height: 24px; min-height: 24px;
+  padding: 0 0 0 8px; gap: 8px; border-radius: 4px; background: var(--c-fill); }
+html.th-clean .composer .reply-chip { flex: 1 1 0; min-width: 0; height: 24px; display: block; padding: 0; border: 0; border-radius: 0;
+  background: none; box-shadow: none; font: 400 12px/24px var(--font); color: var(--c-t1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.th-clean .composer .reply-bar > .btn { flex: none; min-height: 0; height: 24px; padding: 0 8px; border-radius: 0 4px 4px 0; font: 400 12px/16px var(--font); color: var(--c-t2); }
 @media (hover: hover) and (pointer: fine) {
-  html.th-clean .composer .reply-bar > .btn:hover { background: var(--c-fill); color: var(--c-t1); }
+  html.th-clean .composer .reply-bar > .btn:hover { background: var(--c-line); color: var(--c-t1); }
 }
+html.th-clean .composer .reply-bar > .btn:focus-visible { border-radius: 4px; outline-offset: -2px; }
 html.th-clean :is(.btn.round.quiet:is(.attach, .mic), .composer .bar > .btn.round, .vf-slot > .btn.round) { box-sizing: border-box; min-width: 0; min-height: 0; border: 0; }
 html.th-clean .btn.round.quiet:is(.attach, .mic), html.th-clean .composer .bar > .btn.round.quiet { width: 32px; height: 32px; border-radius: 8px; color: var(--muted-foreground); }
 html.th-clean .composer .bar > .btn.round.mic { width: 32px; min-width: 0; height: 32px; padding: 0; border: 0; border-radius: 8px; background: none; color: var(--muted-foreground); }
