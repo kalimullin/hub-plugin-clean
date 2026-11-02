@@ -28,7 +28,7 @@
 // - bottom row of the composer card (+, status chips, plugin buttons, camera, mic, send): room is shared by the measured
 //   width and nothing overlaps (fit.js).
 import { mountFit } from "./fit.js";
-import { AGO, detailOf, sessionFor } from "./rows.js";
+import { AGO, byRecent, detailOf, sessionFor } from "./rows.js";
 
 const MINE = /(^|:)clean:clean(-dark)?\.json$/;
 const OWNER = new Set(["владелец", "owner"]);   // как называет владельца ядро в событиях (core/reducer.py)
@@ -464,8 +464,14 @@ export default function register(hub) {
     options: [{ key: "detail", on: false, label: RU ? "Подробный список сессий" : "Detailed session list",
       hint: RU ? "Под названием проект и папка, справа время. Без галочки список компактный." : "Project and folder under the name, time on the right. Unchecked, the list is compact." },
     { key: "avatars", on: true, label: RU ? "Аватарки у чатов" : "Chat avatars",
-      hint: RU ? "У специалистов и исполнителей — аватарка, у направлений — значок. Без галочки — только названия." : "Specialists and executors get an avatar, directions get an icon. Unchecked, names only." }],
+      hint: RU ? "У специалистов и исполнителей — аватарка, у направлений — значок. Без галочки — только названия." : "Specialists and executors get an avatar, directions get an icon. Unchecked, names only." },
+    { key: "recent", on: true, label: RU ? "Сортировать по последнему сообщению" : "Sort by last message",
+      hint: RU ? "В каждой группе сверху чат с самым свежим сообщением, «Хаб» первый. Строки не перетаскиваются: в другую группу — через меню строки. Без галочки — порядок хаба." : "In each group the chat with the newest message is on top, the Hub stays first. Rows are not draggable: to another group via the row menu. Unchecked, the hub's own order." }],
   });
+  // sorting is the core's own order hook (hub.addOrder): rows come out of the core already in place, no DOM moves; the groups the core
+  // does not order (Sleeping) and the ones with a manual order (drag and drop) are fixed up in recentOrder
+  const recent = () => on() && !!hub.option?.("recent");
+  hub.addOrder((group, rows) => (recent() ? byRecent(rows) : rows));
   const WORDS = RU ? AGO.ru : AGO.en;
   const rowName = (r) => {
     const nm = r.querySelector(".nm");
@@ -542,6 +548,28 @@ export default function register(hub) {
       setVar(r, "--clean-ic", ic);
     }
   };
+  // The core orders a group through hub.addOrder, but the owner's manual order (a drag in a group writes the whole group order) is applied
+  // after plugins, and the "Sleeping" group is not ordered by plugins at all. Those lists get the same order here: each top-level row
+  // with its executors (li.forks) travels as one block. Same order already — nothing is moved (no churn on every snapshot); the
+  // "Now" sections (by state) and groups of a plugin (sidebar-groups, subgroups) are left alone
+  const recentOrder = () => {
+    const l = document.getElementById("list");
+    if (!l || !recent() || l.querySelector(":scope > section.asec")) return;
+    const byName = new Map((hub.snapshot?.()?.sessions || []).map((x) => [x.name, x]));
+    for (const ul of l.querySelectorAll(":scope > section.sgroup:not(.sg-own) > ul, :scope > details.resting > ul")) {
+      const blocks = [];
+      for (const li of ul.children) {
+        if (li.matches("li.forks")) { blocks.at(-1)?.push(li); continue; }
+        if (!li.dataset.s && !li.dataset.m) { blocks.length = 0; break; }   // something we do not know (subgroup header, queue): not ours
+        blocks.push([li]);
+      }
+      const rows = blocks.map((b) => byName.get(b[0].dataset.s || b[0].dataset.m));
+      if (blocks.length < 2 || rows.includes(undefined)) continue;
+      const want = byRecent(rows);
+      if (want.every((r, i) => r === rows[i])) continue;
+      ul.append(...want.flatMap((r) => blocks[rows.indexOf(r)]));
+    }
+  };
   // On every snapshot the core merges rows into the old nodes and erases foreign attributes (reconcile.js, syncAttrs),
   // ours too. For a moment the detailed list is shorter (rows are single-line), and when it is scrolled to the bottom
   // the core immediately cuts the scroll to the new, smaller bottom (list.scrollTop = keep); once the rows are
@@ -549,13 +577,49 @@ export default function register(hub) {
   // microtask, before painting, we put the attributes and the position back. The position comes from the scroll
   // event: a cut that has already happened cannot be read
   let listTop = 0;
+  // A chat that rises to the top of its group pushes everything under it down, and a scrolled list would show other rows. So the
+  // first few rows in view are remembered with their distance from the list top (on scroll and after every fix-up), and when the
+  // rows have moved the list is scrolled back by the shift most of them share: the one that rose is the odd one out
+  let seen = [], seenTop = 0, seenEnd = false;
+  const rowKey = (li) => li.dataset.s ?? li.dataset.m ?? li.dataset.f ?? "";
+  const lookAt = (l) => {
+    seen = []; seenTop = l.scrollTop; seenEnd = l.scrollTop >= l.scrollHeight - l.clientHeight - 1;
+    const box = l.getBoundingClientRect();
+    for (const li of l.querySelectorAll("li[data-s], li[data-m], li[data-f]")) {
+      const b = li.firstElementChild?.getBoundingClientRect?.();
+      if (!b || !b.height || b.bottom <= box.top) continue;
+      if (b.top >= box.bottom || seen.length >= 5) break;
+      seen.push([rowKey(li), b.top - box.top]);
+    }
+  };
+  const holdView = () => {
+    const l = document.getElementById("list");
+    if (!l || !recent()) { seen = []; return; }
+    if (seen.length && l.scrollTop >= 1 && l.scrollTop === seenTop && !seenEnd) hold(l);   // at the top the new chat is simply seen, at the bottom the list stays there
+    lookAt(l);
+  };
+  const hold = (l) => {
+    const box = l.getBoundingClientRect(), shifts = new Map();
+    for (const [key, top] of seen) {
+      const li = key && l.querySelector(`li[data-s="${CSS.escape(key)}"], li[data-m="${CSS.escape(key)}"], li[data-f="${CSS.escape(key)}"]`);
+      const b = li?.firstElementChild?.getBoundingClientRect?.();
+      if (b) { const d = Math.round(b.top - box.top - top); shifts.set(d, (shifts.get(d) || 0) + 1); }
+    }
+    const best = [...shifts].sort((a, b) => b[1] - a[1] || Math.abs(a[0]) - Math.abs(b[0]))[0];
+    if (best && best[0]) l.scrollTop += best[0];
+  };
   const keepList = () => {
     const l = document.getElementById("list");
     if (!l || l.dataset.cleanKeepOn) return;
     l.dataset.cleanKeepOn = "1";
-    l.addEventListener("scroll", () => { listTop = l.scrollTop; }, { passive: true });
+    l.addEventListener("scroll", () => { listTop = l.scrollTop; lookAt(l); }, { passive: true });
+    // Sorting by the last message owns the order inside a group, so a row dropped in another place would just spring back and
+    // look broken. The core's own drag yields to a plugin that took the press (preventDefault on pointerdown, after the core's
+    // handler), so rows are not lifted while sorting is on; moving to another group stays in the row menu, group headers still drag
+    l.addEventListener("pointerdown", (e) => { if (recent() && e.pointerType === "mouse" && e.target.closest("li[data-s] > .srow")) e.preventDefault(); });
     new MutationObserver(() => {
       if (!on()) return;
+      recentOrder();
       rowFaces();   // the same erasing takes our avatar attributes too
       if (!document.documentElement.classList.contains("th-clean-detail")) return;
       if (l.scrollTop < l.scrollHeight - l.clientHeight - 1) return;   // not at the bottom: nothing to cut
@@ -566,6 +630,7 @@ export default function register(hub) {
   const detailClass = () => {
     document.documentElement.classList.toggle("th-clean-detail", !!hub.option?.("detail"));
     document.documentElement.classList.toggle("th-clean-av", !!hub.option?.("avatars"));
+    document.documentElement.classList.toggle("th-clean-recent", !!hub.option?.("recent"));
   };
   detailClass();
   addEventListener("hub-redraw", () => { detailClass(); sweep(); });
@@ -574,7 +639,8 @@ export default function register(hub) {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
     avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); headFold();
-    boardRecap(); rowDetail(); rowFaces(); keepList();
+    boardRecap(); rowDetail(); rowFaces(); recentOrder(); keepList();
+    holdView();
     fit.hook();
   };
   let queued = false;   // лента меняется часто — не чаще кадра

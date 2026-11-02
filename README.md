@@ -59,6 +59,17 @@ executors show a character from the theme's kit: the session's own icon, else th
 picked by the name. A direction is not an agent, so it gets a compass icon on a grey tile of the same size and shape. Click a
 picture to change the icon (not for directions). Off — names only.
 
+## Sort by last message
+
+Settings → Look → Clean theme → “Sort by last message” (on by default). Inside each group of the session list (specialists,
+directions, executors, sleeping ones) the chat with the newest message is on top, like in a messenger; a chat that gets a
+message rises to the top of its group. The Hub stays first, groups keep their order, and executors stay under their chat and
+move with it. The time is the later of `since` (the turn the owner started, the end of a turn, the moment it fell asleep) and
+`out_head_ts` (the last result for the owner) from the session snapshot. The sorting is the core's own order hook
+(`hub.addOrder`); the rows you see do not jump when a chat rises above the window. Rows are not dragged while the sorting is on
+(a row would spring back); use the row menu → Move to… for another group. The “Now” tab keeps its own order by state. Off — the
+hub's order.
+
 ## Keys while recording a voice message
 
 Only while Clean is the active theme and a recording is running:

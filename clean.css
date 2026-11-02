@@ -1416,3 +1416,7 @@ html.th-clean.th-clean-detail.th-clean-av #list .srow[data-clean-d]:not([data-cl
 /* «Хаб» (в группе без заголовка, подробного вида у него нет) — тоже 44; высота не зависит от наших атрибутов: ядро стирает их на каждом снимке,
    и если бы строка на миг стала ниже, список срезал бы прокрутку (см. keepList) */
 html.th-clean.th-clean-detail.th-clean-av #list .sgroup.bare .srow:not([data-clean-d], .forks .srow) { min-height: 44px; }
+
+/* "Sort by last message": a chat that rises moves the rows under it. The browser's own scroll anchoring then guesses which row to
+   hold and sometimes scrolls the list by a few rows; main.js (holdView) keeps the rows in view itself */
+html.th-clean.th-clean-recent #list { overflow-anchor: none; }

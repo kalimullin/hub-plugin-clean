@@ -1,6 +1,8 @@
 # Check: the session list scrolled to the bottom stays there when the hub sends fresh snapshots ("Detailed list" on).
 # The core rebuilds rows on every snapshot and erases foreign attributes (reconcile.js), so for a moment the rows
 # are single-line, the list is shorter and the browser clamps the scroll; the theme has to put it back.
+# Second check ("Sort by last message" is on by default): a chat that wrote last and sits below the window rises above it, and
+# the rows in view stay where they are (the list is scrolled by the shift).
 # Run: python3 tests/scroll-check.py <core repo> [sidebar-groups plugin folder]. Exit code 1 — the list was thrown up.
 # Chrome and the core's own page server are started here (an empty hub state, sessions are injected as a stream mock).
 import json, os, socket, subprocess, sys, tempfile, time
@@ -58,6 +60,15 @@ with tempfile.TemporaryDirectory() as tmp:
             now = p.js(INFO)
             bad += now[0] < now[1] - 2
             print("snapshot", n, now)
+        # a chat from below the window gets a new message: it rises to the top of its group, above the rows in view
+        FIRST = "(() => { const l = document.getElementById('list'), r = l.getBoundingClientRect(); for (const li of l.querySelectorAll('li[data-s]')) { const b = li.firstElementChild.getBoundingClientRect(); if (b.top >= r.top) return [li.dataset.s, Math.round(b.top - r.top), Math.round(l.scrollTop)]; } })()"
+        p.js("document.getElementById('list').scrollTop = 1200"); p.pump(0.8)
+        before = p.js(FIRST)
+        for n in range(3):
+            p.js("(() => { const last = [...document.querySelectorAll('#list li[data-s]')].at(-1 - %d).dataset.s, s = window.__M.find((x) => x.name === last); s.since = Date.now() / 1000; window.__H.patch({ data: JSON.stringify({ sessions: window.__M.map((x) => ({ ...x })) }) }); })()" % n); p.pump(0.8)
+            now = p.js(FIRST)
+            print("a chat rose", n, before, "->", now)
+            bad += now[0] != before[0] or abs(now[1] - before[1]) > 2
         sys.exit(1 if bad else 0)
     finally:
         if p: p.close()

@@ -4,7 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { AGO, agoText, flat, sessionFor, detailOf } from "../rows.js";
+import { AGO, agoText, flat, sessionFor, detailOf, lastAt, byRecent } from "../rows.js";
 
 const css = fs.readFileSync(path.join(import.meta.dirname, "..", "clean.css"), "utf8");
 const NOW = 1_800_000_000;
@@ -85,4 +85,27 @@ test("the detailed rules live behind the setting class and use no bare :hover", 
     assert.match(l, /html\.th-clean\.th-clean-detail/, "every rule needs both classes: the theme and the setting");
     assert.doesNotMatch(l, /:hover/, "hover of a row stays the compact one, inside its media query");
   }
+});
+
+test("last message: the later of the state change and the last result for the owner", () => {
+  assert.equal(lastAt({ since: 100, out_head_ts: 90 }), 100, "a turn the owner started or the moment it fell asleep");
+  assert.equal(lastAt({ since: 100, out_head_ts: 130 }), 130, "a result that arrived while the state did not change");
+  assert.equal(lastAt({ since: 100 }), 100);
+  assert.equal(lastAt({}), 0);
+  assert.equal(lastAt(null), 0);
+});
+
+test("sort by last message: the freshest chat on top, the hub stays first, ties keep the given order, the input is not touched", () => {
+  const rows = [{ name: "a", since: 10 }, { name: "hub", kind: "hub", since: 1 }, { name: "b", since: 30 }, { name: "c", since: 5, out_head_ts: 30 }, { name: "d" }];
+  const copy = rows.slice();
+  assert.deepEqual(byRecent(rows).map((r) => r.name), ["hub", "b", "c", "a", "d"]);
+  assert.deepEqual(rows, copy);
+  assert.deepEqual(byRecent([]), []);
+});
+
+test("sort by last message: the option is on by default, the order goes through the core hook, nothing but the list is anchored", () => {
+  const main = fs.readFileSync(path.join(import.meta.dirname, "..", "main.js"), "utf8");
+  assert.match(main, /key: "recent", on: true/);
+  assert.match(main, /hub\.addOrder\(/);
+  assert.match(css, /html\.th-clean\.th-clean-recent #list \{ overflow-anchor: none; \}/);
 });

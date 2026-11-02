@@ -40,3 +40,13 @@ export function detailOf(s, now, words) {
   if (s.kind === "hub") return { prev: flat(s.out_head || s.gist?.text), ago: "", cwd: "" };   // «Хаб»: превью как у всех; он всегда на связи — времени нет, подсказка — своя
   return { prev: flat(s.out_head || s.gist?.text), ago: agoText(s, now, words), cwd: s.cwd || "" };
 }
+
+// when a chat last had a message, in snapshot time: `since` is when the session took its current state (a turn the owner started,
+// the end of a turn, the moment it fell asleep) and `out_head_ts` is when its last result for the owner arrived; the later one wins.
+// The snapshot has no time of the owner's own last line, but a message to a session starts its turn, which moves `since`
+export const lastAt = (s) => Math.max(s?.since || 0, s?.out_head_ts || 0);
+
+// Telegram order for one group: the freshest chat on top, the hub (kind "hub") stays first; equal times keep the order given
+export function byRecent(rows) {
+  return rows.map((r, i) => [r, i]).sort((a, b) => (b[0].kind === "hub") - (a[0].kind === "hub") || lastAt(b[0]) - lastAt(a[0]) || a[1] - b[1]).map((x) => x[0]);
+}
