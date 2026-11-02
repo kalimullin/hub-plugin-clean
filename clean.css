@@ -1292,9 +1292,11 @@ html.th-clean .clean-kinds-btn { flex: none; position: relative; display: grid; 
 html.th-clean .clean-kinds-btn[hidden] { display: none; }
 html.th-clean .clean-kinds-btn::before { content: ""; width: 16px; height: 16px; background: currentColor;
   -webkit-mask: url("tune.svg") center / 16px no-repeat; mask: url("tune.svg") center / 16px no-repeat; }
-html.th-clean .clean-kinds-btn:is([aria-pressed="true"], [aria-expanded="true"]) { background: var(--c-fill); color: var(--c-t1); }
+html.th-clean .clean-kinds-btn[aria-expanded="true"] { background: var(--c-fill); color: var(--c-t1); }
+/* a filter is on: the button is a solid dark square with a light icon (no number, no dot), clearly unlike the quiet grey one */
+html.th-clean .clean-kinds-btn[aria-pressed="true"] { background: var(--c-t1); color: var(--background); }
 @media (hover: hover) and (pointer: fine) {
-  html.th-clean .clean-kinds-btn:hover { background: var(--c-fill); color: var(--c-t1); }
+  html.th-clean .clean-kinds-btn:not([aria-pressed="true"]):hover { background: var(--c-fill); color: var(--c-t1); }
 }
 html.th-clean .clean-kinds-pop { position: fixed; z-index: 100; width: 224px; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: auto; padding: 4px;
   border-radius: 12px; background: var(--background); box-shadow: var(--shadow-lift), 0 0 0 1px var(--border); color: var(--c-t1); }
@@ -1303,10 +1305,10 @@ html.th-clean .clean-kinds-row { position: relative; display: flex; align-items:
 @media (hover: hover) and (pointer: fine) {
   html.th-clean .clean-kinds-row:hover { background: var(--c-fill); }
 }
-/* checkbox 16 r4: 1px --c-line-strong border, checked = --c-t2 fill and a light tick (mask i/allow.svg), no blue on selection or focus */
+/* checkbox 16 r4: 1px --c-t2 border (≥3:1 to the panel), checked = --c-t1 fill and a light tick (mask i/allow.svg), no blue on selection or focus */
 html.th-clean .clean-kinds-row input { flex: none; appearance: none; -webkit-appearance: none; display: grid; place-items: center; width: 16px; height: 16px; margin: 0;
-  border: 0; border-radius: 4px; background: none; box-shadow: inset 0 0 0 1px var(--c-line-strong); cursor: pointer; }
-html.th-clean .clean-kinds-row input:checked { background: var(--c-t2); box-shadow: none; }
+  border: 0; border-radius: 4px; background: none; box-shadow: inset 0 0 0 1px var(--c-t2); cursor: pointer; }
+html.th-clean .clean-kinds-row input:checked { background: var(--c-t1); box-shadow: none; }
 html.th-clean .clean-kinds-row input:checked::before { content: ""; width: 12px; height: 12px; background: var(--background);
   -webkit-mask: url("i/allow.svg") center / 12px no-repeat; mask: url("i/allow.svg") center / 12px no-repeat; }
 /* keyboard ring goes on the whole row, as on ☰ menu items, not on the box */

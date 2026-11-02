@@ -107,3 +107,10 @@ test("main.js reads types from the module only: no msg_kind, the feature flag ga
   assert.match(src, /includes\("feed\.kinds"\)/);
   assert.match(src, /from "\.\/kinds\.js"/);
 });
+
+test("css: a filter that is on paints the button solid (--c-t1), a checked box is solid, an empty box has a --c-t2 border", () => {
+  const css = read("clean.css");
+  assert.match(css, /\.clean-kinds-btn\[aria-pressed="true"\]\s*\{[^}]*background:\s*var\(--c-t1\)/);
+  assert.match(css, /\.clean-kinds-row input:checked\s*\{[^}]*background:\s*var\(--c-t1\)/);
+  assert.match(css, /\.clean-kinds-row input\s*\{[^}]*inset 0 0 0 1px var\(--c-t2\)/);
+});
