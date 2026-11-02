@@ -28,6 +28,7 @@
 // - bottom row of the composer card (+, status chips, plugin buttons, camera, mic, send): room is shared by the measured
 //   width and nothing overlaps (fit.js).
 import { mountFit } from "./fit.js";
+import { KIND_IDS, newState, takeKinds, plan, askQuery, afterQuery, retryWait, fetchKinds } from "./kinds.js";
 import { AGO, detailOf, sessionFor } from "./rows.js";
 
 const MINE = /(^|:)clean:clean(-dark)?\.json$/;
@@ -600,12 +601,11 @@ export default function register(hub) {
     },
   });
 
-  // фильтр ленты по типам сообщений (ядро: признак feed.kinds, у ответа сессии в ленте msg_kind). Кнопка — в шапке сессии
-  // (место session.header), панель с флажками — в body (у шапки при стекле backdrop-filter: fixed внутри неё считался бы от шапки).
-  // Ядро не трогаем: строкам ответа ставим data-clean-kind / data-clean-off по снимку, прячет CSS. Фильтр действует только на ответы
-  // сессии (class out): слова владельца, шаги и карточки остаются. Тип приходит только в ленте, загруженной из /api/timeline:
-  // старые строки из «Показать раньше» (/api/history) типа не несут — их видно только при «Все»
-  const KIND_IDS = ["P", "R", "I", "Q", "F", "C"];
+  // Feed filter by message type. The button sits in the session header (slot session.header); the checkbox panel lives in body (under glass
+  // the header has a backdrop-filter, which would make a fixed panel position against it). The core is not touched: reply rows (class out) get
+  // data-clean-kind / data-clean-off and CSS hides them; the owner's words, steps and cards stay. Types are read from the hubbahub-feed-kinds
+  // module (GET /api/feed-kinds), by the seq of each row, so rows loaded with "Show earlier" are covered too; a row the module has no type
+  // for shows only under "All"
   const KT = {
     ru: { all: "Все", title: "Типы сообщений", P: "Ход работы", R: "Отчёт", I: "К сведению", Q: "Вопрос", F: "Сбой", C: "Разговор",
       none: "Нет сообщений выбранных типов", reset: "Показать все" },
@@ -616,23 +616,61 @@ export default function register(hub) {
   };
   const kLang = () => { const l = String(hub.lang || hub.locale || document.documentElement.lang || "ru").slice(0, 2).toLowerCase(); return KT[l] ? l : "ru"; };
   const kt = (k) => T(`web.clean.kinds.${k}`, KT[kLang()][k]);
-  const kindsOn = () => on() && (hub.snapshot?.()?.features || []).includes("feed.kinds");
+  // Types come from the hubbahub-feed-kinds module (GET /api/feed-kinds), not from the timeline: the filter exists only when the
+  // core announces the feature and the module answers; a failed request hides the filter for a while and every row stays visible
+  const MODKINDS = new Map();   // session → { map: seq → type|null, pending: Set, busy: Set, rev, failedAt, tries, timer }
+  const kindsOn = (name = curKinds) => on() && (hub.snapshot?.()?.features || []).includes("feed.kinds") && !(name && MODKINDS.get(name)?.failedAt);
   const KEY = (name) => `clean.feedkinds.${name}`;
   const chosen = (name) => { try { const v = JSON.parse(localStorage.getItem(KEY(name)) || "[]"); return new Set(Array.isArray(v) ? v.filter((k) => KIND_IDS.includes(k)) : []); } catch { return new Set(); } };
   const keep = (name, set) => { try { if (set.size) localStorage.setItem(KEY(name), JSON.stringify([...set])); else localStorage.removeItem(KEY(name)); } catch { /* нет места — выбор живёт до перезагрузки */ } };
   let curKinds = "";      // сессия, чья лента на экране (её слот отрисовал кнопку последним)
   let kindsPop = null;    // открытая панель
-  let kindsMemo = { src: null, name: "", seqs: new Map() };
-  // seq ответа → тип (null — без типа); по ссылке на массив ленты, пока она не сменилась
-  const kindsOf = (name) => {
-    const live = hub.snapshot?.()?.timelines?.[name] || [];
-    if (kindsMemo.src !== live || kindsMemo.name !== name || kindsMemo.n !== live.length) {
-      const seqs = new Map();
-      for (const it of live) if (it.kind === "out") seqs.set(it.seq, KIND_IDS.includes(it.msg_kind) ? it.msg_kind : null);
-      kindsMemo = { src: live, name, n: live.length, seqs };
-    }
-    return kindsMemo.seqs;
+  const kst = (name) => {
+    let st = MODKINDS.get(name);
+    if (!st) MODKINDS.set(name, st = newState());
+    return st;
   };
+  // out-row seqs of the session: rows the core draws now plus the snapshot's own ones
+  const wantedSeqs = (name) => {
+    const out = new Set();
+    for (const r of document.querySelectorAll(".feed-inner > .row.out[data-key]")) { const n = parseInt(r.dataset.key, 10); if (n > 0) out.add(n); }
+    for (const it of hub.snapshot?.()?.timelines?.[name] || []) if (it.kind === "out" && it.seq > 0) out.add(it.seq);
+    return out;
+  };
+  const kindsRepaint = () => { markKinds(); const b = document.querySelector(".clean-kinds-btn"); if (b && curKinds) paintKinds(curKinds, b); };
+  const kindsFail = (name, st) => {
+    st.failedAt = Date.now();
+    clearTimeout(st.timer);
+    st.timer = setTimeout(() => { st.failedAt = 0; st.timer = 0; if (curKinds === name) ensureKinds(name); }, 30000);
+    if (curKinds === name) { curKinds = ""; closeKinds(); markKinds(); document.querySelector(".clean-kinds-btn")?.remove(); }
+  };
+  const getKinds = (query) => fetchKinds(fetch, query);
+  // ask for the rows whose type is not known yet (batches of up to 500); pending ones come back after a growing pause
+  const ensureKinds = (name) => {
+    if (!name || !(hub.snapshot?.()?.features || []).includes("feed.kinds")) return;
+    const st = kst(name);
+    if (st.failedAt) return;
+    for (const part of plan(st, wantedSeqs(name))) {
+      for (const n of part) st.busy.add(n);
+      getKinds(askQuery(name, part)).then((j) => { takeKinds(st, j, part); st.tries = 0; }, () => kindsFail(name, st))
+        .finally(() => { for (const n of part) st.busy.delete(n); if (!st.failedAt) { kindsRepaint(); retryKinds(name, st); } });
+    }
+    if (!st.poll) pollKinds(name, st);
+  };
+  const retryKinds = (name, st) => {
+    if (!st.pending.size || st.timer) return;
+    const wait = retryWait(st.tries++);
+    st.timer = setTimeout(() => { st.timer = 0; st.pending.clear(); if (curKinds === name) ensureKinds(name); }, wait);
+  };
+  // changes made by the module later (a rule or the model re-reads a row): after=<rev>, same shape of answer
+  const pollKinds = (name, st) => {
+    st.poll = setInterval(async () => {
+      if (curKinds !== name || st.failedAt || document.hidden) return;
+      try { takeKinds(st, await getKinds(afterQuery(name, st.rev))); kindsRepaint(); } catch { kindsFail(name, st); }
+    }, 15000);
+  };
+  // seq of a drawn or snapshot out row → type (null: the module has no type for it); rows not asked yet are absent
+  const kindsOf = (name) => kst(name).map;
   const kindStats = (name) => {
     const counts = Object.fromEntries(KIND_IDS.map((k) => [k, 0])), sel = chosen(name);
     // типы и «есть ли что показать» считаем по строкам, которые ядро сейчас рисует: в режиме «Кратко» ядро часть ответов сворачивает,
@@ -654,6 +692,7 @@ export default function register(hub) {
       noneLine();
       return;
     }
+    ensureKinds(curKinds);
     const seqs = kindsOf(curKinds), sel = chosen(curKinds);
     for (const r of rows) {
       const seq = parseInt(r.dataset.key, 10);
@@ -751,7 +790,7 @@ export default function register(hub) {
     id: "clean-feed-kinds",
     render(root, snap, ctx) {
       const name = ctx?.session?.name || "";
-      if (!kindsOn() || !name) { root.replaceChildren(); if (curKinds === name || !name) curKinds = ""; closeKinds(); markKinds(); return; }
+      if (!kindsOn(name) || !name) { root.replaceChildren(); if (curKinds === name || !name) curKinds = ""; closeKinds(); markKinds(); return; }
       curKinds = name;
       let btn = root.querySelector(".clean-kinds-btn");
       if (!btn) {

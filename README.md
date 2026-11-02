@@ -52,7 +52,7 @@ Only while Clean is the active theme and a recording is running:
 
 ## Feed filter
 
-When the hub tells which kind each message is (`feed.kinds`), a filter button appears in the session header. Tick one
+When the hub has the `hubbahub-feed-kinds` module (the core announces `feed.kinds`), a filter button appears in the session header. Tick one
 or several kinds (progress, report, info, question, failure, conversation) to show only those; “All” is the default.
 A kind is listed only if a message of that kind is drawn in the feed (in the short view the hub folds some messages, so
 their kinds are not offered unless already ticked). No counters: while a filter is active the funnel is filled
@@ -60,6 +60,10 @@ their kinds are not offered unless already ticked). No counters: while a filter 
 panel); “Показать все” brings every row back. The panel closes on a tap outside and on Esc; focus returns to the funnel. The filter hides the session's own
 messages only: your messages, cards and steps stay. A message without a kind (a quiet “—” result, or a row loaded with
 “Show earlier”) shows only under “All”. The choice is kept per session. Without `feed.kinds` the button is not drawn.
+Kinds are read from the module (`GET /api/feed-kinds?session=…&seq=…`, up to 500 messages per request, by the message's `seq`);
+messages the module is still classifying stay visible and are asked again after a growing pause, later re-classifications
+come through `after=<rev>` every 15 s. If the module fails (400, 403, network), the button disappears for 30 s and every
+message stays visible; the client never reads `msg_kind` from the timeline.
 The page is not rewritten: rows get a `data-clean-kind` / `data-clean-off` mark and the CSS hides them.
 
 Tests: `node --test tests/*.test.mjs`.
