@@ -58,8 +58,7 @@ A kind is listed only if a message of that kind is drawn in the feed (in the sho
 their kinds are not offered unless already ticked). No counters: while a filter is active the funnel is filled
 (`aria-pressed="true"`). If nothing matches, the same line “Нет сообщений выбранных типов · Показать все” is shown under the feed (and in the
 panel); “Показать все” brings every row back. The panel closes on a tap outside and on Esc; focus returns to the funnel. The filter hides the session's own
-messages only: your messages, cards and steps stay. A message without a kind (a quiet “—” result, or a row loaded with
-“Show earlier”) shows only under “All”. The choice is kept per session. Without `feed.kinds` the button is not drawn.
+messages only: your messages, cards and steps stay. A message the module gave no kind (a quiet “—” result) shows only under “All”. The choice is kept per session. Without `feed.kinds` the button is not drawn.
 Kinds are read from the module (`GET /api/feed-kinds?session=…&seq=…`, up to 500 messages per request, by the message's `seq`);
 messages the module is still classifying stay visible and are asked again after a growing pause, later re-classifications
 come through `after=<rev>` every 15 s. If the module fails (400, 403, network), the button disappears for 30 s and every

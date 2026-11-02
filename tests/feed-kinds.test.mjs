@@ -48,6 +48,20 @@ test("an after= answer changes only the rows it names, and re-types a changed on
   assert.equal(st.rev, 6);
 });
 
+test("a fallback C re-read later arrives through after=<rev>, and a row with no type can get one", () => {
+  const st = newState();
+  // classifier off: most rows have no type (in neither kinds nor pending), one got the fallback C
+  takeKinds(st, { v: 1, rev: 2, kinds: { 3: "C" }, by: { 3: "fallback" }, pending: [] }, [1, 2, 3, 4, 5]);
+  assert.deepEqual([...st.map].filter(([, k]) => k === null).map(([n]) => n), [1, 2, 4, 5]);
+  assert.equal(st.pending.size, 0);
+  // the module re-reads the fallback row quietly (never in pending) and a rule types another one
+  takeKinds(st, { v: 1, rev: 5, kinds: { 3: "R", 4: "F" }, pending: [] });
+  assert.equal(st.map.get(3), "R");
+  assert.equal(st.map.get(4), "F");
+  assert.equal(st.map.get(1), null);
+  assert.equal(st.rev, 5);
+});
+
 test("a malformed answer throws and leaves the state alone", () => {
   for (const bad of [null, {}, { v: 2, kinds: {} }, { v: 1 }, { v: 1, kinds: null }]) {
     const st = newState();
