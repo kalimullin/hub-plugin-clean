@@ -28,9 +28,10 @@ in both theme files.
 ## Detailed session list
 
 Settings → Look → Clean theme → “Detailed session list” (off by default, so the list stays compact). Each row then
-shows the project and folder under the name (monospace, from the session's working directory: `<project>/.claude/worktrees/<folder>`,
-or just the last folder) and the time of the last activity on the right (now, 2m, 3h, 5d). The open session is a card.
-The core does not give the git branch, so the folder is the working copy's name. The choice is stored in the browser.
+shows the start of the session's last message under the name (one line, plain text, like a messenger preview) and the
+time of the last activity on the right (now, 2m, 3h, 5d). The open session is a card. A session with no message yet has
+no second line. The text comes from the session snapshot the core already sends (`out_head`, or `gist` when the session has not written to you); the working directory
+stays in the row's tooltip. The choice is stored in the browser.
 
 ## Keys while recording a voice message
 

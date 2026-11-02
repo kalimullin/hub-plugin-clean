@@ -23,8 +23,8 @@
 //   который тема прячет; раскрытая переписка сессий сворачивается шевроном — у него подпись «Свернуть»; у контекстных
 //   меню списка без заголовка — имя меню для чтения с экрана;
 // - запись голоса с клавиатуры: Enter останавливает и отправляет, двойной Esc отменяет, одиночный Esc запись не трогает.
-// - «Подробный» список сессий (настройка в «Настройки → Вид», по умолчанию выключена): во второй строке проект и папка
-//   (рабочая копия), справа — время последней активности; строка открытой сессии — карточкой (rowDetail);
+// - «Подробный» список сессий (настройка в «Настройки → Вид», по умолчанию выключена): во второй строке начало последнего
+//   сообщения сессии (как превью в мессенджере), справа — время последней активности; строка открытой сессии — карточкой (rowDetail);
 // - bottom row of the composer card (+, status chips, plugin buttons, camera, mic, send): room is shared by the measured
 //   width and nothing overlaps (fit.js).
 import { mountFit } from "./fit.js";
@@ -480,16 +480,16 @@ export default function register(hub) {
       const d = detailOf(sessionFor(rowName(r), list), now, WORDS);
       if (!d) { if (r.dataset.cleanD) clearDetail(r); continue; }
       const txt = r.querySelector(":scope > .txt");
-      put(r, "cleanD", "1"); put(r, "cleanTip", d.cwd); put(r, "cleanAgo", d.ago); put(r, "cleanTwo", d.proj ? "1" : "");
+      put(r, "cleanD", "1"); put(r, "cleanTip", d.cwd); put(r, "cleanAgo", d.ago); put(r, "cleanTwo", d.prev || r.parentElement?.classList.contains("has-forks") ? "1" : "");   // исполнители: «N ›» живёт внизу справа, поэтому и без превью строка двухэтажная
       r.style.setProperty("--clean-ago-w", `${d.ago.length * 7 + 8}px`);
-      if (txt) { put(txt, "cleanProj", d.proj); put(txt, "cleanSub", d.sub); }
+      if (txt) put(txt, "cleanPrev", d.prev);
     }
   };
   const clearDetail = (r) => {
     for (const k of ["cleanD", "cleanAgo", "cleanTwo", "cleanTip"]) delete r.dataset[k];
     r.style.removeProperty("--clean-ago-w");
     const txt = r.querySelector(":scope > .txt");
-    if (txt) { delete txt.dataset.cleanProj; delete txt.dataset.cleanSub; }
+    if (txt) delete txt.dataset.cleanPrev;
   };
   const detailClass = () => document.documentElement.classList.toggle("th-clean-detail", !!hub.option?.("detail"));
   detailClass();

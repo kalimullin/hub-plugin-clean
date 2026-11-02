@@ -23,6 +23,7 @@ html.th-clean {
   --c-t1: light-dark(rgb(0 0 0 / 0.90), rgb(255 255 255 / 0.90));        /* текст */
   --c-t2: light-dark(rgb(0 0 0 / 0.55), rgb(255 255 255 / 0.60));        /* второстепенный */
   --c-t3: light-dark(rgb(0 0 0 / 0.28), rgb(255 255 255 / 0.30));        /* время, подписи групп, «·» */
+  --c-preview: light-dark(rgb(0 0 0 / 0.55), rgb(255 255 255 / 0.50));   /* превью сообщения в «Подробном» списке: ≥4,5:1 к фону, к карточке и в тёмной (в светлой темой светлее нельзя: 50% даёт 3,9:1) */
   --c-ink: light-dark(#000, #fff);                                         /* точки «работает»: этим цветом с прозрачностью */
   --c-alert: light-dark(#ef4e4e, #cf3a3a);   /* красная заливка с белым текстом: в тёмной 4,9:1 */
   --c-free: light-dark(#1fb141, #4cd46a); --c-free-bg: light-dark(#e7f9eb, #173a22);
@@ -288,7 +289,7 @@ html.th-clean .fork-toggle .chev { width: 10px; height: 10px; -webkit-mask-size:
 /* галочки и переключатели настроек — серо-чёрные, не синие системные (виден и флажок «Подробный список сессий») */
 html.th-clean :is(input[type="checkbox"], input[type="radio"]) { accent-color: var(--c-ink); }
 
-/* ---- «Подробный» список (настройка «Вид», main.js rowDetail): имя и время, под ним проект и папка рабочей копии моно,
+/* ---- «Подробный» список (настройка «Вид», main.js rowDetail): имя и время, под ним начало последнего сообщения,
    справа внизу статус; открытая сессия — карточка. Текст берётся из data-clean-* через attr(): узлов в строке не прибавилось ---- */
 html.th-clean.th-clean-detail #list .srow[data-clean-d] { position: relative; min-height: 40px; }
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] { min-height: 56px; padding-top: 8px; padding-bottom: 8px; }
@@ -301,16 +302,12 @@ html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two]::before 
 /* одна строка (нет проекта): статус рядом с именем по центру, время — левее него, а не поверх */
 html.th-clean.th-clean-detail #list .srow[data-clean-d]:not([data-clean-two]):has(> :is(.dot, .tag:not(.soft), .glyph:not([data-s="idle"], [data-s="dialog"])))::before { right: 36px; }
 html.th-clean.th-clean-detail #list .sgroup.bare .srow[data-clean-d][data-clean-two]:has(.nm > .avatar)::before { top: 12px; }   /* первая строка с картинкой 24 выше на 4 */
-html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > .txt { display: grid; grid-template-columns: fit-content(60%) minmax(0, 1fr); row-gap: 4px; align-self: center; }
-html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > .txt:not([data-clean-sub]) { grid-template-columns: minmax(0, 1fr); }
-html.th-clean.th-clean-detail #list .srow[data-clean-d] .nm { grid-column: 1 / -1; }
+html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > .txt { align-self: center; }
 html.th-clean.th-clean-detail #list .srow[data-clean-d] .nm { font-weight: 400; }   /* в подробном имя всегда Regular: «активна» читается по статусу и времени справа, а не по жирности */
-html.th-clean.th-clean-detail #list .srow[data-clean-d] > .txt[data-clean-proj]::before,
-html.th-clean.th-clean-detail #list .srow[data-clean-d] > .txt[data-clean-sub]::after { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  font: 400 12px/16px var(--font-code, var(--font-mono)); letter-spacing: 0; color: var(--c-t2); }
-html.th-clean.th-clean-detail #list .srow[data-clean-d] > .txt[data-clean-proj]::before { content: attr(data-clean-proj); grid-row: 2; grid-column: 1; font-weight: 500; }
-html.th-clean.th-clean-detail #list .sgroup.bare .srow[data-clean-d]:has(.nm > .avatar) > .txt[data-clean-proj]::before { padding-left: 32px; }   /* под именем, а не под картинкой 24 + 8; у остальных узел .avatar скрыт (display: none) — отступа нет */
-html.th-clean.th-clean-detail #list .srow[data-clean-d] > .txt[data-clean-sub]::after { content: attr(data-clean-sub); grid-row: 2; grid-column: 2; padding-left: 6px; }
+/* вторая строка — начало последнего сообщения: обычный шрифт (это текст, не путь), тише названия, одна строка с многоточием */
+html.th-clean.th-clean-detail #list .srow[data-clean-d] > .txt[data-clean-prev]::after { content: attr(data-clean-prev); display: block; margin-top: 4px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; font: 400 12px/16px var(--font); letter-spacing: 0; color: var(--c-preview); }
+html.th-clean.th-clean-detail #list .sgroup.bare .srow[data-clean-d]:has(.nm > .avatar) > .txt[data-clean-prev]::after { padding-left: 32px; }   /* под именем, а не под картинкой 24 + 8; у остальных узел .avatar скрыт (display: none) — отступа нет */
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > :is(.glyph, .dot, .tag:not(.soft)) { align-self: end; }
 html.th-clean.th-clean-detail #list li.has-forks > .srow[data-clean-d][data-clean-two] ~ .fork-toggle { top: auto; bottom: 8px; transform: none; }
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two][aria-current="true"] { background: var(--background); border-radius: 12px; box-shadow: 0 0 0 1px var(--c-line-soft); }
