@@ -578,7 +578,8 @@ export default function register(hub) {
 
   // Tall shots (a phone screenshot, ~390x2400): the core fits any image into the window by height, so they shrink to a
   // strip. The lightbox is the core's node, so only a class is set on it (the core never writes it): CSS lays the image
-  // out at screen width with vertical scrolling. Idempotent: re-evaluated on every image load, so paging resets it.
+  // out at screen width (never above its natural size) with vertical scrolling. Idempotent: re-evaluated on every
+  // image load, so paging resets it.
   const TALL_RATIO = 2;
   const tallMark = (e) => {
     const i = e.target;
@@ -588,6 +589,9 @@ export default function register(hub) {
     const tall = e.type === "load" && i.naturalWidth > 0 && i.naturalHeight / i.naturalWidth > TALL_RATIO;
     box.classList.toggle("clean-tall", tall);
     box.scrollTop = 0;
+    // keys scroll the focused element's scroller: the core focuses ✕, which is position: fixed here, so its scroller is
+    // the page (overflow hidden under an open lightbox) and PageDown / ↓ / End do nothing — focus the lightbox itself
+    if (tall) { box.tabIndex = -1; box.focus?.({ preventScroll: true }); }
   };
   // on document, not window: a load event never reaches window listeners (the DOM spec drops Window from its path)
   document.addEventListener("load", tallMark, true);

@@ -1,4 +1,4 @@
-// Image viewer tweaks: tall shots are marked on the core's lightbox, and the CSS for caption + tall shots.
+// Image viewer tweaks: tall shots are marked on the core's lightbox, and the CSS for tall shots and the file pill.
 // Run: node --test tests/*.test.mjs. No core or browser: main.js loads on document stubs and the capture-phase
 // `load` listener on document (a load event never reaches window listeners) is driven by hand.
 import test from "node:test";
@@ -23,7 +23,7 @@ const node = (tag = "div", o = {}) => ({
 async function scene({ theme = true } = {}) {
   const s = { theme, docListeners: [], marked: new Set() };
   const box = node("div", {
-    scrollTop: 77,
+    scrollTop: 77, focused: 0, focus() { this.focused++; },
     classList: {
       contains: (c) => s.marked.has(c), add: (c) => s.marked.add(c), remove: (c) => s.marked.delete(c),
       toggle: (c, on) => { if (on) s.marked.add(c); else s.marked.delete(c); },
@@ -70,6 +70,16 @@ test("a tall shot (height > 2x width) marks the lightbox and resets its scroll",
   assert.equal(s.box.scrollTop, 0);
 });
 
+test("a tall shot moves the focus to the lightbox (keys scroll it), a wide one leaves the focus alone", async () => {
+  const s = await scene();
+  s.fire("load", s.img(390, 2400));
+  assert.equal(s.box.focused, 1);
+  assert.equal(s.box.tabIndex, -1);
+  s.box.focused = 0;
+  s.fire("load", s.img(1200, 800));
+  assert.equal(s.box.focused, 0);
+});
+
 test("a wide, square or 2:1 image does not mark; paging to one unmarks", async () => {
   const s = await scene();
   for (const [w, h] of [[1200, 800], [300, 300], [400, 800]]) {
@@ -96,11 +106,17 @@ test("other images and a theme that is off are left alone", async () => {
   assert.ok(!off.marked.has("clean-tall"));
 });
 
-test("CSS: caption centered and regular, tall shots full width on the phone and not stretched on desktop", () => {
-  assert.match(CSS, /html\.th-clean \.sent-file \.md \{ text-align: center; font-weight: 400; \}/);
-  assert.match(CSS, /html\.th-clean :is\(\.lb-bar, \.lb-name\) \{ font-weight: 400; text-align: center; \}/);
-  assert.match(CSS, /\.lightbox\.clean-tall \{ overflow: auto; place-items: start center; \}/);
-  // phone: edge to edge; the core's own click-zoom (.zoom) keeps priority and its natural size
-  assert.match(CSS, /@media \(max-width: 760px\) \{[^}]*\}\s*html\.th-clean \.lightbox\.clean-tall \.lb-img \{ width: 100vw; max-width: 100vw;/);
-  assert.match(CSS, /\.lightbox\.clean-tall\.zoom \.lb-img \{ width: auto; max-width: none; \}/);
+test("CSS: the feed caption is left alone; tall shots keep their natural size, the file pill stays on one line", () => {
+  // the core's own left-aligned caption and the preview position are not overridden
+  assert.doesNotMatch(CSS, /\.sent-file \.(md|attach-list)/);
+  assert.doesNotMatch(CSS, /\.lb-name\) \{ font-weight/);
+  assert.match(CSS, /\.lightbox\.clean-tall \{ overflow: auto; place-items: start center;/);
+  // no stretching: the image is never given a width of its own (a 100x300 stays 100x300, centred by auto margins)
+  assert.match(CSS, /\.lightbox\.clean-tall \.lb-img \{ max-height: none; margin: auto; \}/);
+  assert.doesNotMatch(CSS, /\.clean-tall \.lb-img \{[^}]*(?<![-\w])width: 100vw/);
+  // phone: edge to edge, but only as far as the natural width
+  assert.match(CSS, /@media \(max-width: 760px\) \{\s*html\.th-clean \.lightbox\.clean-tall \{ padding: 56px 0 72px; \}\s*html\.th-clean \.lightbox\.clean-tall \.lb-img \{ max-width: 100vw;/);
+  // the pill: one line, shrink-wrapped, at the core's own spot
+  assert.match(CSS, /\.lightbox:is\(\.clean-tall, \.zoom\) \.lb-bar \{[^}]*bottom: 12px;[^}]*white-space: nowrap;/);
+  assert.match(CSS, /\.lightbox\.clean-tall\.zoom \.lb-img \{ width: auto; max-width: none;/);
 });
