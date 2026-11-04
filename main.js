@@ -492,12 +492,15 @@ export default function register(hub) {
       const txt = r.querySelector(":scope > .txt");
       put(r, "cleanD", "1"); put(r, "cleanTip", d.cwd); put(r, "cleanAgo", d.ago); put(r, "cleanTwo", d.prev || r.parentElement?.classList.contains("has-forks") ? "1" : "");   // исполнители: «N ›» живёт внизу справа, поэтому и без превью строка двухэтажная
       r.style.setProperty("--clean-ago-w", `${d.ago.length * 7 + 8}px`);
+      // the executors toggle is a sibling of the row (it cannot read the row's variables): it needs the time width on the <li> to sit left of the time
+      if (r.parentElement?.classList.contains("has-forks")) r.parentElement.style.setProperty("--clean-ago-w", `${d.ago.length * 7 + 8}px`);
       if (txt) put(txt, "cleanPrev", d.prev);
     }
   };
   const clearDetail = (r) => {
     for (const k of ["cleanD", "cleanAgo", "cleanTwo", "cleanTip"]) delete r.dataset[k];
     r.style.removeProperty("--clean-ago-w");
+    r.parentElement?.style.removeProperty("--clean-ago-w");
     const txt = r.querySelector(":scope > .txt");
     if (txt) delete txt.dataset.cleanPrev;
   };

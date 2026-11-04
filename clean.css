@@ -295,12 +295,11 @@ html.th-clean.th-clean-detail #list .srow[data-clean-d] { position: relative; mi
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] { min-height: 56px; padding-top: 8px; padding-bottom: 8px; }
 /* место под время — полем снаружи имени: у padding многоточие не рисуется, текст ушёл бы под цифры */
 html.th-clean.th-clean-detail #list .srow[data-clean-d] .nm { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: var(--clean-ago-w, 0px); }
-html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two]:has(> :is(.dot, .tag:not(.soft), .glyph:not([data-s="idle"], [data-s="dialog"]))) .nm { margin-right: max(0px, calc(var(--clean-ago-w, 0px) - 28px)); }
 html.th-clean.th-clean-detail:not(.th-clean-av) #list .sgroup.bare .srow[data-clean-d] .nm > .avatar { float: left; margin: -2px 8px 0 0; }   /* картинка 24 слева от имени (она показана только в группе «Хаб»); flex не даёт имени многоточия */
 html.th-clean.th-clean-detail #list .srow[data-clean-d]::before { content: attr(data-clean-ago); position: absolute; top: 12px; right: 8px; font: 400 12px/16px var(--font); color: var(--c-t2); white-space: nowrap; }
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two]::before { top: 10px; }
-/* одна строка (нет проекта): статус рядом с именем по центру, время — левее него, а не поверх */
-html.th-clean.th-clean-detail #list .srow[data-clean-d]:not([data-clean-two]):has(> :is(.dot, .tag:not(.soft), .glyph:not([data-s="idle"], [data-s="dialog"])))::before { right: 36px; }
+/* status icon, unread dot or badge sits on the first line: the time moves left of it instead of under it (one-line and two-line rows alike) */
+html.th-clean.th-clean-detail #list .srow[data-clean-d]:has(> :is(.dot, .tag:not(.soft), .glyph:not([data-s="idle"], [data-s="dialog"])))::before { right: 36px; }
 html.th-clean.th-clean-detail:not(.th-clean-av) #list .sgroup.bare .srow[data-clean-d][data-clean-two]:has(.nm > .avatar)::before { top: 12px; }   /* первая строка с картинкой 24 выше на 4 */
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > .txt { align-self: center; }
 html.th-clean.th-clean-detail #list .srow[data-clean-d] .nm { font-weight: 400; }   /* в подробном имя всегда Regular: «активна» читается по статусу и времени справа, а не по жирности */
@@ -309,8 +308,26 @@ html.th-clean.th-clean-detail.th-clean-av #list .srow[data-clean-k="hub"] .nm { 
 html.th-clean.th-clean-detail #list .srow[data-clean-d] > .txt[data-clean-prev]::after { content: attr(data-clean-prev); display: block; margin-top: 4px; overflow: hidden;
   text-overflow: ellipsis; white-space: nowrap; font: 400 12px/16px var(--font); letter-spacing: 0; color: var(--c-preview); }
 html.th-clean.th-clean-detail:not(.th-clean-av) #list .sgroup.bare .srow[data-clean-d]:has(.nm > .avatar) > .txt[data-clean-prev]::after { padding-left: 32px; }   /* под именем, а не под картинкой 24 + 8; у остальных узел .avatar скрыт (display: none) — отступа нет */
-html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > :is(.glyph, .dot, .tag:not(.soft)) { align-self: end; }
-html.th-clean.th-clean-detail #list li.has-forks > .srow[data-clean-d][data-clean-two] ~ .fork-toggle { top: auto; bottom: 8px; transform: none; }
+/* status icon, unread dot, badge and executors toggle are centered on the FIRST line (name 20px under 8px padding), not on the whole two-line row;
+   --clean-first-dy is the shift of the first-line center from a plain row (the 24px picture left of the name raises it by 2) */
+html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] { --clean-first-dy: 0px; }
+html.th-clean.th-clean-detail:not(.th-clean-av) #list .sgroup.bare .srow[data-clean-d][data-clean-two]:has(.nm > .avatar) { --clean-first-dy: 2px; }
+html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > :is(.glyph, .dot, .tag:not(.soft)) { align-self: start; margin-top: calc(2px + var(--clean-first-dy)); }
+html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > .glyph:is([data-s="busy"], [data-s="starting"]) { margin-top: calc(9px + var(--clean-first-dy)); }   /* busy dots: 3px dot with a 7px field on top, same 16px box */
+html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > .tag.soft { align-self: start; margin-top: calc(-2px + var(--clean-first-dy)); }   /* the dismiss cross has a 24px box */
+html.th-clean.th-clean-detail #list li.has-forks > .srow[data-clean-d][data-clean-two] ~ .fork-toggle { top: 10px; bottom: auto; transform: none; }
+html.th-clean.th-clean-detail:not(.th-clean-av) #list .sgroup.bare li.has-forks > .srow[data-clean-d][data-clean-two]:has(.nm > .avatar) ~ .fork-toggle { top: 12px; }
+/* time vs. neighbours on the first line: the time is absolute at the right edge, so whatever else sits there must make room for it.
+   Executors toggle: its invisible twin (::after) grows by the time width and the toggle itself moves left of the time; a tag keeps left of the twin, so only a dot/glyph shifts the time inward.
+   Dismiss cross ("answer?" tag.soft): a zero-content spacer of the time width pushes it left of the time. Row names then need no field of their own */
+html.th-clean.th-clean-detail #list li.has-forks > .srow[data-clean-d]::after { padding-right: calc(12px + var(--clean-ago-w, 0px)); }
+html.th-clean.th-clean-detail #list li.has-forks > .srow.fw-dot[data-clean-d]::after { padding-right: calc(12px + 6px + var(--clean-ago-w, 0px)); }
+html.th-clean.th-clean-detail #list li.has-forks > .srow[data-clean-d] .nm { margin-right: 0; }
+html.th-clean.th-clean-detail #list li.has-forks > .srow[data-clean-d]:not(:has(> :is(.dot, .glyph:not([data-s="idle"], [data-s="dialog"]))))::before { right: 8px; }
+html.th-clean.th-clean-detail #list li.has-forks > .srow[data-clean-d] ~ .fork-toggle { right: calc(8px + var(--clean-ago-w, 0px)); }
+html.th-clean.th-clean-detail #list li.has-forks:has(> .srow > :is(.dot, .glyph:is([data-s="busy"], [data-s="starting"], [data-s="failed"], [data-s="held"], [data-s="asleep"], [data-s="closed"], [data-s="absent"], [data-s="queued"]))) > .srow[data-clean-d] ~ .fork-toggle { right: calc(36px + var(--clean-ago-w, 0px)); }
+html.th-clean.th-clean-detail #list li:not(.has-forks) > .srow[data-clean-d]:has(> .tag.soft)::after { content: ""; order: 6; width: calc(var(--clean-ago-w, 0px) - 8px); }
+html.th-clean.th-clean-detail #list li:not(.has-forks) > .srow[data-clean-d]:has(> .tag.soft) .nm { margin-right: 0; }
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two][aria-current="true"] { background: var(--background); border-radius: 12px; box-shadow: 0 0 0 1px var(--c-line-soft); }
 html.th-clean.th-clean-detail #list .srow[data-clean-d]:not([data-clean-two])[aria-current="true"] { background: var(--c-fill); }
 
@@ -1218,6 +1235,8 @@ html.th-clean .pal-reset:disabled { display: none; }
   html.th-clean .side { border-radius: 0; box-shadow: none; }   /* панель — на весь экран поверх ленты */
   html.th-clean aside { padding: 4px 8px 8px; }
   html.th-clean .srow { min-height: 44px; }
+  /* the core centers the executors badge at a fixed offset from the row top; with a 44px row it sat 2px high */
+  html.th-clean li.has-forks > .fork-toggle { top: 22px; }
   html.th-clean .navmenu { left: 20px; width: 40px; height: 40px; }
   html.th-clean .nav-pop { left: 20px; right: 20px; }   /* левый край — как у ☰; значок пункта 4 + 8 = 12 от края — под значком ☰ 40 */
   html.th-clean .nav-pop .srow.nav { padding: 0 8px; }
