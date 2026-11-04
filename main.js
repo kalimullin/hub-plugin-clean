@@ -325,6 +325,15 @@ export default function register(hub) {
     if (v) { if (l.dataset.cleanFade !== v) l.dataset.cleanFade = v; } else if (l.hasAttribute("data-clean-fade")) delete l.dataset.cleanFade;
   };
   addEventListener("resize", fade, { passive: true });
+  // feed loading skeleton: the core draws it as a plain p.hint (feed_loading); tell it from “empty” and “failed” by its text
+  // and set a class — the skeleton bubbles are pure CSS, the core's DOM is untouched. A core-side feed-loading class works too.
+  const feedSkeleton = () => {
+    const w = T("web.main.feed_loading", "");
+    for (const p of document.querySelectorAll(".feed-inner > p.hint")) {
+      const v = on() && !p.classList.contains("feed-failed") && (p.classList.contains("feed-loading") || (w && p.textContent === w));
+      if (p.classList.contains("clean-skel") !== v) p.classList.toggle("clean-skel", v);
+    }
+  };
   // затухание под лентой (за полем ввода) гаснет к концу прокрутки: --clean-end на main, 1 — вся глубина 80, 0 — лента у низа
   const feedEnd = () => {
     const f = document.querySelector("main > .feed");
@@ -638,7 +647,7 @@ export default function register(hub) {
   const sweep = () => {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
-    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); headFold();
+    avatars(); boardCount(); headNote(); groupTools(); fade(); feedSkeleton(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); headFold();
     boardRecap(); rowDetail(); rowFaces(); recentOrder(); keepList();
     holdView();
     fit.hook();

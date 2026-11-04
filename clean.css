@@ -514,6 +514,31 @@ html.th-clean .seg button[aria-pressed="true"] { background: var(--background); 
 
 
 /* ---- лента на всю ширину окна; между сообщениями 24; аватарка 32 r6 слева, текст со сдвигом 44 ---- */
+/* ---- feed loading skeleton: grey bubbles instead of the “Loading the feed…” line (looks like the end of a finished session) ----
+   p.clean-skel is one bubble, the column's ::before/::after are the others; text lines are background layers (step = a line, bar = ½ line), static.
+   The bottom sits on the input, the top is cut by the edge. Column <600: 2 bubbles (40 and 22 lines); ≥600: 3 (1, 12, 14). */
+html.th-clean .feed:has(.clean-skel) { overflow: hidden; }
+html.th-clean .feed-inner:has(.clean-skel) { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; gap: 10px; container-type: inline-size; }
+html.th-clean .feed-inner > .clean-skel, html.th-clean .feed-inner:has(.clean-skel)::before, html.th-clean .feed-inner:has(.clean-skel)::after {
+  --sk-bar: color-mix(in srgb, var(--c-t2) 40%, transparent);
+  flex: none; display: block; box-sizing: border-box; margin: 0; padding: 8px; width: 100%; border-radius: 12px; background-color: var(--c-fill);
+  height: calc(var(--sk-n) * var(--sk-l) + 16px);
+  background-image:
+    linear-gradient(var(--sk-bar), var(--sk-bar)),
+    repeating-linear-gradient(to bottom, transparent 0 calc(var(--sk-l) / 4), var(--sk-bar) calc(var(--sk-l) / 4) calc(var(--sk-l) * 3 / 4), transparent calc(var(--sk-l) * 3 / 4) var(--sk-l));
+  background-origin: content-box; background-repeat: no-repeat;
+  background-size: var(--sk-last) calc(var(--sk-l) / 2), 100% calc((var(--sk-n) - 1) * var(--sk-l));
+  background-position: 0 calc((var(--sk-n) - 1) * var(--sk-l) + var(--sk-l) / 4), 0 0;
+}
+html.th-clean .feed-inner:has(.clean-skel) > .older { order: -2; }   /* the core's “Show earlier” row stays above all bubbles (::before comes first in the flow) */
+html.th-clean .feed-inner > .clean-skel { font-size: 0; color: transparent; --sk-l: 22px; --sk-n: 40; --sk-last: 60%; }
+html.th-clean .feed-inner:has(.clean-skel)::before { content: ""; display: none; order: -1; }
+html.th-clean .feed-inner:has(.clean-skel)::after { content: ""; --sk-l: 22px; --sk-n: 22; --sk-last: 40%; }
+@container (min-width: 600px) {
+  html.th-clean .feed-inner:has(.clean-skel)::before { display: block; --sk-l: 20px; --sk-n: 1; --sk-last: 100%; width: 85%; }
+  html.th-clean .feed-inner > .clean-skel { --sk-l: 20px; --sk-n: 12; --sk-last: 46%; }
+  html.th-clean .feed-inner:has(.clean-skel)::after { --sk-l: 20px; --sk-n: 14; --sk-last: 50%; }
+}
 html.th-clean .feed { padding: 24px; }
 html.th-clean .feed-inner, html.th-clean .dock-inner { max-width: none; }
 html.th-clean .feed-inner { gap: 24px; font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); }
