@@ -780,12 +780,17 @@ html.th-clean .slot-composer-tools .btn.round:has(> :is(svg, .icon):only-child) 
   html.th-clean .slot-composer-tools .btn.round:has(> :is(svg, .icon):only-child):hover { color: var(--c-t1); }
 }
 html.th-clean .slot-composer-tools .btn.round > :is(svg, .icon) { width: 16px; height: 16px; }
-html.th-clean .btn.round.send { width: 36px; height: 36px; border-radius: 8px; background: var(--foreground); }
+/* send: a 36 px circle with the Icons8 «up» arrow, as in every client; an invisible ring brings the tap target to 44 */
+html.th-clean .btn.round.send { position: relative; width: 36px; height: 36px; border-radius: 50%; background: var(--foreground); }
+html.th-clean .btn.round.send::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; }
 @media (hover: hover) and (pointer: fine) {
   html.th-clean .btn.round.send:hover { background: color-mix(in oklch, var(--foreground) 85%, var(--background)); }
 }
-/* bold arrow (sf-black «up»): the glyph is 20 px in the 36 px button; the inline mask of the core icon is kept by !important */
+/* bold arrow (sf-black «up»), 20 px in the 36 px button; the core icon takes the plugin's own send.svg
+   (already loaded for .clean-send): the theme file arrives later and the button stayed empty until it did */
 html.th-clean .btn.round.send .icon { width: 20px; height: 20px; -webkit-mask-size: contain !important; mask-size: contain !important; }
+html.th-clean .btn.round.send .icon.kit-img {
+  -webkit-mask-image: url("send.svg") !important; mask-image: url("send.svg") !important; }
 html.th-clean .composer .bar > .clean-send { margin-left: auto; display: grid; place-items: center; padding: 0; border: 0; }
 html.th-clean .clean-send::before { content: ""; width: 20px; height: 20px; background: currentColor;
   -webkit-mask: url("send.svg") center / contain no-repeat; mask: url("send.svg") center / contain no-repeat; }
