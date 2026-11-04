@@ -28,13 +28,9 @@ test("the red badge is 18 px high, 12 px semibold, tabular digits, white on the 
   assert.match(css, /\[data-n\]::after\s*\{[^}]*font:\s*600 12px\/18px[^}]*tabular-nums/);
 });
 
-test("a caption under a picture shrinks to the picture, outside any hover media query", () => {
-  const at = css.indexOf(".row.sent-file > .b:has(> .attach-list img)");
-  assert.ok(at > 0, "rule exists");
-  const before = css.slice(0, at);
-  const open = (before.match(/\{/g) || []).length - (before.match(/\}/g) || []).length;
-  assert.equal(open, 0, "the rule is on the top level, not inside @media");
-  assert.match(css, /\.row\.sent-file > \.b:has\(> \.attach-list img\) > :is\(\.meta, \.md\)\s*\{[^}]*width:\s*0;[^}]*min-width:\s*100%/);
+test("a caption under a picture is not shrunk to the picture: the bubble keeps the width the core gives it", () => {
+  assert.doesNotMatch(css, /\.row\.sent-file > \.b:has\(> \.attach-list img\)/);
+  assert.doesNotMatch(css, /\.sent-file[^{]*\{[^}]*width:\s*(fit-content|0)\b/);
 });
 
 test("the send arrow is the heavy Icons8 sf-black up, 20 px in a 36 px button", () => {

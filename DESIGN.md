@@ -75,7 +75,7 @@ together with the code that follows it, and with a reason.
   - Send arrow: Icons8 SF Black «up» (`Mq3eLYjKvHcI`), 20px glyph in a 36px button, a mask over `currentColor`.
   - Long session lists show about ten rows and add ten more as the list is scrolled (`data-clean-lazy`); while a search
     is active, for the current session and for lists of 13 or fewer, nothing is hidden.
-  - A caption under a sent picture is as wide as the picture, never wider, `14/20` in `--c-t1`.
+  - A caption under a sent picture keeps the width of the feed bubble (the core's, almost the whole feed), not the picture's; `14/20` in `--c-t1`.
   - The red badge stays full red on a dimmed row: the list's bottom fade mask has a second layer that does not fade the
     right 56px column.
   - Filter tabs («All», «Now») and group headers show no totals; only unread/waiting numbers are shown (`.c-n`, `.gcount` hidden).

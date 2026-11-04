@@ -1266,10 +1266,6 @@ html.th-clean .pal-reset:disabled { display: none; }
 html.th-clean :is(.srow, .active-bar button, .navmenu, .clean-fold, .clean-fold-show, .seg button, .fork-toggle, .sgroup-h, .gmore, .btn, .chat-head, .clean-lim, .clean-x, .linkbtn, .gpop-i, .md .code-copy, .board-card):focus-visible {
   outline: 2px solid var(--c-ring); outline-offset: 2px; }
 
-/* A caption under a picture is never wider than the picture: the bubble shrinks to the image row and
-   the meta line and caption (zero own width, full of the bubble) wrap inside that width. */
-html.th-clean .row.sent-file > .b:has(> .attach-list img) { justify-self: start; width: fit-content; max-width: 100%; }
-html.th-clean .row.sent-file > .b:has(> .attach-list img) > :is(.meta, .md) { width: 0; min-width: 100%; }
 /* ---- тихие hover и focus: синего нет ни у наведения, ни у фокуса; подложка --c-hover/--c-fill, рамка --c-line-strong,
    кольцо с клавиатуры --c-ring. Здесь — то, что приходит из ядра и плагинов: картинка во вложении (ядро lightbox.css и
    chat-images красят outline в --primary), поле поиска по чату (ядро feed.css) ---- */
