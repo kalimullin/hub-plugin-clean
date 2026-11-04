@@ -44,3 +44,21 @@ test("the send arrow is the heavy Icons8 sf-black up, 20 px in a 36 px button", 
   assert.match(css, /\.btn\.round\.send \.icon\s*\{[^}]*width:\s*20px[^}]*height:\s*20px/);
   assert.match(css, /\.clean-send::before\s*\{[^}]*width:\s*20px[^}]*height:\s*20px/);
 });
+
+test("a dimmed row keeps the full red badge: the fade mask has a second layer that spares the right column", () => {
+  const rule = css.match(/\.list\[data-clean-fade\]\s*\{[^}]*\}/)?.[0] || "";
+  assert.match(rule, /--fade-keep:\s*56px/);
+  assert.match(rule, /mask-composite:\s*add/);
+  assert.match(rule, /linear-gradient\(to right, transparent calc\(100% - var\(--fade-keep\)\), #000 calc\(100% - var\(--fade-keep\)\)\)/);
+});
+
+test("the caption under a picture is 14/20 and dark, not the faint meta colour", () => {
+  const rule = css.match(/\.row\.sent-file > \.b > \.meta\s*\{[^}]*\}/)?.[0] || "";
+  assert.match(rule, /font:\s*400 14px\/20px/);
+  assert.match(rule, /color:\s*var\(--c-t1\)/);
+});
+
+test("filters and group headers show no totals: .gcount and .c-n are hidden by the theme", () => {
+  assert.match(css, /html\.th-clean \.gcount\s*\{\s*display:\s*none;?\s*\}/);
+  assert.match(css, /html\.th-clean \.c-n\s*\{\s*display:\s*none;?\s*\}/);
+});

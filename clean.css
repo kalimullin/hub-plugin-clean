@@ -176,16 +176,21 @@ html.th-clean .active-bar button { display: inline-flex; align-items: center; ju
   html.th-clean .active-bar button:hover { background: var(--c-hover); }
 }
 html.th-clean .active-bar button[aria-pressed="true"] { background: var(--background); box-shadow: none; }
-html.th-clean .c-n { height: 16px; padding: 0 4px; display: inline-grid; place-items: center; border-radius: 4px; background: var(--c-badge);
-  font: 500 12px/16px var(--font); color: var(--c-t1); }
+/* Filter tabs show no totals (only waiting/unread things carry a number); main.js still splits "All · 17" so the label stays clean. */
+html.th-clean .c-n { display: none; }
 
 /* ---- список: карточка «Хаб» 36, группы через 24, строка 40; справа — бейджи (через 6) и статус в боксе 16 (через 12) ---- */
 html.th-clean .list { padding: 28px 12px 0; }
 html.th-clean .list.scrolled { border-top-color: transparent; }
-/* край прокрутки — плавно, а не обрезом: сверху 24, снизу 64 (макет), только там, куда есть что листать (main.js) */
-html.th-clean .list[data-clean-fade] { --fade-top: 0px; --fade-bottom: 0px;
-  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent);
-  mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent); }
+/* край прокрутки — плавно, а не обрезом: сверху 24, снизу 64 (макет), только там, куда есть что листать (main.js).
+   The row (icon and text) fades, but the right column does not: a second mask layer keeps it fully visible, so the badge stays
+   solid red and its contrast does not depend on the scroll position (mask layers add up) */
+html.th-clean .list[data-clean-fade] { --fade-top: 0px; --fade-bottom: 0px; --fade-keep: 56px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent),
+    linear-gradient(to right, transparent calc(100% - var(--fade-keep)), #000 calc(100% - var(--fade-keep)));
+  mask-image: linear-gradient(to bottom, transparent, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent),
+    linear-gradient(to right, transparent calc(100% - var(--fade-keep)), #000 calc(100% - var(--fade-keep)));
+  -webkit-mask-composite: source-over; mask-composite: add; }
 html.th-clean .list[data-clean-fade~="up"] { --fade-top: 24px; }
 html.th-clean .list[data-clean-fade~="down"] { --fade-bottom: 64px; }
 /* «Новая группа», «Разложить по группам» (и «Сбросить группы», когда раскладка своя) — под группами, до спящих
@@ -372,8 +377,9 @@ html.th-clean .react-chip { min-height: 28px; padding: 3px 10px; border: 1px sol
 }
 html.th-clean .reactions { margin-top: 6px; }
 
-html.th-clean .gcount { height: 16px; min-width: 0; padding: 0 4px; border-radius: 4px; background: var(--c-badge); opacity: .4;
-  font: 500 12px/16px var(--font); color: var(--c-t1); }
+/* A group header carries no total ("All 17", "Now 7", "Agents 17"): a number stays only where it means unread or waiting
+   (the waiting pill and the row badges). The core draws the total in .gcount (sidebar.js countBadge, 4 headers). */
+html.th-clean .gcount { display: none; }
 
 /* ---- баннер ядра («Хаб обновился…», «Нет связи…») — первая строка карточки чата, над шапкой, своя подложка --c-badge
    (не фон окна и не белая карточка); верхние углы — как у окна, иначе ядровая прямоугольная заливка срезает скругление ---- */
@@ -590,6 +596,9 @@ html.th-clean .byline .av[data-clean-av] { background: var(--clean-av) center / 
 html.th-clean .byline:is([data-clean="core"], [data-clean-owner]) > b::first-letter { text-transform: uppercase; }   /* «Ядро» и «Владелец», как «Хаб» и «Расписание» */
 html.th-clean .row .meta { font: 400 12px/16px var(--font); letter-spacing: 0; color: var(--c-t3); }
 html.th-clean .row.out > .b:has(> .byline) > .meta { align-self: center; }
+/* The line over a file sent to the owner ("Sent you · 3 days ago") is read, not skimmed: 14 px, body-text ink, not the
+   time grey (core feed.js file row). */
+html.th-clean .row.sent-file > .b > .meta { font: 400 14px/20px var(--font); color: var(--c-t1); }
 /* «Ответить» — одно место и один вид у всех сообщений: тихая кнопка 24 со значком 16 справа на строке имени, при наведении
    на сообщение и с клавиатуры; без подложки и тени, подложка — только под курсором (как кнопки над сообщением в Slack).
    Слова кнопки остаются для чтения с экрана и в подсказке (main.js); « · » перед ней в «ответила на ваше сообщение» тема
