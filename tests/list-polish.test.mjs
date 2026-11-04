@@ -62,3 +62,19 @@ test("filters and group headers show no totals: .gcount and .c-n are hidden by t
   assert.match(css, /html\.th-clean \.gcount\s*\{\s*display:\s*none;?\s*\}/);
   assert.match(css, /html\.th-clean \.c-n\s*\{\s*display:\s*none;?\s*\}/);
 });
+
+test("feed times and captions use --c-meta (>= 4.5:1), not the ~2:1 --c-t3; the picture caption keeps --c-t1", () => {
+  assert.match(css, /--c-meta:\s*light-dark\(rgb\(0 0 0 \/ 0\.62\), rgb\(255 255 255 \/ 0\.60\)\)/);
+  assert.match(css, /html\.th-clean \.row \.meta\s*\{[^}]*color:\s*var\(--c-meta\)/);
+  assert.match(css, /\(\.row\.from > \.b, \.reply-box\) > \.meta\s*\{[^}]*color:\s*var\(--c-meta\)/);
+  assert.doesNotMatch(css, /html\.th-clean \.row \.meta\s*\{[^}]*--c-t3/);
+  assert.match(css, /\.row\.sent-file > \.b > \.meta\s*\{[^}]*color:\s*var\(--c-t1\)/);
+});
+
+test("the executor toggle shows only the chevron: the count is hidden and takes no reserved width", () => {
+  assert.match(css, /html\.th-clean \.fork-toggle \.n\s*\{\s*display:\s*none;?\s*\}/);
+  assert.match(css, /li\.has-forks > \.srow::after\s*\{[^}]*content:\s*""/);
+  const rule = css.match(/html\.th-clean \.fork-toggle\s*\{[^}]*\}/)?.[0] || "";
+  assert.match(rule, /opacity:\s*\.7/);
+  assert.match(rule, /color:\s*var\(--c-t1\)/);
+});
