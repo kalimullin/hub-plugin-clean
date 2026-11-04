@@ -42,7 +42,8 @@ test("steps are cumulative class lists named in clean.css", () => {
 
 test("clean.css: 8 between neighbours, the status room comes from the measure, the camera is 8 from the mic", () => {
   assert.match(css, /padding: 0 var\(--fit-r, [^)]*\) [^;]*var\(--fit-l, 52px\);\s*justify-content: flex-end; align-items: center; gap: 8px;/);
-  assert.match(css, /right: calc\(12px \+ 2 \* var\(--row, 32px\) \+ 16px\)/, "camera: send 12 + button + 8 + mic + 8");
+  assert.match(css, /right: calc\(12px \+ var\(--row, 32px\) \+ 8px\); bottom: 18px; \}/, "camera: 12 + the one core button + 8, the same with an empty field and with text");
+  assert.doesNotMatch(css, /translateX\(calc\(var\(--row, 32px\) \+ 8px\)\)/, "the camera does not move when typing swaps the mic for send");
   assert.match(css, /\.bar:not\(\.reply-bar\) \{ flex-wrap: nowrap; gap: 8px; \}/);
   assert.match(css, /\.bar \{ padding-left: calc\(var\(--row, 32px\) \+ 8px\); \}/, "8 from «+» to the first button of the row");
   // container steps do not decide for the room: short labels and hiding come from fit.js only

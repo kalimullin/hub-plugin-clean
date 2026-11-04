@@ -40,3 +40,19 @@ test("the core icon is masked by the plugin's own arrow, not only by the theme f
   assert.match(r, /-webkit-mask-image: url\("send\.svg"\) !important/);
   assert.match(r, /mask-image: url\("send\.svg"\) !important/);
 });
+
+test("an empty field shows no send: the plugin adds no send button of its own, the core shows its send only with text or a file", () => {
+  const main = read("main.js");
+  assert.doesNotMatch(main, /clean-send/);
+  assert.doesNotMatch(main, /"btn round send/);
+  assert.doesNotMatch(css, /clean-send/);
+  assert.doesNotMatch(read("fit.js"), /clean-send/);
+});
+
+test("the record pill grows leftwards from the mic at the right end of the row", () => {
+  assert.match(css, /@keyframes clean-pill \{ from \{ clip-path: inset\(0 0 0 40px round 8px\)/);
+  assert.match(css, /@keyframes clean-pill-phone \{ from \{ clip-path: inset\(0 0 0 44px round 8px\)/);
+  assert.match(rule("html.th-clean .composer.rec .btn.round.stop::before"), /right: 8px/);
+  assert.doesNotMatch(css, /--tail: (88|92|100|128|140)px; \}[^\n]*\n?[^\n]*btn\.round\.mic/);
+  assert.doesNotMatch(css, /:has\(form\.composer \.bar > \.btn\.round\.mic\)\) \{ --tail/);
+});

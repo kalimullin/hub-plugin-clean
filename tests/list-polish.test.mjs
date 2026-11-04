@@ -38,7 +38,6 @@ test("the send arrow is the heavy Icons8 sf-black up, 20 px in a 36 px button", 
   assert.equal(icons.icons.items.send.pack, "sf-black");
   assert.match(css, /\.btn\.round\.send\s*\{[^}]*width:\s*36px[^}]*height:\s*36px/);
   assert.match(css, /\.btn\.round\.send \.icon\s*\{[^}]*width:\s*20px[^}]*height:\s*20px/);
-  assert.match(css, /\.clean-send::before\s*\{[^}]*width:\s*20px[^}]*height:\s*20px/);
 });
 
 test("a dimmed row keeps the full red badge: the fade mask has a second layer that spares the right column", () => {
