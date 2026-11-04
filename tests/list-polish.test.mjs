@@ -74,3 +74,11 @@ test("the executor toggle shows only the chevron: the count is hidden and takes 
   assert.match(rule, /opacity:\s*\.7/);
   assert.match(rule, /color:\s*var\(--c-t1\)/);
 });
+
+test("group headers (.sgroup-h) are 14px and use --c-meta; the executor-count code in main.js is gone", () => {
+  const rule = css.match(/html\.th-clean \.sgroup-h\s*\{[^}]*\}/)?.[0] || "";
+  assert.match(rule, /font:\s*400 14px\/16px/);
+  assert.match(rule, /color:\s*var\(--c-meta\)/);
+  assert.doesNotMatch(rule, /--c-t3/);
+  assert.doesNotMatch(fs.readFileSync(path.join(root, "main.js"), "utf8"), /cleanFw|forkCounts/);
+});

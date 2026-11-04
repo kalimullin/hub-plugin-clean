@@ -371,13 +371,6 @@ export default function register(hub) {
       tok.replaceChildren(document.createTextNode(t.slice(0, -3)), sep());
     }
   };
-  // бейдж исполнителей «2 ›»: место под него держит невидимый двойник строки — ему нужно только число
-  const forkCounts = () => {
-    for (const r of document.querySelectorAll("#list li.has-forks > .srow[data-fw]")) {
-      const n = r.dataset.fw.replace(/\D/g, "");
-      if (r.dataset.cleanFw !== n) r.dataset.cleanFw = n;
-    }
-  };
   // «Отправить» видна всегда (макет): с голосом ядро в пустом поле ставит на её место микрофон (тема уводит его влево) —
   // тогда справа кнопка темы; она отправляет форму так же, как кнопка ядра без голоса (пустое — ядро подскажет)
   const SEND = RU ? "Отправить" : "Send";
@@ -683,7 +676,7 @@ export default function register(hub) {
   const sweep = () => {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
-    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); headFold();
+    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); sendButtons(); recBars(); actions(); queuePlate(); headFold();
     boardRecap(); rowDetail(); rowFaces(); recentOrder(); keepList(); lazyMore();
     holdView();
     fit.hook();

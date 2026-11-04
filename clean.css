@@ -335,7 +335,7 @@ html.th-clean .forks > ul { border-left: 0; margin-left: 12px; }
 /* заголовок группы: 24, имя 12/16 серым 28%, счётчик — бейдж с прозрачностью .4; шеврон и «…» — при наведении */
 html.th-clean .sgroup + .sgroup, html.th-clean .sgroup-hw { margin-top: 0; }
 html.th-clean .sgroup { margin-bottom: 24px; }
-html.th-clean .sgroup-h { height: 24px; margin: 0; padding: 4px 4px 4px 8px; gap: 6px; font: 400 12px/16px var(--font); color: var(--c-t3); }
+html.th-clean .sgroup-h { height: 24px; margin: 0; padding: 4px 4px 4px 8px; gap: 6px; font: 400 14px/16px var(--font); color: var(--c-meta); }
 @media (hover: hover) and (pointer: fine) {
   html.th-clean .sgroup-h:hover { color: var(--c-t2); }
 }

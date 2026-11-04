@@ -58,9 +58,9 @@ together with the code that follows it, and with a reason.
   `--muted-foreground`, `--border`, `--accent`). A hex or `rgb()` in a rule is a finding. Allowed: the token block
   at the top of `clean.css`, the theme files (`clean.json`, `clean-dark.json`), and `#fff` on the red `--c-alert`
   fill. Each token is a `light-dark(...)` pair, so the dark theme is never an afterthought.
-- **Text color roles.** `--c-t1` for text, `--c-t2` for secondary text, `--c-t3` only for time, group labels and
-  other non-essential marks (it is not readable enough for anything the user must read). Times and captions in the
-  feed (`.row .meta`) are read, so they use `--c-meta` (≥4.5:1 in both themes), not `--c-t3`.
+- **Text color roles.** `--c-t1` for text, `--c-t2` for secondary text, `--c-t3` only for
+  non-essential marks (it is not readable enough for anything the user must read). Times and captions in the
+  feed (`.row .meta`) are read, so they use `--c-meta` (≥4.5:1 in both themes), not `--c-t3`. Group headers (`.sgroup-h`) are read too: 14px, `--c-meta`.
 - **Executors toggle.** The row shows only the chevron (16×16, `--c-t1` at .7); the executor count is hidden by the
   theme and stays in the button title and its screen-reader name.
 - **Same control, same size.**
