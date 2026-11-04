@@ -28,7 +28,7 @@
 // - bottom row of the composer card (+, status chips, plugin buttons, camera, mic, send): room is shared by the measured
 //   width and nothing overlaps (fit.js).
 import { mountFit } from "./fit.js";
-import { AGO, byRecent, detailOf, sessionFor } from "./rows.js";
+import { AGO, badgeText, byRecent, detailOf, lazyHidden, sessionFor } from "./rows.js";
 
 const MINE = /(^|:)clean:clean(-dark)?\.json$/;
 const OWNER = new Set(["владелец", "owner"]);   // как называет владельца ядро в событиях (core/reducer.py)
@@ -82,8 +82,10 @@ export default function register(hub) {
     for (const tag of tags) {
       const nm = tag.closest(".srow")?.querySelector(".nm");
       const s = by.get((nm?.title || nm?.textContent || "").split(" — ")[0].trim());
-      const n = String((s && asks(s)) || 1);
+      const raw = (s && asks(s)) || 1;
+      const { text: n, w } = badgeText(raw);   // one sign — circle, two and more — capsule
       if (tag.dataset.n !== n) tag.dataset.n = n;
+      if (tag.dataset.w !== w) tag.dataset.w = w;
     }
   };
   // шевроны ядра — символы ▸ ▾: тема рисует один значок Forma и поворачивает раскрытый
@@ -608,11 +610,53 @@ export default function register(hub) {
     const best = [...shifts].sort((a, b) => b[1] - a[1] || Math.abs(a[0]) - Math.abs(b[0]))[0];
     if (best && best[0]) l.scrollTop += best[0];
   };
+  // A long list opens short: the first LAZY_STEP chats (counted in the order the groups are drawn) stay, the rest carry the
+  // data-clean-lazy mark (hidden by CSS) and come in portions when the list is scrolled near its bottom. The core builds every
+  // row and erases foreign attributes on each snapshot (reconcile.js, syncAttrs), so the pass is repeated in the same microtask by
+  // the observer in keepList. Counters and the "waiting for you" plate come from the snapshot, not from rows, and do not change.
+  // Never hidden: the open chat, everything while searching, a list barely longer than the step
+  const LAZY_STEP = 10, LAZY_SLACK = 3;
+  let lazyBudget = LAZY_STEP;
+  const lazyRows = () => {
+    const l = document.getElementById("list");
+    if (!l) return false;
+    const mark = (n, v) => { if (v) { if (n.dataset.cleanLazy !== "1") n.dataset.cleanLazy = "1"; } else if ("cleanLazy" in n.dataset) delete n.dataset.cleanLazy; };
+    const blocks = [];   // a chat row with the rows of its executors
+    for (const ul of l.querySelectorAll("section.sgroup > ul")) {
+      let last = null;
+      for (const li of ul.children) {
+        if (li.matches("li.forks") && last) { last.push(li); continue; }
+        if (li.dataset.s || li.dataset.m) { last = [li]; blocks.push(last); } else last = null;
+      }
+    }
+    const searching = !!l.querySelector("[data-search-match]");
+    const cur = l.querySelector('.srow[aria-current="true"]')?.closest("ul > li");
+    const lazy = on() && !searching && blocks.length > LAZY_STEP + LAZY_SLACK;
+    const off = lazyHidden(blocks.length, { budget: lazyBudget, cur: cur ? blocks.findIndex((b) => b.includes(cur)) : -1, searching: !on() || searching, step: LAZY_STEP, slack: LAZY_SLACK });
+    let hidden = 0;
+    blocks.forEach((b, i) => { for (const li of b) mark(li, off[i]); if (off[i]) hidden++; });
+    for (const sec of l.querySelectorAll("section.sgroup")) {
+      const items = [...sec.querySelectorAll(":scope > ul > li")];
+      mark(sec, lazy && items.length > 0 && items.every((li) => li.dataset.cleanLazy === "1"));
+    }
+    return hidden > 0;
+  };
+  // more rows when the bottom is near; a list that does not fill its height has nothing to scroll, so it is filled at once
+  const lazyMore = () => {
+    const l = document.getElementById("list");
+    if (!l || !on()) return;
+    for (let i = 0; i < 30; i++) {
+      if (!lazyRows()) return;
+      if (l.scrollHeight > l.clientHeight + 8 && l.scrollHeight - l.scrollTop - l.clientHeight > 160) return;
+      lazyBudget += LAZY_STEP;
+    }
+    lazyRows();
+  };
   const keepList = () => {
     const l = document.getElementById("list");
     if (!l || l.dataset.cleanKeepOn) return;
     l.dataset.cleanKeepOn = "1";
-    l.addEventListener("scroll", () => { listTop = l.scrollTop; lookAt(l); }, { passive: true });
+    l.addEventListener("scroll", () => { listTop = l.scrollTop; lookAt(l); lazyMore(); }, { passive: true });
     // Sorting by the last message owns the order inside a group, so a row dropped in another place would just spring back and
     // look broken. The core's own drag yields to a plugin that took the press (preventDefault on pointerdown, after the core's
     // handler), so rows are not lifted while sorting is on; moving to another group stays in the row menu, group headers still drag
@@ -621,11 +665,12 @@ export default function register(hub) {
       if (!on()) return;
       recentOrder();
       rowFaces();   // the same erasing takes our avatar attributes too
+      lazyRows();
       if (!document.documentElement.classList.contains("th-clean-detail")) return;
       if (l.scrollTop < l.scrollHeight - l.clientHeight - 1) return;   // not at the bottom: nothing to cut
       rowDetail();
       if (l.scrollTop < listTop) l.scrollTop = listTop;
-    }).observe(l, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-clean-d", "data-clean-k", "data-clean-tile", "style"] });
+    }).observe(l, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-clean-d", "data-clean-k", "data-clean-tile", "data-clean-lazy", "style"] });
   };
   const detailClass = () => {
     document.documentElement.classList.toggle("th-clean-detail", !!hub.option?.("detail"));
@@ -639,7 +684,7 @@ export default function register(hub) {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
     avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); headFold();
-    boardRecap(); rowDetail(); rowFaces(); recentOrder(); keepList();
+    boardRecap(); rowDetail(); rowFaces(); recentOrder(); keepList(); lazyMore();
     holdView();
     fit.hook();
   };

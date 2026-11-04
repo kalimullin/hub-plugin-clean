@@ -21,8 +21,9 @@
         "commonName": "sleep"
       },
       "send": {
-        "id": "G7Ujm3KGvIqq",
-        "commonName": "up"
+        "id": "Mq3eLYjKvHcI",
+        "commonName": "up",
+        "pack": "sf-black"
       },
       "attach": {
         "id": "i1PiQepbTYbk",

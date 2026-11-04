@@ -67,6 +67,12 @@ together with the code that follows it, and with a reason.
   - Menus: padding 4, radius 12, items 32px high, radius 8, `14/20` text, no title row.
   - Text buttons: 32px, radius 8, `--c-fill` background, `12/16` weight 500.
   - Badges: 16px high, radius 4. Pills and chips follow the status colors only.
+  - Count badges on session rows (red): 18px high, 12px semibold tabular figures, white on `--c-alert-fill` (≥4.5:1);
+    one digit is a circle, two or more a capsule (6px each side), 100 and over reads `99+`.
+  - Send arrow: Icons8 SF Black «up» (`Mq3eLYjKvHcI`), 20px glyph in a 36px button, a mask over `currentColor`.
+  - Long session lists show about ten rows and add ten more as the list is scrolled (`data-clean-lazy`); while a search
+    is active, for the current session and for lists of 13 or fewer, nothing is hidden.
+  - A caption under a sent picture is as wide as the picture, never wider.
 - **Nothing overlaps in the composer row.** Between neighbours in the bottom row of the card («+», status chips, plugin
   buttons, camera, mic, send) there are 8px at every width and for any number of plugin buttons. Room is shared by
   the measured width (`fit.js`), not by a button count or a container step: chip labels shorten, then ellipsize, then

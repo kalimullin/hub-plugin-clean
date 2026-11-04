@@ -50,3 +50,18 @@ export const lastAt = (s) => Math.max(s?.since || 0, s?.out_head_ts || 0);
 export function byRecent(rows) {
   return rows.map((r, i) => [r, i]).sort((a, b) => (b[0].kind === "hub") - (a[0].kind === "hub") || lastAt(b[0]) - lastAt(a[0]) || a[1] - b[1]).map((x) => x[0]);
 }
+
+// A long list opens short (main.js lazyRows): of `count` chat blocks the first `budget` stay; the open chat (`cur`, an index or -1)
+// stays always; a search shows everything it found; a list barely longer than the step (`slack`) is not cut at all.
+// Returns for each block whether it is hidden
+export function lazyHidden(count, { budget = 10, cur = -1, searching = false, step = 10, slack = 3 } = {}) {
+  const cut = !searching && count > step + slack;
+  return Array.from({ length: count }, (_, i) => cut && i >= budget && i !== cur);
+}
+
+// the number in a red badge: 1–99 as is, 100 and more — «99+»; `w` is the shape (one sign — circle, more — capsule)
+export function badgeText(count) {
+  const n = Math.max(1, Math.floor(Number(count)) || 1);
+  const text = n > 99 ? "99+" : String(n);
+  return { text, w: text.length > 1 ? "2" : "1" };
+}

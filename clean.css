@@ -25,6 +25,7 @@ html.th-clean {
   --c-t3: light-dark(rgb(0 0 0 / 0.28), rgb(255 255 255 / 0.30));        /* время, подписи групп, «·» */
   --c-preview: light-dark(rgb(0 0 0 / 0.55), rgb(255 255 255 / 0.50));   /* превью сообщения в «Подробном» списке: ≥4,5:1 к фону, к карточке и в тёмной (в светлой темой светлее нельзя: 50% даёт 3,9:1) */
   --c-ink: light-dark(#000, #fff);                                         /* точки «работает»: этим цветом с прозрачностью */
+  --c-alert-fill: light-dark(#d9342b, #cf3a3a);   /* fill under white text (badges, red pill): 4,7:1 light, 4,9:1 dark */
   --c-alert: light-dark(#ef4e4e, #cf3a3a);   /* красная заливка с белым текстом: в тёмной 4,9:1 */
   --c-free: light-dark(#1fb141, #4cd46a); --c-free-bg: light-dark(#e7f9eb, #173a22);
   --c-eco: light-dark(#876200, #ffd60a);   /* жёлтый «режима экономии» в блоке расхода: тёмная охра на светлом (4,5:1+), яркий жёлтый на тёмном */
@@ -86,6 +87,8 @@ html.th-clean .search .clean-x::before { content: ""; width: 12px; height: 12px;
 }
 html.th-clean .search:has(#filter:placeholder-shown) .clean-x { display: none; }
 html.th-clean aside:has(#filter:not(:placeholder-shown)) #list .g-tools { display: none; }
+/* rows past the first portion of a long list: the plugin opens them while scrolling (lazyRows in main.js) */
+html.th-clean #list [data-clean-lazy] { display: none; }
 html.th-clean #list > p.hint[data-clean="empty"] { display: grid; justify-items: center; gap: 2px; margin: 40px 12px 0; padding: 0;
   text-align: center; font: 400 12px/16px var(--font); color: var(--c-t2); }
 html.th-clean .ce-icon { width: 40px; height: 40px; margin-bottom: 10px; display: grid; place-items: center; border-radius: 12px; background: var(--c-fill); }
@@ -262,11 +265,13 @@ html.th-clean :is(.srow > .glyph:is([data-s="busy"], [data-s="starting"]), .row.
   html.th-clean :is(.srow > .glyph:is([data-s="busy"], [data-s="starting"]), .row.working > .g.spin)::before,
   html.th-clean :is(.srow > .glyph:is([data-s="busy"], [data-s="starting"]), .row.working > .g.spin)::after { animation: none; }
 }
-/* «ждёт вас» — красный бейдж DS 16 r4 числом вопросов (data-n ставит main.js; слова остаются для чтения с экрана) */
-html.th-clean .srow .tag:not(.soft) { height: 16px; min-width: 16px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
-  padding: 0 4px; align-self: center; margin-top: 0; border-radius: 4px; background: var(--c-alert); color: #fff; font: 500 12px/16px var(--font); }
+/* «ждёт вас» — красный бейдж числом вопросов (data-n и data-w ставит main.js; слова остаются для чтения с экрана):
+   один знак — круг 18, два и больше — капсула высотой 18 (текст + 6 слева и справа), 12 semibold, цифры одной ширины */
+html.th-clean .srow .tag:not(.soft) { height: 18px; min-width: 18px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
+  padding: 0 6px; align-self: center; margin-top: 0; border-radius: 9px; background: var(--c-alert-fill); color: #fff; font: 600 12px/18px var(--font); }
+html.th-clean .srow .tag:not(.soft)[data-w="1"] { padding: 0; }
 html.th-clean .srow .tag:not(.soft)[data-n] { font-size: 0; }
-html.th-clean .srow .tag:not(.soft)[data-n]::after { content: attr(data-n); font: 500 12px/16px var(--font); font-variant-numeric: tabular-nums; }
+html.th-clean .srow .tag:not(.soft)[data-n]::after { content: attr(data-n); font: 600 12px/18px var(--font); font-variant-numeric: tabular-nums; }
 html.th-clean li.has-forks > .srow > .tag:not(.soft) { margin-right: -6px; }   /* до бейджа исполнителей — 6, не 12 */
 html.th-clean .srow.blocked { box-shadow: none; }
 /* исполнители «2 ›» — бейдж 16 r4 на 10% с прозрачностью .4 (ядро ставит его поверх строки; место под него держит
@@ -384,7 +389,7 @@ html.th-clean main > .head :is(.pill, .chip) { height: 16px; min-height: 0; disp
 html.th-clean main > .head .pill { color: var(--c-t2); background: var(--c-fill); }   /* спит, закрыта — Neutral Subtle */
 html.th-clean main > .head .pill:is([data-s="idle"], .idle, .free) { color: var(--c-free); background: var(--c-free-bg); }
 html.th-clean main > .head .pill:is([data-s="busy"], [data-s="starting"]) { color: var(--c-busy); background: var(--c-busy-bg); }
-html.th-clean main > .head .pill:is([data-s="dialog"], [data-s="failed"]) { color: #fff; background: var(--c-alert); }
+html.th-clean main > .head .pill:is([data-s="dialog"], [data-s="failed"]) { color: #fff; background: var(--c-alert-fill); }
 html.th-clean main > .head .chip { background: var(--c-fill); box-shadow: none; color: var(--c-t1); }
 @media (hover: hover) and (pointer: fine) {
   html.th-clean main > .head .chip:hover { background: var(--c-badge); }
@@ -762,14 +767,15 @@ html.th-clean .slot-composer-tools .btn.round:has(> :is(svg, .icon):only-child) 
   html.th-clean .slot-composer-tools .btn.round:has(> :is(svg, .icon):only-child):hover { color: var(--c-t1); }
 }
 html.th-clean .slot-composer-tools .btn.round > :is(svg, .icon) { width: 16px; height: 16px; }
-html.th-clean .btn.round.send { width: 32px; height: 32px; border-radius: 8px; background: var(--foreground); }
+html.th-clean .btn.round.send { width: 36px; height: 36px; border-radius: 8px; background: var(--foreground); }
 @media (hover: hover) and (pointer: fine) {
   html.th-clean .btn.round.send:hover { background: color-mix(in oklch, var(--foreground) 85%, var(--background)); }
 }
-html.th-clean .btn.round.send .icon { width: 16px; height: 16px; }
+/* bold arrow (sf-black «up»): the glyph is 20 px in the 36 px button; the inline mask of the core icon is kept by !important */
+html.th-clean .btn.round.send .icon { width: 20px; height: 20px; -webkit-mask-size: contain !important; mask-size: contain !important; }
 html.th-clean .composer .bar > .clean-send { margin-left: auto; display: grid; place-items: center; padding: 0; border: 0; }
-html.th-clean .clean-send::before { content: ""; width: 16px; height: 16px; background: currentColor;
-  -webkit-mask: url("send.svg") center / 16px no-repeat; mask: url("send.svg") center / 16px no-repeat; }
+html.th-clean .clean-send::before { content: ""; width: 20px; height: 20px; background: currentColor;
+  -webkit-mask: url("send.svg") center / contain no-repeat; mask: url("send.svg") center / contain no-repeat; }
 html.th-clean .composer .bar:has(> .btn.round.send:not(.clean-send)) > .clean-send,
 html.th-clean .composer .bar:not(:has(> .btn.round.mic)) > .clean-send, html.th-clean .composer.rec .clean-send { display: none; }
 /* строка под полем (DS Dropdown Text Small): модель ⌄ · усилие ⌄ · токены · доля — серым 55%, «·» — 28%; папка —
@@ -1247,6 +1253,10 @@ html.th-clean .pal-reset:disabled { display: none; }
 html.th-clean :is(.srow, .active-bar button, .navmenu, .clean-fold, .clean-fold-show, .seg button, .fork-toggle, .sgroup-h, .gmore, .btn, .chat-head, .clean-lim, .clean-x, .linkbtn, .gpop-i, .md .code-copy, .board-card):focus-visible {
   outline: 2px solid var(--c-ring); outline-offset: 2px; }
 
+/* A caption under a picture is never wider than the picture: the bubble shrinks to the image row and
+   the meta line and caption (zero own width, full of the bubble) wrap inside that width. */
+html.th-clean .row.sent-file > .b:has(> .attach-list img) { justify-self: start; width: fit-content; max-width: 100%; }
+html.th-clean .row.sent-file > .b:has(> .attach-list img) > :is(.meta, .md) { width: 0; min-width: 100%; }
 /* ---- тихие hover и focus: синего нет ни у наведения, ни у фокуса; подложка --c-hover/--c-fill, рамка --c-line-strong,
    кольцо с клавиатуры --c-ring. Здесь — то, что приходит из ядра и плагинов: картинка во вложении (ядро lightbox.css и
    chat-images красят outline в --primary), поле поиска по чату (ядро feed.css) ---- */
