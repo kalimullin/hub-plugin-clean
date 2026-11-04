@@ -4,16 +4,20 @@
 // button count. The classes go on .dock-inner; what they do is in clean.css (the section «bottom row and status line»).
 //
 // Steps the status line gives way in (the number is an index into STEPS), each next one only if the room is short:
-//   0 — as is; 1 — short labels (abbreviated executors label, «Opus»); 2 — labels shrink with an ellipsis; 3 — effort goes into the model menu;
-//   4 — the model goes; 5 — the executors go.
+//   0 — as is; 1 — the executors label is short («exec. 3/5»); 2 — the model label is short too («Opus»); 3 — labels shrink
+//   with an ellipsis; 4 — effort goes into the model menu; 5 — the executors go; 6 — the model goes.
+// The model is what the owner reads on the row (which model answers), so it keeps its full name longest and goes last; the
+// executors chip is a setting, changed rarely.
 // Plugin buttons that do not fit one row with «+», camera, mic and send wrap to a row above; they go there too when in one
 // row the status would vanish altogether (step 5) and above it fits.
 
 export const GAP = 8;                       // gap between neighbours in the row
 export const MIN = { par: 96, mod: 72, eff: 64 };   // down to how many px a label shrinks with an ellipsis (button padding and chevron included)
 export const CHIPS = ["par", "mod", "eff"];
-export const STEPS = [[], ["short"], ["short", "shrink"], ["short", "shrink", "noeff"], ["short", "shrink", "noeff", "nomod"], ["short", "shrink", "noeff", "nomod", "nopar"]];
-const CLASSES = ["clean-up", ...["short", "shrink", "noeff", "nomod", "nopar"].map((n) => "clean-fit-" + n)];
+const NAMES = ["parshort", "short", "shrink", "noeff", "nopar", "nomod"];
+export const STEPS = NAMES.map((_, i) => NAMES.slice(0, i)).concat([NAMES]);
+const LAST = STEPS.length - 1;   // nothing of the status is left in the row
+const CLASSES = ["clean-up", ...NAMES.map((n) => "clean-fit-" + n)];
 
 // Which step the status line needs to fit into room px. Button widths by name: long — with full labels, short — with short
 // ones; a missing button (a session without effort) has no key.
@@ -22,12 +26,14 @@ export function pickStep({ long, short }, room) {
     const ws = names.filter((k) => w[k] != null).map((k) => (floor ? Math.min(w[k], MIN[k]) : w[k]));
     return ws.length ? ws.reduce((a, b) => a + b, 0) + GAP * (ws.length - 1) : 0;
   };
+  const parShort = short.par != null ? { ...long, par: short.par } : long;   // the executors label short, the model full
   if (sum(long, CHIPS) <= room) return 0;
-  if (sum(short, CHIPS) <= room) return 1;
-  if (sum(short, CHIPS, true) <= room) return 2;
-  if (sum(short, ["par", "mod"], true) <= room) return 3;
-  if (sum(short, ["par"], true) <= room) return 4;
-  return 5;
+  if (sum(parShort, CHIPS) <= room) return 1;
+  if (sum(short, CHIPS) <= room) return 2;
+  if (sum(short, CHIPS, true) <= room) return 3;
+  if (sum(short, ["par", "mod"], true) <= room) return 4;
+  if (sum(short, ["mod"], true) <= room) return 5;
+  return LAST;
 }
 
 // Hooks into the page. on() tells whether the theme is selected. Returns { hook, reset }: hook is called on every page redraw
@@ -81,11 +87,11 @@ export function mountFit(on) {
       return { up, step, left, right, sr };
     };
     // Plugin buttons stay in one row while they fit with «+», camera, mic and send; otherwise they go a row above. If in one row
-    // nothing is left for the status at all (step 5) and above it fits, the buttons go above: losing the executors and the
-    // model altogether is worse than an extra row.
+    // nothing is left for the status at all (the last step) and above it fits, the buttons go above: losing the executors and
+    // the model altogether is worse than an extra row.
     set(d, []);
     let best = layout(bar.scrollWidth > bar.clientWidth + 1);
-    if (best.step === 5 && !best.up) { const alt = layout(true); if (alt.step < 5) best = alt; }
+    if (best.step === LAST && !best.up) { const alt = layout(true); if (alt.step < LAST) best = alt; }
     best = layout(best.up);
     d.style.setProperty("--fit-l", `${Math.max(0, Math.round(best.left - best.sr.left))}px`);
     d.style.setProperty("--fit-r", `${Math.max(0, Math.round(best.sr.right - best.right))}px`);
@@ -94,7 +100,7 @@ export function mountFit(on) {
     // shrinking with an ellipsis does not go below MIN: else a label is left as «Op…»
     const short = (set(d, [...(best.up ? ["clean-up"] : []), "clean-fit-short"]), widths());
     set(d, [...(best.up ? ["clean-up"] : []), ...STEPS[best.step].map((n) => "clean-fit-" + n)]);
-    for (const [k, w] of Object.entries(chips)) w.style.minWidth = best.step >= 2 && short[k] != null ? `${Math.min(Math.ceil(short[k]), MIN[k])}px` : "";
+    for (const [k, w] of Object.entries(chips)) w.style.minWidth = STEPS[best.step].includes("shrink") && short[k] != null ? `${Math.min(Math.ceil(short[k]), MIN[k])}px` : "";
   };
   const schedule = () => { if (!queued) { queued = true; requestAnimationFrame(run); } };
 

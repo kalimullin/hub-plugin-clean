@@ -1127,8 +1127,9 @@ html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round:disabled > .sp
    1. The whole bottom row — «+», the status line, plugin buttons, camera, mic, send — is one line with an 8px gap.
    2. Plugin buttons that do not fit one line with «+», camera, mic and send (.clean-up) wrap to a row above (as many rows as
       needed); the mic and send stay on the bottom one.
-   3. The status line gives way by steps: short labels (.clean-fit-short) → an ellipsis (.clean-fit-shrink) → effort goes into
-      the model menu (.clean-fit-noeff) → the model (.clean-fit-nomod) → the executors (.clean-fit-nopar).
+   3. The status line gives way by steps: the short executors label (.clean-fit-parshort) → the short model label
+      (.clean-fit-short) → an ellipsis (.clean-fit-shrink) → effort goes into the model menu (.clean-fit-noeff) → the executors
+      (.clean-fit-nopar) → the model (.clean-fit-nomod). The model keeps its full name longest and goes last.
    Below 520px the core hides effort and the model next to the executors by itself — here it does not decide: the room does. */
 html.th-clean .dock-inner:is(*, :has(.vf-slot)) form.composer .bar { padding-left: calc(var(--row, 32px) + 8px); }   /* 8 from «+» */
 html.th-clean .dock-inner form.composer:not(.rec, .clean-vt-rec) .bar:not(.reply-bar) { flex-wrap: nowrap; gap: 8px; }
@@ -1154,6 +1155,8 @@ html.th-clean .dock-inner:has(.vf-btn:is(.vf-count, .vf-rec, .vf-work)) form.com
   html.th-clean .dock-inner .status :is(.par-long, .mod-long) { display: inline; }
   html.th-clean .dock-inner .status :is(.par-short, .mod-short) { display: none; }
   html.th-clean .dock-inner .status .stat-mod .mod-eff { display: none; }
+  html.th-clean .dock-inner.clean-fit-parshort .status .par-long { display: none; }
+  html.th-clean .dock-inner.clean-fit-parshort .status .par-short { display: inline; }
   html.th-clean .dock-inner.clean-fit-short .status :is(.par-long, .mod-long) { display: none; }
   html.th-clean .dock-inner.clean-fit-short .status :is(.par-short, .mod-short) { display: inline; }
   html.th-clean .dock-inner.clean-fit-shrink .status > :is(.stat-par, .stat-mod, .stat-eff) { flex: 0 1 auto; min-width: 0; }

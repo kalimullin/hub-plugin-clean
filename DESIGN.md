@@ -69,9 +69,9 @@ together with the code that follows it, and with a reason.
   - Badges: 16px high, radius 4. Pills and chips follow the status colors only.
 - **Nothing overlaps in the composer row.** Between neighbours in the bottom row of the card («+», status chips, plugin
   buttons, camera, mic, send) there are 8px at every width and for any number of plugin buttons. Room is shared by
-  the measured width (`fit.js`), not by a button count or a container step: chip labels shorten, then ellipsize, then
-  effort goes into the model menu, then the model, then the executors give way; plugin buttons that do not fit one
-  row move to a row above. A new element in that row is checked by `tests/status-row.test.mjs` and the width matrix
+  the measured width (`fit.js`), not by a button count or a container step: the executors label shortens, then the
+  model label, then labels ellipsize, effort goes into the model menu, the executors go, and the model goes last;
+  plugin buttons that do not fit one row move to a row above. A new element in that row is checked by `tests/status-row.test.mjs` and the width matrix
   (0/1/3/5 plugin buttons at 1440…320, light and dark), and a PR that changes the row shows the table.
 - **One button at the right end of the row, as in Telegram.** With voice on and an empty field the row ends in the mic
   alone, with no send. Text or a file turns the same place into send: a `--foreground` circle (`border-radius: 9999px`,

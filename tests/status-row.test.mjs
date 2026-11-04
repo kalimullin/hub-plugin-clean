@@ -13,15 +13,19 @@ const css = fs.readFileSync(path.join(import.meta.dirname, "..", "clean.css"), "
 const W = { long: { par: 150, mod: 90, eff: 70 }, short: { par: 110, mod: 70, eff: 70 } };
 const total = (w, names) => names.reduce((a, k) => a + w[k], 0) + GAP * (names.length - 1);
 
-test("the order of steps: labels, ellipsis, effort, model, executors — each next one only when the previous does not fit", () => {
+const LAST = STEPS.length - 1;
+
+test("the order of steps: executors label, model label, ellipsis, effort, executors, model — each next one only when the previous does not fit", () => {
+  const mixed = { ...W.long, par: W.short.par };
   assert.equal(pickStep(W, total(W.long, ["par", "mod", "eff"])), 0);
   assert.equal(pickStep(W, total(W.long, ["par", "mod", "eff"]) - 1), 1);
-  assert.equal(pickStep(W, total(W.short, ["par", "mod", "eff"]) - 1), 2);
+  assert.equal(pickStep(W, total(mixed, ["par", "mod", "eff"]) - 1), 2);
+  assert.equal(pickStep(W, total(W.short, ["par", "mod", "eff"]) - 1), 3);
   const floor = (names) => names.reduce((a, k) => a + Math.min(W.short[k], MIN[k]), 0) + GAP * (names.length - 1);
-  assert.equal(pickStep(W, floor(["par", "mod", "eff"]) - 1), 3);
-  assert.equal(pickStep(W, floor(["par", "mod"]) - 1), 4);
-  assert.equal(pickStep(W, floor(["par"]) - 1), 5);
-  assert.equal(pickStep(W, 0), 5);
+  assert.equal(pickStep(W, floor(["par", "mod", "eff"]) - 1), 4);
+  assert.equal(pickStep(W, floor(["par", "mod"]) - 1), 5);
+  assert.equal(pickStep(W, floor(["mod"]) - 1), LAST);
+  assert.equal(pickStep(W, 0), LAST);
   const rooms = [];
   for (let r = 400; r >= 0; r--) rooms.push(pickStep(W, r));
   assert.deepEqual(rooms, [...rooms].sort((a, b) => a - b), "the less room, the more steps — they never go back");
@@ -30,14 +34,28 @@ test("the order of steps: labels, ellipsis, effort, model, executors — each ne
 test("a session without effort takes the same steps without its width", () => {
   const w = { long: { par: 150, mod: 90 }, short: { par: 110, mod: 70 } };
   assert.equal(pickStep(w, 150 + GAP + 90), 0);
-  assert.equal(pickStep(w, 0), 5);
+  assert.equal(pickStep(w, 0), LAST);
   assert.equal(pickStep({ long: {}, short: {} }, 0), 0, "no status buttons — nothing to give way");
 });
 
 test("steps are cumulative class lists named in clean.css", () => {
   for (let i = 1; i < STEPS.length; i++) assert.deepEqual(STEPS[i].slice(0, STEPS[i - 1].length), STEPS[i - 1]);
-  for (const n of ["short", "shrink", "noeff", "nomod", "nopar"]) assert.match(css, new RegExp(`\\.dock-inner\\.clean-fit-${n}\\b`), `clean.css has no rule for clean-fit-${n}`);
+  for (const n of ["parshort", "short", "shrink", "noeff", "nopar", "nomod"]) assert.match(css, new RegExp(`\\.dock-inner\\.clean-fit-${n}\\b`), `clean.css has no rule for clean-fit-${n}`);
   assert.match(css, /\.dock-inner\.clean-up\b/);
+});
+
+test("the model keeps its full name longest: the executors label shortens first, and the model is the last chip to go", () => {
+  // phone, a session with executors: «executors: 3/5» does not fit next to «Opus 5.5», «exec. 3/5» does
+  const phone = { long: { par: 130, mod: 81, eff: 46 }, short: { par: 66, mod: 61, eff: 46 } };
+  const step = pickStep(phone, 66 + 81 + 46 + 2 * GAP);
+  assert.ok(STEPS[step].includes("parshort"), "the executors label is short");
+  assert.ok(!STEPS[step].includes("short"), "the model label is still «Opus 5.5», not «Opus»");
+  assert.equal(STEPS[LAST].at(-1), "nomod", "the model goes after the executors");
+  const steps = STEPS.map((s) => s.join(" "));
+  assert.ok(steps.findIndex((s) => s.includes("nopar")) < steps.findIndex((s) => s.includes("nomod")));
+  assert.ok(steps.findIndex((s) => s.includes("parshort")) < steps.findIndex((s) => /\bshort\b/.test(s)));
+  // the model alone fits — it stays while the executors are gone
+  assert.ok(!STEPS[pickStep(W, MIN.mod)].includes("nomod"));
 });
 
 test("clean.css: 8 between neighbours, the status room comes from the measure, the camera is 8 from the mic", () => {
@@ -126,7 +144,7 @@ test("fit.js: the status gives way by the real width, not by a button count", as
 test("fit.js: plugin buttons with no room in one row go above, and the status stays", async () => {
   const p = await fitted({ cardW: 366, tools: 5 });
   assert.equal(p.up(), true, "five buttons at 366 px — a row above");
-  assert.ok(+p.d.dataset.fit < 5, "the status is visible in the bottom row");
+  assert.ok(+p.d.dataset.fit < LAST, "the status is visible in the bottom row");
   assert.match(p.d.style.props["--fit-l"], /^\d+px$/);
   assert.match(p.d.style.props["--fit-r"], /^\d+px$/);
 });
@@ -141,7 +159,7 @@ test("fit.js: the status room is between «+» and the nearest button on the rig
 test("fit.js: at the narrowest widths the row holds — the status goes away entirely only when there is no room at all", async () => {
   for (const tools of [0, 1, 3, 5, 9]) for (const w of [320, 360, 390, 480]) {
     const p = await fitted({ cardW: w, tools });
-    assert.ok(["0", "1", "2", "3", "4", "5"].includes(p.d.dataset.fit), `${w}/${tools}`);
+    assert.ok(STEPS.map((_, i) => String(i)).includes(p.d.dataset.fit), `${w}/${tools}`);
     const L = parseFloat(p.d.style.props["--fit-l"]), R = parseFloat(p.d.style.props["--fit-r"]);
     assert.ok(L + R <= w, `${w}/${tools}: the status paddings are within the card width`);
   }
