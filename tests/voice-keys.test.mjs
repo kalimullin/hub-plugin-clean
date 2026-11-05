@@ -17,20 +17,39 @@ const node = (tag = "div", o = {}) => ({
   ...o,
 });
 
+// The core's record strip as voice.js recStrip() builds it (core 1.7.0): the same children and classes, no button text.
+// recording: dot, clock [data-rec-clock], spacer, round cancel ×; hold: plus a hint before ×; opening the mic: spinner,
+// label, spacer, ×; recognising (busy): spinner and label only.
+const el = (tag, cls = "", attrs = {}) => ({ tag, cls: cls.split(" ").filter(Boolean), attrs });
+const STRIPS = {
+  recording: () => [el("span", "rec-dot"), el("span", "t", { "data-rec-clock": "1" }), el("span", "spacer"), el("button", "btn round quiet rec-cancel")],
+  hold: () => [el("span", "rec-dot"), el("span", "t", { "data-rec-clock": "1" }), el("span", "spacer"), el("span", "hint"), el("button", "btn round quiet rec-cancel")],
+  opening: () => [el("span", "spin-dot"), el("span", "t"), el("span", "spacer"), el("button", "btn round quiet rec-cancel")],
+  busy: () => [el("span", "spin-dot"), el("span", "t")],
+};
+// A compound selector (tag, .class, [attr], [attr="v"]) and comma lists — enough for queries inside the strip.
+const matches = (n, sel) => sel.split(",").some((one) => {
+  const parts = one.trim().match(/^[a-z]+|\.[\w-]+|\[[^\]]+\]/g) || [];
+  if (parts.join("") !== one.trim()) throw new Error("unsupported selector in strip: " + one);
+  return parts.every((p) => {
+    if (p[0] === ".") return n.cls.includes(p.slice(1));
+    if (p[0] === "[") { const [k, v] = p.slice(1, -1).split("="); return k in n.attrs && (v === undefined || n.attrs[k] === v.replace(/"/g, "")); }
+    return n.tag === p;
+  });
+});
+
 // Сцена: идёт ли запись, какое поле в фокусе, сколько раз нажали стоп.
 async function scene({ theme = true, rec = "recording", focus = null, stopButton = true } = {}) {
   const s = { stops: 0, listeners: [], theme };
-  const clock = node("span"), cancel = node("button");
-  const strip = node("div", {
-    querySelector: (q) => (q === "[data-rec-clock]" ? (rec === "recording" ? clock : null) : q === ".linkbtn" ? (rec ? cancel : null) : null),
-  });
+  const kids = rec ? STRIPS[rec]() : [];
+  const strip = node("div", { querySelector: (q) => kids.find((k) => matches(k, q)) || null });
   const stop = node("button", { click: () => { s.stops++; } });
   const body = node("body");
   const root = node("html", { classList: { contains: (c) => c === "th-clean" && s.theme, toggle() {}, add() {}, remove() {} } });
   s.setFocus = (f) => { doc.activeElement = f; };
   const doc = {
     documentElement: root, body, activeElement: focus || body, readyState: "complete",
-    querySelector: (q) => (q === "form.composer.rec .recstrip" ? (rec ? strip : null) : q === "form.composer.rec .bar > .btn.round.stop" ? (stopButton && rec ? stop : null) : null),
+    querySelector: (q) => (q === "form.composer.rec .recstrip" ? (rec ? strip : null) : q === "form.composer.rec .bar > .btn.round.stop" ? (stopButton && rec && rec !== "busy" ? stop : null) : null),
     querySelectorAll: () => [], getElementById: () => null, createElement: (t) => node(t), addEventListener() {},
     head: node("head"),
   };
@@ -74,8 +93,8 @@ test("Enter во время записи нажимает стоп один ра
   assert.ok(!again.defaultPrevented);
 });
 
-test("Enter вне записи, без темы и при открытии микрофона ничего не делает", async () => {
-  for (const o of [{ rec: null }, { theme: false }, { rec: "opening" }]) {
+test("Enter вне записи, без темы, при открытии микрофона и распознавании ничего не делает", async () => {
+  for (const o of [{ rec: null }, { theme: false }, { rec: "opening" }, { rec: "busy" }]) {
     const s = await scene(o);
     const e = s.press("Enter");
     assert.equal(s.stops, 0, JSON.stringify(o));
@@ -136,12 +155,26 @@ test("удержание Esc — не второе нажатие", async () => 
   assert.ok(held.stopped);
 });
 
-test("Esc вне записи и без темы идёт ядру и страницам как раньше", async () => {
-  for (const o of [{ rec: null }, { theme: false }]) {
+test("Esc вне записи, без темы и при распознавании идёт ядру и страницам как раньше", async () => {
+  for (const o of [{ rec: null }, { theme: false }, { rec: "busy" }]) {
     const s = await scene(o);
     const e = s.press("Escape");
     assert.ok(!e.stopped && !e.defaultPrevented, JSON.stringify(o));
     const e2 = s.press("Escape", { after: 100 });
     assert.ok(!e2.stopped, JSON.stringify(o));
   }
+});
+
+test("одиночный Esc глотается и при открытии микрофона, и при удержании кнопки", async () => {
+  for (const rec of ["opening", "hold"]) {
+    const s = await scene({ rec });
+    assert.ok(s.press("Escape").stopped, rec);
+    assert.ok(!s.press("Escape", { after: 200 }).stopped, rec + ": второй Esc — ядру");
+  }
+});
+
+test("Enter при удержании кнопки записи останавливает и отправляет", async () => {
+  const s = await scene({ rec: "hold" });
+  assert.ok(s.press("Enter").defaultPrevented);
+  assert.equal(s.stops, 1);
 });

@@ -944,16 +944,16 @@ html.th-clean .composer.rec .recstrip > :is(.rec-dot, .spin-dot) { grid-area: 1 
 html.th-clean .composer.rec .recstrip > .t { grid-area: 1 / 2; font: 500 14px/20px var(--font); font-variant-numeric: tabular-nums; color: var(--c-t1); }
 html.th-clean .composer.rec .recstrip > .hint { grid-area: 1 / 3 / 2 / 5; justify-self: end; font: 400 12px/16px var(--font); color: var(--c-t2); }
 html.th-clean .composer.rec .recstrip > .spacer { display: none; }
-html.th-clean .composer.rec .recstrip > .linkbtn { grid-area: 2 / 1 / 3 / 4; justify-self: start; height: var(--row, 32px); padding: 0 12px; margin-left: -4px; border-radius: 8px;
-  font: 400 14px/20px var(--font); color: var(--c-t2); text-decoration: none; }
+html.th-clean .composer.rec .recstrip > .rec-cancel { grid-area: 2 / 1 / 3 / 4; justify-self: start; margin-left: -4px; border: 0; border-radius: 8px;
+  background: transparent; color: var(--c-t2); box-shadow: none; }
 @media (hover: hover) and (pointer: fine) {
-  html.th-clean .composer.rec .recstrip > .linkbtn:hover { background: var(--c-fill); color: var(--c-t1); }
+  html.th-clean .composer.rec .recstrip > .rec-cancel:hover { background: var(--c-fill); color: var(--c-t1); }
 }
 html.th-clean .composer.rec .rec-dot { width: 8px; height: 8px; margin: 0 2px; }
 html.th-clean .composer.rec .recstrip > * { animation-name: clean-rise; animation-duration: 160ms; animation-timing-function: var(--ease-out); animation-fill-mode: backwards; }
 html.th-clean .composer.rec .recstrip > .rec-dot { animation: clean-rise 160ms var(--ease-out) backwards, rec-pulse 1.2s ease-in-out 160ms infinite; }
 html.th-clean .composer.rec .recstrip > .t { animation-delay: 20ms; }
-html.th-clean .composer.rec .recstrip > .linkbtn { animation-delay: 40ms; }
+html.th-clean .composer.rec .recstrip > .rec-cancel { animation-delay: 40ms; }
 html.th-clean .composer.rec .bar > .btn.round { grid-area: 2 / 4; justify-self: end; }
 html.th-clean .composer.rec .bar > .btn.round.stop { width: 72px; border: 0; border-radius: 8px; background: var(--foreground); color: var(--background); box-shadow: none;
   animation: clean-pill 280ms var(--ease-in-out) backwards; }
