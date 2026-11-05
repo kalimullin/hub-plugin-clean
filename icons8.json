@@ -148,6 +148,14 @@
       "check": {
         "id": "mjbmZaqL8EJr",
         "commonName": "checkmark"
+      },
+      "active": {
+        "id": "fDa7Jx8Z0rdW",
+        "commonName": "checked"
+      },
+      "list": {
+        "id": "Ah1tCJqU41Lq",
+        "commonName": "list"
       }
     }
   }
