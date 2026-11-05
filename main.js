@@ -6,7 +6,7 @@
 // - аватарки у «Хаб» и «Ядро» в ленте: у них нет эмодзи, к которому тема привязывает картинку (avatars), — подпись
 //   помечается классом, картинку ставит clean.css;
 // - счётчики вкладок «Все · 38» — отдельной плашкой;
-// - лимиты — внизу боковой панели (место sidebar.footer), из снимка ядра;
+// - расход — внизу боковой панели (место sidebar.footer), из снимка ядра: полоски окон, как в нативе (usage.js);
 // - подпись строки сессии, которую тема прячет, — в подсказке строки;
 // - «ждёт вас» — числом вопросов (красный счётчик), шевроны ▸ ▾ — значком Forma с поворотом;
 // - значки темы — маской цвета текста (белые на красном и на тёмной кнопке);
@@ -29,6 +29,7 @@
 //   width and nothing overlaps (fit.js).
 import { mountFit } from "./fit.js";
 import { AGO, byRecent, detailOf, sessionFor } from "./rows.js";
+import { emailSteps, langOf, usageModel } from "./usage.js";
 
 const MINE = /(^|:)clean:clean(-dark)?\.json$/;
 const OWNER = new Set(["владелец", "owner"]);   // как называет владельца ядро в событиях (core/reducer.py)
@@ -634,48 +635,230 @@ export default function register(hub) {
   let queued = false;   // лента меняется часто — не чаще кадра
   new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; sweep(); }); } }).observe(document.body, { childList: true, subtree: true, characterData: true });
 
-  // лимиты — внизу боковой панели (место sidebar.footer), из снимка ядра: «corp  5 ч 10%  неделя 1%»; доля и сброс — в подсказке
-  // окно без названия (шлюз присылает новые, например seven_day_overage_included) в строку не попадает — сырой ключ вместо подписи хуже, чем ничего
-  const SHORT = { five_hour: ["web.limits.short_five_hour", "5 ч"], seven_day: ["web.limits.short_week", "неделя"],
-    seven_day_opus: ["web.limits.short_week_opus", "Opus"], seven_day_sonnet: ["web.limits.short_week_sonnet", "Sonnet"] };
-  const FULL = { five_hour: ["web.limits.name_five_hour", "5 часов"], seven_day: ["web.limits.name_week", "Неделя"],
-    seven_day_opus: ["web.limits.name_week_opus", "Неделя · Opus"], seven_day_sonnet: ["web.limits.name_week_sonnet", "Неделя · Sonnet"] };
+  // usage block at the bottom of the sidebar (place sidebar.footer) — as LimitsBlock in the native app; data and words — usage.js.
+  // Compact: two bars (5 hours 28%, week 72%) and the switch; the percent pops up over a bar on hover or tap and moves nothing.
+  // Expanded: a row per window (name, "resets in …" or "N% ⏱" for an old reading) over its bar, then the e-mail with ✓ and the switch.
+  // The choice is kept in localStorage; without one — compact on a desktop (the block is always on screen), expanded on a phone.
+  const USAGE_KEY = "clean.usage";
+  const usageOpen = () => {
+    const v = localStorage.getItem(USAGE_KEY);
+    return v ? v === "open" : matchMedia("(max-width: 760px)").matches;
+  };
+  const usage = { root: null, snap: null, at: 0, peek: null, mark: null, tip: null, timer: 0 };
+  const usageLang = () => langOf(hub.lang || hub.locale || document.documentElement.lang);
+  // caption x over a bar: the percent — over the middle of the filled part, the even-pace note — over the mark; never closer
+  // to the edge than half the caption (16 / 34 px, as outlookX in the native app)
+  const captionAt = (tip, w, x) => {
+    const half = Math.max(tip.offsetWidth / 2, 1);
+    tip.style.left = `${Math.min(Math.max(x, half), Math.max(half, w - half))}px`;
+  };
+  const peekShow = (id, mark = false, hold = 0) => {
+    clearTimeout(usage.timer);
+    usage.peek = id; usage.mark = mark ? id : null;
+    if (hold) usage.timer = setTimeout(() => { if (usage.peek === id) { usage.peek = usage.mark = null; usageDraw(); } }, hold);
+    usageDraw();
+  };
+  const peekHide = (id) => { if (usage.peek === id) { usage.peek = usage.mark = null; usageDraw(); } };
+
+  // one bar: track, fill, even-pace mark; the caption floats above it
+  const usageBar = (w, old) => {
+    const track = hub.el("span", "cu-track");
+    if (!w.lapsed) {
+      const fill = hub.el("span", "cu-fill");
+      fill.style.width = `${w.used * 100}%`;
+      if (old) fill.classList.add("old");
+      track.append(fill);
+    }
+    if (w.even != null) {
+      const mark = hub.el("span", "cu-mark");
+      mark.style.left = `${w.even * 100}%`;
+      mark.dataset.mark = w.id;
+      track.append(mark);
+    }
+    return track;
+  };
+  const captionText = (m, w) => w.lapsed ? m.words.lapsed : usage.mark === w.id ? m.words.mark : `${w.pct}%`;
+  // hover and tap on a bar or a row: the mark is a target of its own (± 6 px, ± 10 for a finger)
+  const wirePeek = (node, w, peekable) => {
+    const nearMark = (e, slack) => {
+      if (w.even == null) return false;
+      const r = node.querySelector(".cu-track").getBoundingClientRect();
+      return Math.abs(e.clientX - (r.left + r.width * w.even)) <= slack;
+    };
+    node.addEventListener("pointermove", (e) => {
+      if (e.pointerType !== "mouse" || !peekable) return;
+      const m = nearMark(e, 6);
+      if (usage.peek !== w.id || !!usage.mark !== m) peekShow(w.id, m);
+    });
+    node.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") peekHide(w.id); });
+    node.addEventListener("click", (e) => {
+      if (!peekable && !nearMark(e, 10)) return;
+      peekShow(w.id, nearMark(e, e.pointerType === "mouse" ? 6 : 10), 3000);
+    });
+    node.addEventListener("focus", () => { if (peekable && node.matches(":focus-visible")) peekShow(w.id); });
+    node.addEventListener("blur", () => peekHide(w.id));
+  };
+  // clock next to an old reading: the hint says when it was measured and why it is old
+  // one clock per row; usage.tip holds the id of the window whose hint is open, so only that hint shows
+  const usageClock = (stale, id) => {
+    const shown = usage.tip === id;
+    const b = hub.el("button", "cu-clock");
+    b.type = "button";
+    b.setAttribute("aria-label", stale.text.replace("\n", ". "));
+    b.setAttribute("aria-expanded", String(shown));
+    const tip = hub.el("span", "cu-hint", stale.text);
+    tip.hidden = !shown;
+    tip.setAttribute("role", "tooltip");
+    b.append(tip);
+    const set = (on) => {
+      const v = on ? id : usage.tip === id ? null : usage.tip;
+      if (usage.tip !== v) { usage.tip = v; usageDraw(); }
+    };
+    b.addEventListener("click", (e) => { e.stopPropagation(); set(usage.tip !== id); });
+    b.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") set(true); });
+    b.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") set(false); });
+    b.addEventListener("keydown", (e) => { if (e.key === "Escape") set(false); });
+    b.addEventListener("blur", () => set(false));
+    return b;
+  };
+  const usageSwitch = (open, m) => {
+    const g = hub.el("span", "cu-switch");
+    g.setAttribute("role", "group");
+    for (const [icon, expanded] of [["bars", false], ["list", true]]) {
+      const b = hub.el("button", `cu-seg cu-seg-${icon}`);
+      b.type = "button";
+      b.setAttribute("aria-label", expanded ? m.words.expanded : m.words.compact);
+      b.setAttribute("aria-pressed", String(open === expanded));
+      b.addEventListener("click", () => {
+        if (open === expanded) return;
+        localStorage.setItem(USAGE_KEY, expanded ? "open" : "compact");
+        usage.peek = usage.mark = null; usage.tip = null;
+        usageDraw();
+        usage.root?.querySelector(`.cu-seg-${icon}`)?.focus();
+      });
+      g.append(b);
+    }
+    return g;
+  };
+  // the account line: whole e-mail; if it does not fit — without the top-level zone; then CSS cuts the end with "…"
+  const fitMail = (span, steps) => {
+    const run = () => {
+      if (!span.isConnected) return;
+      for (const s of steps) { span.textContent = s; if (span.scrollWidth <= span.clientWidth) return; }
+    };
+    requestAnimationFrame(run);
+    if (typeof ResizeObserver === "function") {
+      usage.ro?.disconnect();
+      usage.ro = new ResizeObserver(run);
+      usage.ro.observe(span);
+    }
+  };
+  // the account line of the expanded view: its own row under the windows, as wide as they are — next to the menu
+  // button and the switch an e-mail had under 100 px and was cut inside the domain
+  const usageAcc = (m) => {
+    // accounts are on: the e-mail opens the accounts settings (usage of every account), as the old line did
+    const link = m.pool;
+    const acc = hub.el(link ? "button" : "span", "cu-acc");
+    if (link) { acc.type = "button"; acc.addEventListener("click", () => hub.openSettings?.("accounts")); }
+    const shown = hub.el("span", "cu-mail", m.email);
+    shown.setAttribute("aria-hidden", "true");
+    shown.title = m.email;
+    acc.append(shown, hub.el("span", "cu-sr", m.email));
+    fitMail(shown, emailSteps(m.email));
+    if (m.active) {
+      const ok = hub.el("span", "cu-active");
+      ok.setAttribute("role", "img");
+      ok.setAttribute("aria-label", m.words.active);
+      acc.append(ok);
+    }
+    return acc;
+  };
+  const usageFoot = (m, open) => {
+    const foot = hub.el("div", `cu-foot${open ? " open" : ""}`);
+    if (!open) {
+      const bars = hub.el("div", "cu-bars");
+      for (const w of m.windows) {
+        const b = hub.el("button", "cu-bar");
+        b.type = "button";
+        b.dataset.tone = w.tone;
+        b.dataset.id = w.id;
+        b.style.flexGrow = m.windows.length === 1 ? "1" : w.id === "five_hour" ? "28" : "72";
+        b.setAttribute("aria-label", m.stale ? `${w.spoken}. ${m.stale.text.replace("\n", ". ")}` : w.spoken);
+        b.append(usageBar(w, !!m.stale && !m.broken));
+        if (usage.peek === w.id) {
+          const tip = hub.el("span", "cu-tip", captionText(m, w));
+          tip.setAttribute("aria-hidden", "true");
+          b.append(tip);
+        }
+        wirePeek(b, w, true);
+        bars.append(b);
+      }
+      foot.append(bars);
+    }
+    foot.append(usageSwitch(open, m));
+    return foot;
+  };
+  const usageRows = (m) => {
+    const rows = hub.el("div", "cu-rows");
+    const old = !!m.stale;
+    for (const w of m.windows) {
+      const row = hub.el("button", "cu-row");
+      row.type = "button";
+      row.dataset.tone = w.tone;
+      row.dataset.id = w.id;
+      if (old) row.classList.add("old");
+      row.setAttribute("aria-label", old ? `${w.spoken}. ${m.stale.text.replace("\n", ". ")}` : w.spoken);
+      const line = hub.el("span", "cu-line");
+      line.setAttribute("aria-hidden", "true");
+      // the name stays on the left and the reset on the right in every state; the percent (or "even pace") joins the name
+      const name = hub.el("span", "cu-name", w.name);
+      if (usage.peek === w.id && !old && !w.lapsed) name.append(hub.el("span", "cu-peek", ` · ${captionText(m, w)}`));
+      line.append(name);
+      if (w.lapsed) line.append(hub.el("span", "cu-val", m.words.lapsed));
+      else if (old) line.append(hub.el("span", "cu-val cu-pct", `${w.pct}%`));
+      else if (w.reset) line.append(hub.el("span", "cu-val", w.reset));
+      row.append(line, usageBar(w, old && !m.broken));
+      wirePeek(row, w, !old);
+      const wrap = hub.el("div", "cu-rowwrap");
+      wrap.append(row);
+      if (old && !w.lapsed) wrap.append(usageClock(m.stale, w.id));
+      rows.append(wrap);
+    }
+    return rows;
+  };
+  function usageDraw() {
+    const root = usage.root;
+    if (!root) return;
+    const now = Date.now() / 1000;
+    const linkDown = !!document.getElementById("connection-side")?.classList.contains("on");
+    const m = on() ? usageModel(usage.snap, { now, lang: usageLang(), linkDown, sinceSnap: usage.at ? (Date.now() - usage.at) / 1000 : null }) : null;
+    usage.ro?.disconnect();
+    if (!m) { root.replaceChildren(); return; }
+    const open = usageOpen();
+    const box = hub.el("div", `clean-usage${open ? " open" : ""}`);
+    if (m.broken) box.dataset.state = "broken";
+    if (open) box.append(usageRows(m));
+    if (open && m.email) box.append(usageAcc(m));
+    box.append(usageFoot(m, open));
+    const focused = root.contains(document.activeElement) ? [...root.querySelectorAll("button")].indexOf(document.activeElement) : -1;
+    root.replaceChildren(box);
+    if (focused >= 0) root.querySelectorAll("button")[focused]?.focus({ preventScroll: true });
+    // captions are placed after layout: over the filled part or over the mark
+    for (const tip of box.querySelectorAll(".cu-tip")) {
+      const host = tip.closest(".cu-bar, .cu-row"), track = host.querySelector(".cu-track");
+      const w = m.windows.find((x) => x.id === host.dataset.id);
+      const r = track.getBoundingClientRect(), base = tip.offsetParent?.getBoundingClientRect() || r;
+      const x = usage.mark === w.id && w.even != null ? r.width * w.even : w.lapsed ? r.width / 2 : r.width * w.used / 2;
+      captionAt(tip, base.width, r.left - base.left + x);
+    }
+  }
+  setInterval(() => { if (usage.root?.isConnected && !usage.peek && usage.tip == null) usageDraw(); }, 60000);   // "resets in …", the even mark, the reading's age
   hub.addSlot("sidebar.footer", {
     id: "clean-limits",
     render(root, snap) {
-      const wins = on() ? Object.entries(snap?.limits?.windows || {}).filter(([name, w]) => name in SHORT && typeof w.used === "number") : [];
-      if (!wins.length) { root.replaceChildren(); return; }
-      const order = Object.keys(SHORT);
-      wins.sort(([a], [b]) => (order.indexOf(a) + 1 || 99) - (order.indexOf(b) + 1 || 99));
-      const line = hub.el("span", "clean-lim");
-      const acc = snap?.accounts?.on ? snap?.account?.active : null;
-      if (acc) line.append(hub.el("span", "limseg limacc", acc));
-      const now = Date.now() / 1000;
-      // цвет процента — как LimitsBlock.tone в нативе: экономия — жёлтый (красного и оранжевого «кончается» в ней нет),
-      // иначе 95%+ и «не работает» (limits.status = rejected) — красный, 80–95% — оранжевый, остальное — серый
-      const stopped = snap?.limits?.status === "rejected", eco = !!snap?.economy?.on;
-      const tone = (u) => eco ? "eco" : stopped || u >= 95 ? "high" : u >= 80 ? "warn" : "ok";
-      for (const [name, w] of wins) {
-        const used = w.resets && w.resets < now ? 0 : Math.round(w.used * 100);
-        const seg = hub.el("span", "limseg");
-        seg.dataset.tone = tone(used);
-        const reset = w.resets && w.resets > now ? new Date(w.resets * 1000).toLocaleString(hub.locale || undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
-        seg.dataset.full = T(...FULL[name]);
-        seg.title = seg.dataset.full + (reset ? ` · ${reset}` : "");   // в строке — короткие названия; полное имя и сброс — в подсказке
-        const [k, fb] = SHORT[name];
-        seg.append(hub.el("span", "limname", T(k, fb)), hub.el("span", "limpct", `${used}%`));
-        line.append(seg);
-      }
-      line.title = [...line.querySelectorAll(".limseg[data-full]")].map((x) => `${x.dataset.full} ${x.querySelector(".limpct").textContent}`).join(" · ");
-      if (acc) {   // аккаунты работают: клик — лимиты всех аккаунтов
-        line.classList.add("limlink");
-        line.tabIndex = 0;
-        line.setAttribute("role", "link");
-        const open = () => hub.openSettings?.("accounts");
-        line.addEventListener("click", open);
-        line.addEventListener("keydown", (e) => { if (e.key === "Enter") open(); });
-      }
-      root.replaceChildren(line);
+      if (snap !== usage.snap) { usage.snap = snap; usage.at = snap ? Date.now() : 0; }
+      usage.root = root;
+      usageDraw();
     },
   });
 
