@@ -272,6 +272,37 @@ export default function register(hub) {
     }
     menu.prepend(...items);
   };
+  // Thread ⋯ menu: the core's «Put to sleep» item becomes «Finish and sleep», and its confirmation dialog says the same.
+  // Same item, same dialog, same close action as the native «Finish»: the session hands its work over and goes to sleep.
+  // Only for the languages below; on any other hub language the core's item and dialog stay as they are.
+  // The core rebuilds the menu on every snapshot, so the rename is an idempotent pass over whatever the menu holds now
+  const FINISH = {
+    ru: { item: "Закончить и усыпить", title: "Закончить и усыпить {name}?", ok: "Закончить" },
+    en: { item: "Finish and sleep", title: "Finish and sleep {name}?", ok: "Finish" },
+    es: { item: "Terminar y dormir", title: "¿Terminar y dormir a {name}?", ok: "Terminar" },
+  };
+  // the core fills one #confirm-dlg for every question: rename it only while it holds the sleep question
+  const finishDialog = (w) => {
+    const title = document.getElementById("confirm-title"), ok = document.getElementById("confirm-ok");
+    const tpl = T("web.dialogs.sleep_title", "");
+    if (!title || !ok || !tpl.includes("{name}")) return;
+    const [pre, post] = tpl.split("{name}"), now = title.textContent;
+    if (now.length <= pre.length + post.length || !now.startsWith(pre) || !now.endsWith(post)) return;
+    title.textContent = w.title.replace("{name}", () => now.slice(pre.length, now.length - post.length));
+    if (ok.textContent === T("web.dialogs.sleep_ok", "")) ok.textContent = w.ok;
+  };
+  const finishItem = () => {
+    const w = FINISH[String(hub.lang || "").toLowerCase().split(/[-_]/)[0]];
+    const menu = document.querySelector("main > .head .menu-wrap > .menu");
+    const sleep = T("web.main.sleep", "");
+    if (!w || !menu || !sleep) return;
+    for (const b of menu.querySelectorAll(":scope > .menu-item")) {
+      if (b.textContent !== sleep) continue;
+      b.textContent = w.item;
+      // the core's own click handler (added first) opens the dialog synchronously; this one renames it before the first paint
+      b.addEventListener("click", () => finishDialog(w));
+    }
+  };
   // Сводка направления на «Доске»: ядро кладёт её в шапку (.head-meta > .dir-recap), CSS прячет — шапка не растёт; здесь она же
   // встаёт первой строкой тела доски и листается с ней. Копия, не перенос: ядро перерисовывает шапку на каждом снимке;
   // кнопки копии нажимают кнопки оригинала (он остаётся в DOM скрытым)
@@ -626,7 +657,7 @@ export default function register(hub) {
   const sweep = () => {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
-    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); recBars(); actions(); queuePlate(); headFold();
+    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); recBars(); actions(); queuePlate(); headFold(); finishItem();
     boardRecap(); rowDetail(); rowFaces(); recentOrder(); keepList();
     holdView();
     fit.hook();
