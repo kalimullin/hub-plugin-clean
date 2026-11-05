@@ -58,8 +58,9 @@ together with the code that follows it, and with a reason.
   `--muted-foreground`, `--border`, `--accent`). A hex or `rgb()` in a rule is a finding. Allowed: the token block
   at the top of `clean.css`, the theme files (`clean.json`, `clean-dark.json`), and `#fff` on the red `--c-alert`
   fill. Each token is a `light-dark(...)` pair, so the dark theme is never an afterthought.
-- **Text color roles.** `--c-t1` for text, `--c-t2` for secondary text, `--c-t3` only for time, group labels and
-  other non-essential marks (it is not readable enough for anything the user must read).
+- **Text color roles.** `--c-t1` for text, `--c-t2` for secondary text, `--c-t3` only for time and
+  other non-essential marks (it is not readable enough for anything the user must read). Group headers (`.sgroup-h`)
+  are read, so they use `--c-t2` (4.6:1 light, 7.2:1 dark); `--c-t1` on hover.
 - **Same control, same size.**
   - Icon buttons: 36px in the sidebar (search row, fold, menu), 24px in the header (the search lupa is the model:
     `24×24`, radius 8, 16px icon), 24px close/clear buttons, 16px glyph inside.
