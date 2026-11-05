@@ -840,28 +840,29 @@ export default function register(hub) {
       usage.ro.observe(span);
     }
   };
+  // the account line of the expanded view: its own row under the windows, as wide as they are — next to the menu
+  // button and the switch an e-mail had under 100 px and was cut inside the domain
+  const usageAcc = (m) => {
+    // accounts are on: the e-mail opens the accounts settings (usage of every account), as the old line did
+    const link = m.pool;
+    const acc = hub.el(link ? "button" : "span", "cu-acc");
+    if (link) { acc.type = "button"; acc.addEventListener("click", () => hub.openSettings?.("accounts")); }
+    const shown = hub.el("span", "cu-mail", m.email);
+    shown.setAttribute("aria-hidden", "true");
+    shown.title = m.email;
+    acc.append(shown, hub.el("span", "cu-sr", m.email));
+    fitMail(shown, emailSteps(m.email));
+    if (m.active) {
+      const ok = hub.el("span", "cu-active");
+      ok.setAttribute("role", "img");
+      ok.setAttribute("aria-label", m.words.active);
+      acc.append(ok);
+    }
+    return acc;
+  };
   const usageFoot = (m, open) => {
-    const foot = hub.el("div", "cu-foot");
-    if (open) {
-      // accounts are on: the e-mail opens the accounts settings (usage of every account), as the old line did
-      const link = m.email && m.pool;
-      const acc = hub.el(link ? "button" : "span", "cu-acc");
-      if (link) { acc.type = "button"; acc.addEventListener("click", () => hub.openSettings?.("accounts")); }
-      if (m.email) {
-        const shown = hub.el("span", "cu-mail", m.email);
-        shown.setAttribute("aria-hidden", "true");
-        shown.title = m.email;
-        acc.append(shown, hub.el("span", "cu-sr", m.email));
-        fitMail(shown, emailSteps(m.email));
-        if (m.active) {
-          const ok = hub.el("span", "cu-active");
-          ok.setAttribute("role", "img");
-          ok.setAttribute("aria-label", m.words.active);
-          acc.append(ok);
-        }
-      }
-      foot.append(acc);
-    } else {
+    const foot = hub.el("div", `cu-foot${open ? " open" : ""}`);
+    if (!open) {
       const bars = hub.el("div", "cu-bars");
       for (const w of m.windows) {
         const b = hub.el("button", "cu-bar");
@@ -896,16 +897,13 @@ export default function register(hub) {
       row.setAttribute("aria-label", old ? `${w.spoken}. ${m.stale.text.replace("\n", ". ")}` : w.spoken);
       const line = hub.el("span", "cu-line");
       line.setAttribute("aria-hidden", "true");
-      line.append(hub.el("span", "cu-name", w.name));
+      // the name stays on the left and the reset on the right in every state; the percent (or "even pace") joins the name
+      const name = hub.el("span", "cu-name", w.name);
+      if (usage.peek === w.id && !old && !w.lapsed) name.append(hub.el("span", "cu-peek", ` · ${captionText(m, w)}`));
+      line.append(name);
       if (w.lapsed) line.append(hub.el("span", "cu-val", m.words.lapsed));
       else if (old) line.append(hub.el("span", "cu-val cu-pct", `${w.pct}%`));
       else if (w.reset) line.append(hub.el("span", "cu-val", w.reset));
-      // an old row does not give way to the caption: the percent is already there, and the clock next to it stays under the cursor
-      if (usage.peek === w.id && !old) {
-        line.classList.add("peek");
-        const tip = hub.el("span", "cu-tip", captionText(m, w));
-        line.append(tip);
-      }
       row.append(line, usageBar(w, old && !m.broken));
       wirePeek(row, w, !old);
       const wrap = hub.el("div", "cu-rowwrap");
@@ -927,6 +925,7 @@ export default function register(hub) {
     const box = hub.el("div", `clean-usage${open ? " open" : ""}`);
     if (m.broken) box.dataset.state = "broken";
     if (open) box.append(usageRows(m));
+    if (open && m.email) box.append(usageAcc(m));
     box.append(usageFoot(m, open));
     const focused = root.contains(document.activeElement) ? [...root.querySelectorAll("button")].indexOf(document.activeElement) : -1;
     root.replaceChildren(box);
