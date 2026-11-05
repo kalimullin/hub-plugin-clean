@@ -736,8 +736,10 @@ export default function register(hub) {
   // - Enter во время записи — остановить и отправить: нажимается стоп-кнопка ядра (метода записи у плагина нет);
   // - Esc дважды быстрее VOICE_ESC_MS — отмена (второй Esc отдаётся ядру: оно отменяет, как «Отмена»);
   // - одиночный Esc запись не трогает: его съедает окно в фазе перехвата раньше ядра (оно ловит Esc на document).
-  // «Идёт запись» — по полоске записи ядра: .recstrip с часами [data-rec-clock] (запись) или с «Отмена» (запись и открытие
-  // микрофона). Слушатель один и постоянный, взводить и снимать нечего: вне записи и вне темы он ничего не делает.
+  // "Recording" is read from the core's record strip, by class, never by button text: .recstrip holds the clock
+  // [data-rec-clock] while recording and the round cancel button .rec-cancel while recording or opening the mic; while the
+  // core recognises speech the strip has neither, so keys pass through. Слушатель один и постоянный, взводить и снимать
+  // нечего: вне записи и вне темы он ничего не делает.
   // Enter не трогает чужие поля (поиск, диалоги, кнопки), Esc действует где угодно — как у ядра.
   const VOICE_ESC_MS = 400, SPENT_MS = 800;
   let lastEsc = 0, spentAt = 0;   // spentAt: когда сработали Enter или двойной Esc — полоска ещё может не успеть смениться
@@ -753,7 +755,7 @@ export default function register(hub) {
   addEventListener("keydown", (e) => {
     if (!on() || (e.key !== "Escape" && e.key !== "Enter")) return;
     const strip = recStrip(), clock = strip?.querySelector("[data-rec-clock]");
-    if (!strip || !strip.querySelector(".linkbtn")) { lastEsc = 0; return; }
+    if (!strip || !strip.querySelector("[data-rec-clock], .rec-cancel")) { lastEsc = 0; return; }
     const spent = e.timeStamp - spentAt < SPENT_MS;
     if (e.key === "Escape") {
       if (spent) { e.stopImmediatePropagation(); return; }   // отмена уже ушла, полоска ещё не сменилась
