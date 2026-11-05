@@ -726,6 +726,8 @@ html.th-clean main > .btn.jumpnew { z-index: 5; margin-bottom: 32px; border-colo
   html.th-clean main > .btn.jumpnew { background: linear-gradient(var(--c-fill), var(--c-fill)), color-mix(in srgb, var(--background) 88%, transparent);
     -webkit-backdrop-filter: blur(32px); backdrop-filter: blur(32px); }
 }
+/* меню модели и усилия у поля раскрывается вверх и на узкой колонке попадает под кнопку (она выше .dock): пока меню открыто, кнопка уходит */
+html.th-clean main:has(.dock .menu-btn[aria-expanded="true"]) > .btn.jumpnew { opacity: 0; visibility: hidden; pointer-events: none; }
 @media (hover: hover) and (pointer: fine) {
   html.th-clean main > .btn.jumpnew:hover { background: linear-gradient(var(--c-hover), var(--c-hover)), linear-gradient(var(--c-fill), var(--c-fill)), color-mix(in srgb, var(--background) 88%, transparent); }
 }
