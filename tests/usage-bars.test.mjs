@@ -137,3 +137,19 @@ test("old reading: each row has its own clock and only the pressed one opens its
   assert.match(main, /tip\.hidden = !shown;/);
   assert.doesNotMatch(main, /usage\.tip = (true|false)/, "no shared on/off flag for all clocks");
 });
+
+test("expanded view: the account e-mail is its own line as wide as the windows; the bottom line keeps only the switch", () => {
+  assert.match(main, /if \(open && m\.email\) box\.append\(usageAcc\(m\)\);/);
+  const foot = main.slice(main.indexOf("const usageFoot = "), main.indexOf("return foot;"));
+  assert.doesNotMatch(foot, /cu-acc|cu-mail/, "the e-mail is not squeezed next to ☰ and the switch");
+  assert.match(css, /\.cu-acc \{[^}]*margin: -4px 0 -4px var\(--cu-pull\)/, "the line starts under the windows, at their left edge");
+  assert.match(css, /\.cu-foot\.open \{ justify-content: flex-end; \}/);
+});
+
+test("expanded view: the name stays on the left and the reset on the right; the percent joins the name", () => {
+  const rows = main.slice(main.indexOf("const usageRows = "), main.indexOf("function usageDraw("));
+  assert.match(rows, /hub\.el\("span", "cu-peek", ` · \$\{captionText\(m, w\)\}`\)/);
+  assert.match(rows, /else if \(w\.reset\) line\.append\(hub\.el\("span", "cu-val", w\.reset\)\);/);
+  assert.doesNotMatch(rows, /cu-tip/, "no number over the bar in the expanded view");
+  assert.doesNotMatch(css, /\.cu-line\.peek > :not\(\.cu-tip\) \{ visibility: hidden/);
+});

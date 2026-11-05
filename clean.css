@@ -159,7 +159,7 @@ html.th-clean .cu-line { position: relative; display: flex; justify-content: spa
 html.th-clean .cu-row.old .cu-line { color: var(--muted-foreground); }
 html.th-clean .cu-name { flex: none; font-weight: 500; }
 html.th-clean .cu-val { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-html.th-clean .cu-line.peek > :not(.cu-tip) { visibility: hidden; }
+html.th-clean .cu-peek { font-weight: 400; }
 /* полоска: дорожка --c-fill, заливка цветом состояния; у старого замера — бледнее (0,4); метка ровного темпа — черта 1,5 выше полоски на 5 */
 html.th-clean .cu-track { position: relative; display: block; height: 5px; border-radius: 9999px; background: var(--c-line); }
 html.th-clean .cu-fill { position: absolute; left: 0; top: 0; bottom: 0; min-width: 5px; border-radius: inherit; background: var(--muted-foreground); }
@@ -171,22 +171,22 @@ html.th-clean .cu-mark { position: absolute; top: -2.5px; bottom: -2.5px; width:
 /* подпись: над серединой залитой части (или над меткой); у края — не ближе половины своей ширины (main.js) */
 html.th-clean .cu-tip { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; pointer-events: none;
   font: 500 12px/16px var(--font); color: var(--c-t1); }
-html.th-clean .cu-foot { display: flex; align-items: center; gap: 12px; height: var(--cu-row); min-width: 0; }
+html.th-clean .cu-foot { display: flex; align-items: center; gap: 8px; height: var(--cu-row); min-width: 0; }
 html.th-clean .cu-bars { flex: 1 1 0; min-width: 0; display: flex; gap: 6px; height: 100%; }
 html.th-clean .cu-bar { position: relative; flex-basis: 0; min-width: 0; height: 100%; display: flex; align-items: center; cursor: default; }
 html.th-clean .cu-bar .cu-track { flex: 1 1 0; height: 3px; }
 html.th-clean .cu-bar .cu-fill { min-width: 3px; }
 html.th-clean .cu-bar .cu-tip { top: auto; bottom: calc(50% + 6px); }
-html.th-clean .cu-acc { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 4px; height: 100%;
-  font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); text-align: left; }
+html.th-clean .cu-foot.open { justify-content: flex-end; }
+html.th-clean .clean-usage .cu-acc { display: flex; align-items: center; gap: 4px; min-width: 0; min-height: 24px; margin: -4px 0 -4px var(--cu-pull); color: var(--c-t1); text-align: left; }
 html.th-clean button.cu-acc { cursor: pointer; }
-html.th-clean .cu-mail { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.th-clean .cu-mail { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 html.th-clean .cu-sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 html.th-clean .cu-active { flex: none; width: 16px; height: 16px; background: currentColor;
   -webkit-mask: url("active.svg") center / 16px no-repeat; mask: url("active.svg") center / 16px no-repeat; }
 /* переключатель «компактно | подробно» — как вкладки «Все | Сейчас»: дорожка --c-fill, выбранный сегмент поднят */
 html.th-clean .cu-switch { flex: none; display: inline-flex; gap: 2px; padding: 2px; height: 28px; box-sizing: border-box; border-radius: 8px; background: var(--c-fill); }
-html.th-clean .cu-seg { display: grid; place-items: center; width: 28px; height: 24px; border-radius: 6px; color: var(--muted-foreground); cursor: pointer; }
+html.th-clean .cu-seg { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; color: var(--muted-foreground); cursor: pointer; }
 html.th-clean .cu-seg::before { content: ""; width: 16px; height: 16px; background: currentColor; }
 html.th-clean .cu-seg-bars::before { -webkit-mask: url("bars.svg") center / 16px no-repeat; mask: url("bars.svg") center / 16px no-repeat; }
 html.th-clean .cu-seg-list::before { -webkit-mask: url("list.svg") center / 16px no-repeat; mask: url("list.svg") center / 16px no-repeat; }
