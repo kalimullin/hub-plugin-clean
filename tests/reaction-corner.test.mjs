@@ -1,5 +1,5 @@
 // A reaction badge in Clean, as the native ReactionChip: opaque (page background, never see-through over a bubble) and,
-// on an own message, hanging on the bubble's bottom-right corner 6px out. With the picker open the row stays under the text.
+// on an own message, hanging on the bubble's bottom-right corner (4px out on the right, 6px down). With the picker open the row stays under the text.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -24,10 +24,10 @@ test("the badge is opaque: the page background, also under hover", () => {
   assert.match(rule("html.th-clean .react-chip:hover"), /var\(--background\)/);
 });
 
-test("on an own message the badge hangs on the bubble's bottom-right corner, 6px out", () => {
+test("on an own message the badge hangs on the bubble's bottom-right corner, 4px out on the right, 6px down", () => {
   const box = rule("html.th-clean .row.mine > .b > .reactions:has(> .react-chip:only-child)");
   assert.match(box, /position: absolute/);
-  assert.match(box, /right: -6px/);
+  assert.match(box, /right: -4px/);
   assert.match(box, /bottom: -6px/);
   const bubble = rule("html.th-clean .row.mine > .b:has(> .reactions > .react-chip:only-child)");
   assert.match(bubble, /position: relative/);
