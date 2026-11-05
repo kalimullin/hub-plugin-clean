@@ -363,11 +363,16 @@ html.th-clean .ctx-menu .cm-emoji[aria-pressed="true"] { background: var(--c-fil
 html.th-clean .ctx-menu .cm-item { min-height: 32px; padding: 6px 8px; border-radius: 8px; gap: 8px; color: var(--c-t1); font: 400 14px/20px var(--font); letter-spacing: -0.1px; }
 html.th-clean .ctx-menu .cm-item .icon { width: 16px; height: 16px; }
 /* поставленная реакция под сообщением: плашка r999 28 без заливки, с тонкой рамкой темы; рамка — по левому краю текста */
-html.th-clean .react-chip { min-height: 28px; padding: 3px 10px; border: 1px solid var(--c-line); border-radius: 999px; background: none; }
+/* opaque fill (page background) so the badge reads over a bubble too, as the native ReactionChip */
+html.th-clean .react-chip { min-height: 28px; padding: 3px 10px; border: 1px solid var(--c-line); border-radius: 999px; background: var(--background); }
 @media (hover: hover) and (pointer: fine) {
-  html.th-clean .react-chip:hover { background: var(--c-hover); }
+  html.th-clean .react-chip:hover { background: linear-gradient(var(--c-hover) 0 0), var(--background); }
 }
 html.th-clean .reactions { margin-top: 6px; }
+/* own message: the badge hangs on the bubble's bottom-right corner, 6px out, as the native ReactionChip; the bubble keeps
+   room so the badge never covers the last line. With the picker open the row stays in the flow under the text */
+html.th-clean .row.mine > .b:has(> .reactions > .react-chip:only-child) { position: relative; padding-bottom: 24px; margin-bottom: 6px; }
+html.th-clean .row.mine > .b > .reactions:has(> .react-chip:only-child) { position: absolute; right: -6px; bottom: -6px; margin: 0; }
 
 html.th-clean .gcount { height: 16px; min-width: 0; padding: 0 4px; border-radius: 4px; background: var(--c-badge); opacity: .4;
   font: 500 12px/16px var(--font); color: var(--c-t1); }
