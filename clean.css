@@ -718,6 +718,17 @@ html.th-clean .dock { position: relative; z-index: 4; }
 html.th-clean .dock::before { content: ""; position: absolute; z-index: -1; left: 0; right: 0; top: -80px; bottom: 0; pointer-events: none;
   background: linear-gradient(to bottom, transparent, var(--background) 80px); opacity: var(--clean-end, 1); }
 html.th-clean .dock-inner { gap: 6px; }
+/* «К последнему»: ядро держит кнопку в z-index 2, а .dock (4) с затуханием на 80 над полем её накрывает — кнопка бледнеет под дымкой.
+   Поднимаем над .dock и даём ту же подложку, что у язычка токенов: заливка + фон 88% + размытие 32 (без backdrop-filter — непрозрачная). Снизу 32: язычок токенов выступает на 24 над полем, кнопка стоит на 8 выше него */
+html.th-clean main > .btn.jumpnew { z-index: 5; margin-bottom: 32px; border-color: var(--c-line); color: var(--c-t1);
+  background: linear-gradient(var(--c-fill), var(--c-fill)), var(--background); box-shadow: none; }
+@supports (backdrop-filter: blur(1px)) {
+  html.th-clean main > .btn.jumpnew { background: linear-gradient(var(--c-fill), var(--c-fill)), color-mix(in srgb, var(--background) 88%, transparent);
+    -webkit-backdrop-filter: blur(32px); backdrop-filter: blur(32px); }
+}
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean main > .btn.jumpnew:hover { background: linear-gradient(var(--c-hover), var(--c-hover)), linear-gradient(var(--c-fill), var(--c-fill)), color-mix(in srgb, var(--background) 88%, transparent); }
+}
 html.th-clean .composer { border: 0; border-radius: 20px; background: var(--card); box-shadow: var(--c-field); padding: 12px; gap: 12px; }
 /* фокус — у самого поля; место плагинов над полем — тоже div.composer, ему ни рамки, ни тени поля (иначе кнопка записи
    после нажатия обрастала капсулой r20 с рамкой и тенью) */
