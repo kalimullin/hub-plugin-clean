@@ -69,7 +69,7 @@ export function mountFit(on) {
       const sr = status.getBoundingClientRect(), cr = card.getBoundingClientRect();
       const left = shown(plus) ? plus.getBoundingClientRect().right + GAP : cr.left + 12;
       let right = cr.right - 12;
-      const occupants = [...bar.querySelectorAll(":scope > .mic, :scope > .send, :scope > .clean-send, :scope > .slot-composer-tools"), ...d.querySelectorAll(".vf-slot .btn")];
+      const occupants = [...bar.querySelectorAll(":scope > .mic, :scope > .send, :scope > .slot-composer-tools"), ...d.querySelectorAll(".vf-slot .btn")];
       for (const e of occupants) {
         if (!shown(e)) continue;
         const r = e.getBoundingClientRect();

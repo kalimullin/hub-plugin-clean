@@ -376,18 +376,6 @@ export default function register(hub) {
       if (r.dataset.cleanFw !== n) r.dataset.cleanFw = n;
     }
   };
-  // «Отправить» видна всегда (макет): с голосом ядро в пустом поле ставит на её место микрофон (тема уводит его влево) —
-  // тогда справа кнопка темы; она отправляет форму так же, как кнопка ядра без голоса (пустое — ядро подскажет)
-  const SEND = RU ? "Отправить" : "Send";
-  const sendButtons = () => {
-    for (const bar of document.querySelectorAll("form.composer .bar:has(> .btn.round.mic):not(:has(> .clean-send))")) {
-      const b = hub.el("button", "btn round send clean-send");
-      b.type = "submit";
-      b.title = SEND;
-      b.setAttribute("aria-label", SEND);
-      bar.append(b);
-    }
-  };
   // идёт запись голоса: в кнопке записи — четыре бегущих столбика (стили — clean.css); ядро пересоздаёт содержимое кнопки при смене
   // режима, поэтому их кладёт обход
   const recBars = () => {
@@ -638,7 +626,7 @@ export default function register(hub) {
   const sweep = () => {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
-    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); sendButtons(); recBars(); actions(); queuePlate(); headFold();
+    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); recBars(); actions(); queuePlate(); headFold();
     boardRecap(); rowDetail(); rowFaces(); recentOrder(); keepList();
     holdView();
     fit.hook();
@@ -808,7 +796,7 @@ export default function register(hub) {
         unmaskIcons(); unAvatars(); fade(); feedEnd(); unPlaceholders(); unPlate(); fit.reset();
         for (const h of document.querySelectorAll(".chat-head[data-clean-label]")) { h.removeAttribute("aria-label"); h.removeAttribute("title"); delete h.dataset.cleanLabel; }
 
-        for (const x of document.querySelectorAll(".search-row .clean-x, .clean-bg, .clean-fold, .clean-fold-show, .clean-send, .clean-bars, .ce-n, .clean-recap")) x.remove();
+        for (const x of document.querySelectorAll(".search-row .clean-x, .clean-bg, .clean-fold, .clean-fold-show, .clean-bars, .ce-n, .clean-recap")) x.remove();
       }
       hub.redraw?.();
     }

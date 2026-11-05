@@ -707,8 +707,8 @@ html.th-clean .chat-group > .b > .chat-head[aria-expanded="true"] > .chat-chev {
 html.th-clean .chat-body { margin: 0; gap: 24px; }
 
 /* ---- поле ввода (по образцу boardui «Composer Panel»): карточка r20, тень DS в три слоя; текст 14/20;
-   нижний ряд 32 — слева «+» (заливка) и камера, справа модель ⌄ · усилие ⌄, микрофон и «Отправить» (видна всегда — пустое поле
-   с голосом получает кнопку темы, main.js); строка статуса ядра — «язычок» над верхней кромкой (токены · доля · папка).
+   нижний ряд 32 — слева «+» (заливка) и камера, справа модель ⌄ · усилие ⌄ и one core button
+   (the mic in an empty field, send with text or a file — the core decides, as in the native client); строка статуса ядра — «язычок» над верхней кромкой (токены · доля · папка).
    Язычок и модель с усилием стоят на якорях (anchor-name на карточке): без их поддержки остаётся прежняя строка под полем ---- */
 html.th-clean .dock { padding: 0 24px calc(6px + env(safe-area-inset-bottom, 0px)); }   /* env() — запас под viewport-fit=cover; пока его нет у ядра, 0 */
 /* затухание — подложка за полем: от низа окна и на 80 над полем, лента уходит под неё; она позади поля (z -1 в контексте dock),
@@ -762,16 +762,16 @@ html.th-clean .slot-composer-tools .btn.round:has(> :is(svg, .icon):only-child) 
   html.th-clean .slot-composer-tools .btn.round:has(> :is(svg, .icon):only-child):hover { color: var(--c-t1); }
 }
 html.th-clean .slot-composer-tools .btn.round > :is(svg, .icon) { width: 16px; height: 16px; }
-html.th-clean .btn.round.send { width: 32px; height: 32px; border-radius: 8px; background: var(--foreground); }
+html.th-clean .btn.round.send { width: 32px; height: 32px; background: var(--foreground); }
 @media (hover: hover) and (pointer: fine) {
   html.th-clean .btn.round.send:hover { background: color-mix(in oklch, var(--foreground) 85%, var(--background)); }
 }
+/* send is the core's own button: it exists only with text or a file (an empty field shows the mic, as in the native client).
+   The core icon takes the plugin's own send.svg: the theme file arrives later and the button stayed empty until it did */
+html.th-clean .btn.round.send { position: relative; border-radius: 9999px; }
 html.th-clean .btn.round.send .icon { width: 16px; height: 16px; }
-html.th-clean .composer .bar > .clean-send { margin-left: auto; display: grid; place-items: center; padding: 0; border: 0; }
-html.th-clean .clean-send::before { content: ""; width: 16px; height: 16px; background: currentColor;
-  -webkit-mask: url("send.svg") center / 16px no-repeat; mask: url("send.svg") center / 16px no-repeat; }
-html.th-clean .composer .bar:has(> .btn.round.send:not(.clean-send)) > .clean-send,
-html.th-clean .composer .bar:not(:has(> .btn.round.mic)) > .clean-send, html.th-clean .composer.rec .clean-send { display: none; }
+html.th-clean .btn.round.send .icon.kit-img {
+  -webkit-mask-image: url("send.svg") !important; mask-image: url("send.svg") !important; }
 /* строка под полем (DS Dropdown Text Small): модель ⌄ · усилие ⌄ · токены · доля — серым 55%, «·» — 28%; папка —
    справа у края, серым 28% */
 html.th-clean .status { min-height: 24px; padding: 0 8px; gap: 4px; font: 400 12px/16px var(--font); color: var(--c-t2); }
@@ -837,8 +837,8 @@ html.th-clean main.dragging .drop { background: color-mix(in srgb, var(--backgro
 html.th-clean main.dragging .composer.dragging::after { content: none; }
 html.th-clean .recstrip { font: 400 12px/16px var(--font); font-variant-numeric: tabular-nums; }
 
-/* «+» (значок «добавить» Forma) в серой подложке — прежняя скрепка ядра: тот же выбор файла; микрофон — справа, рядом
-   с «Отправить» (как в образце), а не слева у «+» */
+/* «+» (значок «добавить» Forma) в серой подложке — прежняя скрепка ядра: тот же выбор файла. The right end of the row holds one
+   core button, as in the core and the native client: the mic while the field is empty, send once there is text or a file */
 html.th-clean .composer > .attach { left: 12px; }
 html.th-clean .composer .bar > .mic { order: 0; }
 html.th-clean .btn.round.quiet.attach { background: var(--c-fill); color: var(--c-t1); }
@@ -848,9 +848,8 @@ html.th-clean .btn.round.quiet.attach { background: var(--c-fill); color: var(--
 html.th-clean .btn.round.attach .icon { -webkit-mask: url("plus.svg") center / 16px no-repeat !important; mask: url("plus.svg") center / 16px no-repeat !important; }
 html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-left: 0; }
 @supports (anchor-name: --a) {
-  /* высота ряда кнопок (--row) и место справа под микрофон с «Отправить» (--tail: 12 + 32 + 8, с микрофоном + 4 + 32) */
+  /* row height (--row) and the room on the right for the one core button, mic or send (--tail) */
   html.th-clean .dock-inner { --row: 32px; --tail: 52px; container: status / inline-size; }
-  html.th-clean .dock-inner:has(form.composer .bar > .btn.round.mic) { --tail: 88px; }
   html.th-clean .dock { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }   /* + 6 зазора под карточкой (там пустая дорожка статуса) = 16 до низа окна */
   /* язычок занимает 24 над карточкой — лента заканчивается выше него */
   html.th-clean main:has(.dock-inner > form.composer) .feed { padding-bottom: 56px; }   /* 24 язычок + 32 воздуха: последнее сообщение не липнет к нему */
@@ -894,7 +893,6 @@ html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-le
   html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-left: 0; }
   @supports (anchor-name: --a) {
     html.th-clean .dock-inner { --row: 36px; --tail: 56px; }
-    html.th-clean .dock-inner:has(form.composer .bar > .btn.round.mic) { --tail: 96px; }
     html.th-clean .slot-host.composer:has(> .vf-slot):not(:has(> .slot:not(.vf-slot))) { left: 52px; bottom: 18px; }
   }
 }
@@ -906,14 +904,14 @@ html.th-clean .composer .bar > .btn.round { margin: 0; }
 html.th-clean .composer .bar { gap: 8px; }
 html.th-clean { --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); }
 @keyframes clean-rise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-@keyframes clean-pill { from { clip-path: inset(0 40px 0 0 round 8px); background-color: var(--c-fill); } to { clip-path: inset(0 round 8px); background-color: var(--foreground); } }
-@keyframes clean-pill-phone { from { clip-path: inset(0 44px 0 0 round 8px); background-color: var(--c-fill); } to { clip-path: inset(0 round 8px); background-color: var(--foreground); } }
+@keyframes clean-pill { from { clip-path: inset(0 0 0 40px round 8px); background-color: var(--c-fill); } to { clip-path: inset(0 round 8px); background-color: var(--foreground); } }
+@keyframes clean-pill-phone { from { clip-path: inset(0 0 0 44px round 8px); background-color: var(--c-fill); } to { clip-path: inset(0 round 8px); background-color: var(--foreground); } }
 /* смена значка — как у образца (AnimatePresence): появляется с opacity 0 · scale .8 · blur 3px за 280 мс ease-out, уходящий — обратно;
    столбики: 4 штуки 2.5 px, высота 8/15/11/14, gap 2.5, scaleY .4 → 1 → .4, периоды 0.9/0.7/1.05/0.8 с ease-in-out, задержки
    −0.4/−0.15/−0.6/−0.3 с (main.js кладёт .clean-bars в кнопку записи; ядро пересоздаёт её содержимое при смене режима) */
 @keyframes clean-bar { 0%, 100% { transform: scaleY(0.4); } 50% { transform: scaleY(1); } }
-@keyframes clean-swap-in { from { opacity: 0; scale: 0.8; filter: blur(3px); translate: -20px 0; } to { opacity: 1; scale: 1; filter: blur(0); translate: 0 0; } }
-@keyframes clean-swap-in-phone { from { opacity: 0; scale: 0.8; filter: blur(3px); translate: -22px 0; } to { opacity: 1; scale: 1; filter: blur(0); translate: 0 0; } }
+@keyframes clean-swap-in { from { opacity: 0; scale: 0.8; filter: blur(3px); translate: 20px 0; } to { opacity: 1; scale: 1; filter: blur(0); translate: 0 0; } }
+@keyframes clean-swap-in-phone { from { opacity: 0; scale: 0.8; filter: blur(3px); translate: 22px 0; } to { opacity: 1; scale: 1; filter: blur(0); translate: 0 0; } }
 @keyframes clean-swap-out { from { opacity: 1; scale: 1; filter: blur(0); } to { opacity: 0; scale: 0.8; filter: blur(3px); } }
 html.th-clean .btn.round:is(.mic, .stop) { position: relative; transition: background-color 150ms ease, color 150ms ease; }
 html.th-clean .clean-bars { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 2.5px; pointer-events: none;
@@ -923,8 +921,9 @@ html.th-clean .clean-bars > i:nth-child(1) { height: 8px; }
 html.th-clean .clean-bars > i:nth-child(2) { height: 15px; animation-duration: 700ms; animation-delay: -150ms; }
 html.th-clean .clean-bars > i:nth-child(3) { height: 11px; animation-duration: 1050ms; animation-delay: -600ms; }
 html.th-clean .clean-bars > i:nth-child(4) { height: 14px; animation-duration: 800ms; animation-delay: -300ms; }
-/* уходящий значок микрофона: кнопка записи растёт из его места, значок гаснет тем же переходом, пока столбики проявляются */
-html.th-clean .composer.rec .btn.round.stop::before { content: ""; position: absolute; left: 8px; top: 50%; width: 16px; height: 16px; margin-top: -8px; background: currentColor; pointer-events: none;
+/* the leaving mic icon: the record button grows leftwards from its place at the right end, the icon fades with the same
+   transition while the bars come in */
+html.th-clean .composer.rec .btn.round.stop::before { content: ""; position: absolute; right: 8px; top: 50%; width: 16px; height: 16px; margin-top: -8px; background: currentColor; pointer-events: none;
   -webkit-mask: url("mic.svg") center / 16px no-repeat; mask: url("mic.svg") center / 16px no-repeat; animation: clean-swap-out 280ms ease-out both; color: var(--muted-foreground); }
 @media (prefers-reduced-motion: reduce) {
   html.th-clean .clean-bars { animation: none; }
@@ -932,7 +931,7 @@ html.th-clean .composer.rec .btn.round.stop::before { content: ""; position: abs
   html.th-clean .composer.rec .btn.round.stop::before { display: none; }
 }
 /* идёт запись голоса: карточка не меняет высоту — сверху точка, время и подсказка (на месте поля), внизу «Отмена» (на месте «+») и
-   кнопка записи; она вырастает из места микрофона на ширину микрофона и «Отправить» и держит столбики */
+   кнопка записи; it grows leftwards from the mic at the right end and holds the bars */
 html.th-clean .composer.rec .bar { display: grid; grid-template-columns: auto auto 1fr auto; grid-template-rows: 28px var(--row, 32px); row-gap: 12px;
   align-items: center; column-gap: 8px; padding: 0; }
 /* поле ввода гаснет тем же переходом (opacity · scale .8 · blur 3 за 280 мс), пока полоса записи проявляется: без пустой карточки между ними */
@@ -978,19 +977,16 @@ html.th-clean .composer.rec .bar > .btn.round:disabled > .spin-dot { margin: 0; 
   html.th-clean .composer.rec .bar > .btn.round:disabled > .spin-dot { animation: none; }
 }
 @supports (anchor-name: --a) {
-  /* камера видео-фидбэка — справа, рядом с микрофоном (его левый край — 12 + 32 + 8 + 32 от края карточки, камера — через 4); без
-     микрофона (в поле есть текст, голоса нет) камера сдвигается к «Отправить»; запись видео — корзина и красное время тем же рядом */
-  html.th-clean .slot-host.composer:has(> .vf-slot):not(:has(> .slot:not(.vf-slot))) { left: auto; right: calc(12px + 2 * var(--row, 32px) + 16px); bottom: 18px; transition: transform 160ms var(--ease-out); }
-  html.th-clean .dock-inner:not(:has(form.composer .bar > .btn.round.mic)) .slot-host.composer:has(> .vf-slot) { transform: translateX(calc(var(--row, 32px) + 8px)); }
+  /* the video feedback camera sits 8 left of the one core button (mic or send), so it stays in place when typing swaps them;
+     a video recording shows its bin and red time in the same row */
+  html.th-clean .slot-host.composer:has(> .vf-slot):not(:has(> .slot:not(.vf-slot))) { left: auto; right: calc(12px + var(--row, 32px) + 8px); bottom: 18px; }
   html.th-clean .vf-slot { justify-content: flex-end; }
   @media (hover: hover) and (pointer: fine) {
     html.th-clean .vf-slot [data-tip]:hover::after { left: auto; right: 0; }
   }
   html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-left: 0; }
   html.th-clean .dock-inner { --tail: 56px; }
-  html.th-clean .dock-inner:has(form.composer .bar > .btn.round.mic) { --tail: 92px; }
-  html.th-clean .dock-inner:has(.vf-slot):not(:has(form.composer .bar > .btn.round.mic)) { --tail: 92px; }
-  html.th-clean .dock-inner:has(.vf-slot):has(form.composer .bar > .btn.round.mic) { --tail: 128px; }
+  html.th-clean .dock-inner:has(.vf-slot) { --tail: 92px; }
   /* идёт отсчёт, запись или расшифровка видео: модель и усилие уходят (под растущей кнопкой им нет места), микрофон остаётся
      на месте, но не нажимается — запись видео сама пишет голос */
   html.th-clean .dock-inner:has(.vf-btn:is(.vf-count, .vf-rec, .vf-work)) .status > :is(.stat-par, .stat-mod, .stat-eff) { display: none; }
@@ -1001,13 +997,11 @@ html.th-clean .composer.rec .bar > .btn.round:disabled > .spin-dot { margin: 0; 
   html.th-clean .composer.rec .bar > .btn.round:disabled { width: 80px; }
   html.th-clean .composer.rec .bar { grid-template-rows: 28px 36px; }
   html.th-clean .composer.rec .clean-bars { animation-name: clean-swap-in-phone; }
-  html.th-clean .composer.rec .btn.round.stop::before { left: 10px; }
+  html.th-clean .composer.rec .btn.round.stop::before { right: 10px; }
   @supports (anchor-name: --a) {
     html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-left: 0; }
     html.th-clean .dock-inner { --tail: 60px; }
-    html.th-clean .dock-inner:has(form.composer .bar > .btn.round.mic) { --tail: 100px; }
-    html.th-clean .dock-inner:has(.vf-slot):not(:has(form.composer .bar > .btn.round.mic)) { --tail: 96px; }
-    html.th-clean .dock-inner:has(.vf-slot):has(form.composer .bar > .btn.round.mic) { --tail: 140px; }
+    html.th-clean .dock-inner:has(.vf-slot) { --tail: 96px; }
   }
 }
 
@@ -1022,14 +1016,13 @@ html.th-clean .composer.rec .bar > .btn.round:disabled > .spin-dot { margin: 0; 
    Below 520px the core hides effort and the model next to the executors by itself — here it does not decide: the room does. */
 html.th-clean .dock-inner:is(*, :has(.vf-slot)) form.composer .bar { padding-left: calc(var(--row, 32px) + 8px); }   /* 8 from «+» */
 html.th-clean .dock-inner form.composer:not(.rec) .bar:not(.reply-bar) { flex-wrap: nowrap; gap: 8px; }
-html.th-clean .dock-inner form.composer:not(.rec) .bar:not(.reply-bar) > :is(.mic, .send, .clean-send, .slot) { flex: none; }
+html.th-clean .dock-inner form.composer:not(.rec) .bar:not(.reply-bar) > :is(.mic, .send, .slot) { flex: none; }
 /* the camera sits between the plugin buttons and the mic (absolutely, over the row): the row leaves it room — a button plus 8 on each side */
-html.th-clean .dock-inner:has(.vf-slot) form.composer:not(.rec) .bar:not(.reply-bar) > .mic,
-html.th-clean .dock-inner:has(.vf-slot) form.composer:not(.rec) .bar:not(.reply-bar):not(:has(> .mic)) > .send:not(.clean-send) { margin-left: calc(var(--row, 32px) + 8px); }
+html.th-clean .dock-inner:has(.vf-slot) form.composer:not(.rec) .bar:not(.reply-bar) > :is(.mic, .send) { margin-left: calc(var(--row, 32px) + 8px); }
 html.th-clean .dock-inner.clean-up form.composer:not(.rec) .bar:not(.reply-bar) { flex-wrap: wrap; justify-content: flex-end; row-gap: 0; }
 html.th-clean .dock-inner.clean-up form.composer:not(.rec) .bar:not(.reply-bar) > .slot-composer-tools { order: 1; margin-bottom: 8px; }
 html.th-clean .dock-inner.clean-up form.composer:not(.rec) .bar:not(.reply-bar)::after { content: ""; order: 2; flex: 0 0 100%; height: 0; }
-html.th-clean .dock-inner.clean-up form.composer:not(.rec) .bar:not(.reply-bar) > :is(.mic, .send, .clean-send) { order: 3; }
+html.th-clean .dock-inner.clean-up form.composer:not(.rec) .bar:not(.reply-bar) > :is(.mic, .send) { order: 3; }
 /* a recording (voice or video) is on: no room for plugin buttons in the row — same as for the model and effort */
 html.th-clean .composer.rec .bar > .slot-composer-tools { display: none !important; }
 html.th-clean .dock-inner:has(.vf-btn:is(.vf-count, .vf-rec, .vf-work)) form.composer .bar > .slot-composer-tools { display: none !important; }   /* !important: a slot may carry its own display in style */
@@ -1238,6 +1231,7 @@ html.th-clean .pal-reset:disabled { display: none; }
   html.th-clean .strip-row[data-k="wait"] { padding-inline: 20px; }   /* лента с полями 16, поле ввода с 12 — полоса «Ждёт вас» шире карточки на 4 */
   html.th-clean .row.mine > .b { width: auto; max-width: 88%; }
   html.th-clean .btn.round.send, html.th-clean .btn.round.quiet:is(.attach, .mic), html.th-clean .composer .bar > .btn.round.mic { width: 36px; height: 36px; }
+  html.th-clean .btn.round.send::after { content: ""; position: absolute; inset: -4px; border-radius: 9999px; }   /* tap target 44 */
   html.th-clean .vf-slot > .btn.round, html.th-clean .slot-composer-tools .btn.round:has(> :is(svg, .icon):only-child) { width: 36px; height: 36px; }
   html.th-clean .slot-composer-tools .btn.round { height: 36px; }
   html.th-clean .status > .stat-left > .stat-dir { display: none; }

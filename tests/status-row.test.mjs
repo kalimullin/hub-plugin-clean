@@ -42,7 +42,8 @@ test("steps are cumulative class lists named in clean.css", () => {
 
 test("clean.css: 8 between neighbours, the status room comes from the measure, the camera is 8 from the mic", () => {
   assert.match(css, /padding: 0 var\(--fit-r, [^)]*\) [^;]*var\(--fit-l, 52px\);\s*justify-content: flex-end; align-items: center; gap: 8px;/);
-  assert.match(css, /right: calc\(12px \+ 2 \* var\(--row, 32px\) \+ 16px\)/, "camera: send 12 + button + 8 + mic + 8");
+  assert.match(css, /right: calc\(12px \+ var\(--row, 32px\) \+ 8px\); bottom: 18px; \}/, "camera: 12 + the one core button + 8, the same with an empty field and with text");
+  assert.doesNotMatch(css, /translateX\(calc\(var\(--row, 32px\) \+ 8px\)\)/, "the camera does not move when typing swaps the mic for send");
   assert.match(css, /\.bar:not\(\.reply-bar\) \{ flex-wrap: nowrap; gap: 8px; \}/);
   assert.match(css, /\.bar \{ padding-left: calc\(var\(--row, 32px\) \+ 8px\); \}/, "8 from «+» to the first button of the row");
   // container steps do not decide for the room: short labels and hiding come from fit.js only
@@ -51,7 +52,7 @@ test("clean.css: 8 between neighbours, the status room comes from the measure, t
 
 // A page stub: a tree of nodes with rectangles. The width of the status line and the place of the buttons on the right follow
 // the classes on .dock-inner the way clean.css does; the plugin buttons wrap (clean-up) when they do not fit.
-function page({ cardW = 366, tools = 0, vf = true, mic = true }) {
+function page({ cardW = 366, tools = 0, vf = true }) {
   const d = { cls: new Set(), style: {}, dataset: {} };
   d.classList = { add: (c) => d.cls.add(c), remove: (c) => d.cls.delete(c), toggle: (c, on) => (on ? d.cls.add(c) : d.cls.delete(c)), contains: (c) => d.cls.has(c) };
   d.style = { props: {}, setProperty(k, v) { this.props[k] = v; }, removeProperty(k) { delete this.props[k]; } };
@@ -62,14 +63,13 @@ function page({ cardW = 366, tools = 0, vf = true, mic = true }) {
   const el = (r, shown = true) => ({ getBoundingClientRect: () => r(), getClientRects: () => (shown ? [1] : []), classList: { contains: () => false }, style: {} });
   const toolsW = () => (tools ? tools * BTN + (tools - 1) * G : 0);
   const right0 = () => cardW - PAD;                                   // the right edge of the content
-  const send = () => rect(right0() - BTN, BTN, rowTop);
-  const micR = () => rect(send().left - G - BTN, BTN, rowTop);
-  const camL = () => (vf ? (mic ? micR().left : send().left) - G - BTN : null);
+  const send = () => rect(right0() - BTN, BTN, rowTop);                // the one core button: the mic in an empty field, send with text
+  const camL = () => (vf ? send().left - G - BTN : null);
   const toolsR = () => {
-    const last = (vf ? camL() : mic ? micR().left : send().left) - G;
+    const last = (vf ? camL() : send().left) - G;
     return up() ? rect(right0() - toolsW(), toolsW(), upTop) : rect(last - toolsW(), toolsW(), rowTop);
   };
-  const need = BTN + G + toolsW() + G + (vf ? BTN + G : 0) + (mic ? BTN + G : 0) + BTN;   // «+», buttons, camera, mic, send
+  const need = BTN + G + toolsW() + G + (vf ? BTN + G : 0) + BTN;   // «+», buttons, camera, mic or send
   const natural = (long, short) => () => rect(0, d.cls.has("clean-fit-short") ? short : long, rowTop, 28);
   const chips = { par: natural(150, 110), mod: natural(90, 70), eff: natural(70, 70) };
   const status = { getBoundingClientRect: () => rect(0, cardW, rowTop), classList: { contains: () => false }, style: {},
@@ -77,8 +77,8 @@ function page({ cardW = 366, tools = 0, vf = true, mic = true }) {
   const plus = el(() => rect(PAD, BTN, rowTop));
   const bar = { scrollWidth: 0, clientWidth: 0, classList: { contains: () => false },
     querySelectorAll: () => [
-      mic && el(micR), el(send), ...(tools ? [el(toolsR)] : []),
-    ].filter(Boolean) };
+      el(send), ...(tools ? [el(toolsR)] : []),
+    ] };
   Object.defineProperty(bar, "scrollWidth", { get: () => (need > cardW - 2 * PAD - 0 ? need : 0) });
   Object.defineProperty(bar, "clientWidth", { get: () => cardW - 2 * PAD });
   const card = { classList: { contains: () => false }, getBoundingClientRect: () => rect(0, cardW, 90, 80),

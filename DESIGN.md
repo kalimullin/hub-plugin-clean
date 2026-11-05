@@ -73,6 +73,11 @@ together with the code that follows it, and with a reason.
   effort goes into the model menu, then the model, then the executors give way; plugin buttons that do not fit one
   row move to a row above. A new element in that row is checked by `tests/status-row.test.mjs` and the width matrix
   (0/1/3/5 plugin buttons at 1440…320, light and dark), and a PR that changes the row shows the table.
+- **One button at the right end of the row, as in Telegram.** With voice on and an empty field the row ends in the mic
+  alone, with no send. Text or a file turns the same place into send: a `--foreground` circle (`border-radius: 9999px`,
+  32px on desktop, 36px on a phone, an invisible `::after` brings the phone tap target to 44) with the thin Forma
+  Regular «up» arrow (16px, masked, `send.svg`). The core decides which button it draws; the theme adds no send of its
+  own and never changes the height of the field when the first letter appears. Without voice the core always draws send.
 - **Status colors are fixed.** Red `--c-alert`, green `--c-free`, orange `--c-busy`, yellow `--c-eco`. A new state
   reuses one of them; it does not get its own hue. A band that states a status
   (the MCP login band above the chat) is tinted with `--c-busy-bg` or `--c-free-bg`, with no border.
