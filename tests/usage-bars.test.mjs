@@ -34,6 +34,14 @@ test("colour: grey below 80%, orange 80–95%, red from 95%, yellow in economy, 
   assert.deepEqual(tones(broken), ["high", "high"]);
 });
 
+test("colour: a not-working account keeps a full-strength red bar even when the reading is old, as in the native app", () => {
+  const calls = main.match(/usageBar\(w, [^)]*\)\)/g) || [];
+  assert.equal(calls.length, 2);
+  for (const c of calls) assert.match(c, /&& !m\.broken/);
+  const m = usageModel(snap({ five: 0.6, status: "rejected", ts: NOW - 3 * 3600 }), { now: NOW });
+  assert.ok(m.stale && m.broken);
+});
+
 test("percent and even-pace mark: the mark is how much of the window has passed", () => {
   const m = usageModel(snap({ five: 0.834 }), { now: NOW });
   const five = m.windows.find((w) => w.id === "five_hour"), week = m.windows.find((w) => w.id === "seven_day");
