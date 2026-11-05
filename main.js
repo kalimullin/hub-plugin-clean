@@ -27,7 +27,11 @@
 //   сообщения сессии (как превью в мессенджере), справа — время последней активности; строка открытой сессии — карточкой (rowDetail);
 // - bottom row of the composer card (+, status chips, plugin buttons, camera, mic, send): room is shared by the measured
 //   width and nothing overlaps (fit.js).
+// - thread rows of the left panel: the model mark, as the native client — dots coloured by the lab (Claude, Codex, GLM),
+//   their number by the model class, twinkling while the thread works and dimmed while it sleeps; the unread dot takes
+//   the same colour (marks.js, slot sidebar.session).
 import { mountFit } from "./fit.js";
+import { renderMark } from "./marks.js";
 import { AGO, byRecent, detailOf, sessionFor } from "./rows.js";
 
 const MINE = /(^|:)clean:clean(-dark)?\.json$/;
@@ -664,6 +668,15 @@ export default function register(hub) {
   };
   let queued = false;   // лента меняется часто — не чаще кадра
   new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; sweep(); }); } }).observe(document.body, { childList: true, subtree: true, characterData: true });
+
+  // model mark of a thread row (marks.js): one node per row, kept across snapshots; off the theme — nothing
+  hub.addSlot("sidebar.session", {
+    id: "clean-mark",
+    render(root, snap, ctx) {
+      if (!on() || !ctx?.session) { root.replaceChildren(); delete root.dataset.cleanMark; return; }
+      renderMark(hub, root, snap, ctx.session);
+    },
+  });
 
   // лимиты — внизу боковой панели (место sidebar.footer), из снимка ядра: «corp  5 ч 10%  неделя 1%»; доля и сброс — в подсказке
   // окно без названия (шлюз присылает новые, например seven_day_overage_included) в строку не попадает — сырой ключ вместо подписи хуже, чем ничего

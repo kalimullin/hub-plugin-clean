@@ -25,6 +25,12 @@ html.th-clean {
   --c-t3: light-dark(rgb(0 0 0 / 0.28), rgb(255 255 255 / 0.30));        /* время, подписи групп, «·» */
   --c-preview: light-dark(rgb(0 0 0 / 0.55), rgb(255 255 255 / 0.50));   /* превью сообщения в «Подробном» списке: ≥4,5:1 к фону, к карточке и в тёмной (в светлой темой светлее нельзя: 50% даёт 3,9:1) */
   --c-ink: light-dark(#000, #fff);                                         /* точки «работает»: этим цветом с прозрачностью */
+  /* lab of a thread (model mark in the left panel, marks.js): the native colours; on the light background the native
+     orange and green give ~2:1, so the light theme takes darker shades of the same hue (≥3:1 to the row and the selected
+     row), and the dark theme lifts GLM's indigo (#5E5CE6 is 2.8:1 on the dark row) to #7D7AFF */
+  --c-claude: light-dark(#B35C00, #FF9F0A);
+  --c-codex: light-dark(#248A3D, #30D158);
+  --c-glm: light-dark(#5856D6, #7D7AFF);
   --c-alert: light-dark(#ef4e4e, #cf3a3a);   /* красная заливка с белым текстом: в тёмной 4,9:1 */
   --c-free: light-dark(#1fb141, #4cd46a); --c-free-bg: light-dark(#e7f9eb, #173a22);
   --c-eco: light-dark(#876200, #ffd60a);   /* жёлтый «режима экономии» в блоке расхода: тёмная охра на светлом (4,5:1+), яркий жёлтый на тёмном */
@@ -262,6 +268,42 @@ html.th-clean :is(.srow > .glyph:is([data-s="busy"], [data-s="starting"]), .row.
   html.th-clean :is(.srow > .glyph:is([data-s="busy"], [data-s="starting"]), .row.working > .g.spin)::before,
   html.th-clean :is(.srow > .glyph:is([data-s="busy"], [data-s="starting"]), .row.working > .g.spin)::after { animation: none; }
 }
+/* Model mark (marks.js, slot sidebar.session) — as the native StatusMark/WorkDots: 2 columns × up to 4 rows of 2.4 px dots
+   in the same 16 px status box, coloured by the lab; while the thread works they twinkle (each dot its own period and
+   phase, opacity .22↔1), asleep — the same dots at .28. Shown in place of the core's status mark; hidden (no state) it
+   only lends its lab to the core's unread dot. No lab known — the theme's own marks stay. */
+html.th-clean .srow > .slot-sidebar-session:has(> .clean-mark):not([data-clean-mark]),
+html.th-clean .srow > .slot-sidebar-session:empty { display: none; }
+html.th-clean .srow > .slot-sidebar-session[data-clean-mark] { order: 9; margin: 0; width: 16px; height: 16px; align-self: center; }
+html.th-clean .srow:has(> .slot-sidebar-session[data-clean-mark]) > :is(.glyph, .dot) { display: none; }
+html.th-clean .clean-mark { display: grid; grid-template-columns: repeat(2, 2.4px); grid-auto-rows: 2.4px; gap: 1.6px;
+  place-content: center; width: 16px; height: 16px; color: var(--c-t2); }
+html.th-clean .clean-mark[hidden] { display: none; }
+html.th-clean .clean-mark[data-harness="claude"] { color: var(--c-claude); }
+html.th-clean .clean-mark[data-harness="codex"] { color: var(--c-codex); }
+html.th-clean .clean-mark[data-harness="glm"] { color: var(--c-glm); }
+html.th-clean .clean-mark > i { display: block; border-radius: 9999px; background: currentColor; }
+html.th-clean .clean-mark[data-kind="work"] > i { animation: clean-mark-twinkle 1.2s ease-in-out infinite alternate; }
+html.th-clean .clean-mark[data-kind="work"] > i:nth-child(1) { animation-duration: 1.2s; animation-delay: 0s; }
+html.th-clean .clean-mark[data-kind="work"] > i:nth-child(2) { animation-duration: 1.45s; animation-delay: -0.97s; }
+html.th-clean .clean-mark[data-kind="work"] > i:nth-child(3) { animation-duration: 1.1s; animation-delay: -1.4s; }
+html.th-clean .clean-mark[data-kind="work"] > i:nth-child(4) { animation-duration: 1.5s; animation-delay: -0.57s; }
+html.th-clean .clean-mark[data-kind="work"] > i:nth-child(5) { animation-duration: 1.3s; animation-delay: -1.36s; }
+html.th-clean .clean-mark[data-kind="work"] > i:nth-child(6) { animation-duration: 1.05s; animation-delay: -1.71s; }
+html.th-clean .clean-mark[data-kind="work"] > i:nth-child(7) { animation-duration: 1.35s; animation-delay: -0.3s; }
+html.th-clean .clean-mark[data-kind="work"] > i:nth-child(8) { animation-duration: 1.15s; animation-delay: -1.03s; }
+@keyframes clean-mark-twinkle { from { opacity: .22; } to { opacity: 1; } }
+html.th-clean .clean-mark[data-kind="asleep"] > i { opacity: .28; }
+@media (prefers-reduced-motion: reduce) {
+  /* held still at full strength: a dimmed still dot falls under 3:1 on the light selected row */
+  html.th-clean .clean-mark[data-kind="work"] > i { animation: none; opacity: 1; }
+}
+/* the core's unread dot takes the lab's colour (the mark is hidden then, but keeps data-harness) */
+html.th-clean .srow:has(> .slot-sidebar-session > .clean-mark[data-harness="claude"]) > .dot::before { background: var(--c-claude); }
+html.th-clean .srow:has(> .slot-sidebar-session > .clean-mark[data-harness="codex"]) > .dot::before { background: var(--c-codex); }
+html.th-clean .srow:has(> .slot-sidebar-session > .clean-mark[data-harness="glm"]) > .dot::before { background: var(--c-glm); }
+/* a free thread whose executors work: the mark is the status, the executors badge moves left of it as for the core's marks */
+html.th-clean li.has-forks:has(> .srow > .slot-sidebar-session[data-clean-mark]) > .fork-toggle { right: 36px; }
 /* «ждёт вас» — красный бейдж DS 16 r4 числом вопросов (data-n ставит main.js; слова остаются для чтения с экрана) */
 html.th-clean :is(.srow .tag:not(.soft), main > .btn.jumpnew .n) { height: 16px; min-width: 16px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
   padding: 0 4px; align-self: center; margin-top: 0; border-radius: 4px; color: #fff; font: 500 12px/16px var(--font); }
@@ -297,12 +339,12 @@ html.th-clean.th-clean-detail #list .srow[data-clean-d] { position: relative; mi
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] { min-height: 56px; padding-top: 8px; padding-bottom: 8px; }
 /* место под время — полем снаружи имени: у padding многоточие не рисуется, текст ушёл бы под цифры */
 html.th-clean.th-clean-detail #list .srow[data-clean-d] .nm { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: var(--clean-ago-w, 0px); }
-html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two]:has(> :is(.dot, .tag:not(.soft), .glyph:not([data-s="idle"], [data-s="dialog"]))) .nm { margin-right: max(0px, calc(var(--clean-ago-w, 0px) - 28px)); }
+html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two]:has(> :is(.dot, .tag:not(.soft), .glyph:not([data-s="idle"], [data-s="dialog"]), .slot-sidebar-session[data-clean-mark])) .nm { margin-right: max(0px, calc(var(--clean-ago-w, 0px) - 28px)); }
 html.th-clean.th-clean-detail:not(.th-clean-av) #list .sgroup.bare .srow[data-clean-d] .nm > .avatar { float: left; margin: -2px 8px 0 0; }   /* картинка 24 слева от имени (она показана только в группе «Хаб»); flex не даёт имени многоточия */
 html.th-clean.th-clean-detail #list .srow[data-clean-d]::before { content: attr(data-clean-ago); position: absolute; top: 12px; right: 8px; font: 400 12px/16px var(--font); color: var(--c-t2); white-space: nowrap; }
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two]::before { top: 10px; }
 /* одна строка (нет проекта): статус рядом с именем по центру, время — левее него, а не поверх */
-html.th-clean.th-clean-detail #list .srow[data-clean-d]:not([data-clean-two]):has(> :is(.dot, .tag:not(.soft), .glyph:not([data-s="idle"], [data-s="dialog"])))::before { right: 36px; }
+html.th-clean.th-clean-detail #list .srow[data-clean-d]:not([data-clean-two]):has(> :is(.dot, .tag:not(.soft), .glyph:not([data-s="idle"], [data-s="dialog"]), .slot-sidebar-session[data-clean-mark]))::before { right: 36px; }
 html.th-clean.th-clean-detail:not(.th-clean-av) #list .sgroup.bare .srow[data-clean-d][data-clean-two]:has(.nm > .avatar)::before { top: 12px; }   /* первая строка с картинкой 24 выше на 4 */
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > .txt { align-self: center; }
 html.th-clean.th-clean-detail #list .srow[data-clean-d] .nm { font-weight: 400; }   /* в подробном имя всегда Regular: «активна» читается по статусу и времени справа, а не по жирности */
@@ -311,7 +353,7 @@ html.th-clean.th-clean-detail.th-clean-av #list .srow[data-clean-k="hub"] .nm { 
 html.th-clean.th-clean-detail #list .srow[data-clean-d] > .txt[data-clean-prev]::after { content: attr(data-clean-prev); display: block; margin-top: 4px; overflow: hidden;
   text-overflow: ellipsis; white-space: nowrap; font: 400 12px/16px var(--font); letter-spacing: 0; color: var(--c-preview); }
 html.th-clean.th-clean-detail:not(.th-clean-av) #list .sgroup.bare .srow[data-clean-d]:has(.nm > .avatar) > .txt[data-clean-prev]::after { padding-left: 32px; }   /* под именем, а не под картинкой 24 + 8; у остальных узел .avatar скрыт (display: none) — отступа нет */
-html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > :is(.glyph, .dot, .tag:not(.soft)) { align-self: end; }
+html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > :is(.glyph, .dot, .tag:not(.soft), .slot-sidebar-session[data-clean-mark]) { align-self: end; }
 html.th-clean.th-clean-detail #list li.has-forks > .srow[data-clean-d][data-clean-two] ~ .fork-toggle { top: auto; bottom: 8px; transform: none; }
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two][aria-current="true"] { background: var(--background); border-radius: 12px; box-shadow: 0 0 0 1px var(--c-line-soft); }
 html.th-clean.th-clean-detail #list .srow[data-clean-d]:not([data-clean-two])[aria-current="true"] { background: var(--c-fill); }
