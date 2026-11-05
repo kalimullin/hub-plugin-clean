@@ -263,8 +263,10 @@ html.th-clean :is(.srow > .glyph:is([data-s="busy"], [data-s="starting"]), .row.
   html.th-clean :is(.srow > .glyph:is([data-s="busy"], [data-s="starting"]), .row.working > .g.spin)::after { animation: none; }
 }
 /* «ждёт вас» — красный бейдж DS 16 r4 числом вопросов (data-n ставит main.js; слова остаются для чтения с экрана) */
-html.th-clean .srow .tag:not(.soft) { height: 16px; min-width: 16px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
-  padding: 0 4px; align-self: center; margin-top: 0; border-radius: 4px; background: var(--c-alert); color: #fff; font: 500 12px/16px var(--font); }
+html.th-clean :is(.srow .tag:not(.soft), main > .btn.jumpnew .n) { height: 16px; min-width: 16px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
+  padding: 0 4px; align-self: center; margin-top: 0; border-radius: 4px; color: #fff; font: 500 12px/16px var(--font); }
+html.th-clean .srow .tag:not(.soft) { background: var(--c-alert); }
+/* счётчик «К последнему» — та же форма, что бейдж списка; цвет свой (синий ядра) */
 html.th-clean .srow .tag:not(.soft)[data-n] { font-size: 0; }
 html.th-clean .srow .tag:not(.soft)[data-n]::after { content: attr(data-n); font: 500 12px/16px var(--font); font-variant-numeric: tabular-nums; }
 html.th-clean li.has-forks > .srow > .tag:not(.soft) { margin-right: -6px; }   /* до бейджа исполнителей — 6, не 12 */
