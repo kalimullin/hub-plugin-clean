@@ -138,8 +138,8 @@ test("lab colours: native in the dark, deepened to 3:1 on the light rows; GLM li
   }
 });
 
-test("asleep dimmed to .28, working twinkles, reduced motion holds still", () => {
-  assert.match(css, /\[data-kind="?asleep"?\] > i \{[^}]*opacity: \.28/);
+test("asleep dimmed to .5, working twinkles, reduced motion holds still", () => {
+  assert.match(css, /\[data-kind="?asleep"?\] > i \{[^}]*opacity: \.5;/);
   assert.match(css, /\[data-kind="?work"?\] > i \{[^}]*animation: clean-mark-twinkle/);
   assert.match(css, /@keyframes clean-mark-twinkle/);
   assert.match(css, /prefers-reduced-motion: reduce\)[\s\S]*?\.clean-mark[^{]*\{[^}]*animation: none; opacity: 1;/, "still dots keep full contrast");

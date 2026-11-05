@@ -270,7 +270,7 @@ html.th-clean :is(.srow > .glyph:is([data-s="busy"], [data-s="starting"]), .row.
 }
 /* Model mark (marks.js, slot sidebar.session) — as the native StatusMark/WorkDots: 2 columns × up to 4 rows of 2.4 px dots
    in the same 16 px status box, coloured by the lab; while the thread works they twinkle (each dot its own period and
-   phase, opacity .22↔1), asleep — the same dots at .28. Shown in place of the core's status mark; hidden (no state) it
+   phase, opacity .22↔1), asleep — the same dots at .5. Shown in place of the core's status mark; hidden (no state) it
    only lends its lab to the core's unread dot. No lab known — the theme's own marks stay. */
 html.th-clean .srow > .slot-sidebar-session:has(> .clean-mark):not([data-clean-mark]),
 html.th-clean .srow > .slot-sidebar-session:empty { display: none; }
@@ -293,7 +293,7 @@ html.th-clean .clean-mark[data-kind="work"] > i:nth-child(6) { animation-duratio
 html.th-clean .clean-mark[data-kind="work"] > i:nth-child(7) { animation-duration: 1.35s; animation-delay: -0.3s; }
 html.th-clean .clean-mark[data-kind="work"] > i:nth-child(8) { animation-duration: 1.15s; animation-delay: -1.03s; }
 @keyframes clean-mark-twinkle { from { opacity: .22; } to { opacity: 1; } }
-html.th-clean .clean-mark[data-kind="asleep"] > i { opacity: .28; }
+html.th-clean .clean-mark[data-kind="asleep"] > i { opacity: .5; }
 @media (prefers-reduced-motion: reduce) {
   /* held still at full strength: a dimmed still dot falls under 3:1 on the light selected row */
   html.th-clean .clean-mark[data-kind="work"] > i { animation: none; opacity: 1; }
