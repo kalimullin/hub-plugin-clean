@@ -46,8 +46,11 @@ html.th-clean .app { --left-w: 272px; --gap: 8px; }
 html.th-clean main, html.th-clean .side { border-radius: 16px; box-shadow: none; }
 
 /* ---- боковая панель: без своей заливки; поиск 36 серым, ☰ и лимиты — внизу ---- */
-html.th-clean aside { --row-plate: var(--c-fill); --row-plate-shadow: none; --ctl-h: 36px; padding: 4px 12px 8px; }
-html.th-clean .search-row { padding: 12px 12px 12px; gap: 8px; }
+/* поле колонки — одно: --aside-field (16, как на iPhone) от края колонки до поиска, плашек строк, ☰, лимитов и плиток модулей;
+   у самой колонки полей нет, каждый ряд берёт отступ из переменной */
+html.th-clean aside { --aside-field: 16px; --row-plate: var(--c-fill); --row-plate-shadow: none; --ctl-h: 36px; padding: 4px 0 8px; }
+html.th-clean .search-row { padding: 12px var(--aside-field) 12px; gap: 8px; }
+html.th-clean aside > :is(.away-strip, .connection-side) { margin-inline: var(--aside-field); }
 html.th-clean .search input { height: 36px; border: 0; border-radius: 8px; padding: 0 12px 0 30px; background: var(--c-fill); box-shadow: none;
   font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); }
 html.th-clean .search input::placeholder { color: var(--c-t3); }
@@ -122,14 +125,14 @@ html.th-clean .gmore::before { content: ""; width: 16px; height: 16px; backgroun
 @media (prefers-reduced-motion: reduce) { html.th-clean :is(.chev, .chat-chev) { transition: none; } }
 html.th-clean .wpill { display: none; }   /* красная «1»: ждущих видно красным счётчиком в строке */
 /* ☰ — белая плашка 36 без рамки и тени, точка «есть о чём знать» 6×6 на углу, выступает на 1 */
-html.th-clean .navmenu { position: absolute; left: 24px; bottom: 16px; width: 36px; height: 36px; border-radius: 8px;
+html.th-clean .navmenu { position: absolute; left: var(--aside-field); bottom: 16px; width: 36px; height: 36px; border-radius: 8px;
   background: var(--background); box-shadow: none; color: var(--c-t1); z-index: 2; }
 html.th-clean .navmenu .icon { width: 16px; height: 16px; }
 html.th-clean .navmenu .dot { width: 6px; height: 6px; left: auto; top: -1px; right: -1px; border: 0; background: var(--warning); }
 html.th-clean .navmenu .dot:not([data-s="warn"]) { display: none; }   /* как в макете: точка — только «есть о чём знать» */
 /* меню ☰ — над кнопкой, по высоте пунктов (ядро ставит его под строку поиска прямо в style: ☰ у ядра сверху) */
 /* по сетке: левый край меню — левый край ☰ и строк списка, значок пункта — под значком ☰ (4 + 6 = 10 от края, как у кнопки) */
-html.th-clean .nav-pop { top: auto !important; bottom: 60px; left: 24px; right: 24px; max-height: calc(100% - 140px) !important; padding: 4px;
+html.th-clean .nav-pop { top: auto !important; bottom: 60px; left: var(--aside-field); right: var(--aside-field); max-height: calc(100% - 140px) !important; padding: 4px;
   border-radius: 12px; box-shadow: var(--shadow-lift), 0 0 0 1px var(--border); }
 /* отступ внутри меню — 4 со всех сторон, как у остальных меню: пункты без своих полей (у ядра — 8 по бокам и снизу) */
 html.th-clean .nav-pop .srow.nav { grid-template-columns: 16px minmax(0, 1fr); gap: 8px; min-height: 36px; margin: 0; width: 100%; padding: 0 6px; position: relative; }
@@ -144,7 +147,7 @@ html.th-clean #conn .glyph .dot { left: auto; right: 13px; bottom: auto; top: ca
 html.th-clean #conn .glyph .dot:not([data-s="warn"]):not([data-s="off"]) { display: none; }
 html.th-clean .nav-pop .srow.nav .nm { font: 400 14px/20px var(--font); letter-spacing: -0.1px; }
 /* лимиты: «5 ч» серым 28%, «10%» Medium; подписи аккаунта нет — клик ведёт к лимитам всех аккаунтов */
-html.th-clean .aside-foot { min-height: 56px; padding: 12px 12px 8px 60px; display: flex; align-items: center; justify-content: flex-end; }
+html.th-clean .aside-foot { --menu-w: 36px; min-height: 56px; padding: 12px var(--aside-field) 8px calc(var(--aside-field) + var(--menu-w) + 12px); display: flex; align-items: center; justify-content: flex-end; }
 html.th-clean .aside-foot .counts { display: none; }
 html.th-clean .aside-foot .slot-sidebar-footer { display: flex; justify-content: flex-end; flex: 1 1 0; min-width: 0; }
 /* строка не выходит за свои поля (слева — ☰ с точкой): окна, что не влезли целиком, переносятся на вторую строку и срезаются
@@ -165,7 +168,7 @@ html.th-clean .clean-lim.limlink { cursor: pointer; }
 html.th-clean main .status .limline { display: none; }
 
 /* вкладки «Все | Сейчас» (DS Tab bar Filled Large): дорожка 36 серым, выбранная — белая; оба текста — тёмные, различает подложка */
-html.th-clean .active-bar { margin: 0 12px; padding: 2px; gap: 2px; height: 36px; box-sizing: border-box; border-radius: 8px;
+html.th-clean .active-bar { margin: 0 var(--aside-field); padding: 2px; gap: 2px; height: 36px; box-sizing: border-box; border-radius: 8px;
   background: var(--c-fill); box-shadow: none; border: 0; }
 html.th-clean .active-bar button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; min-height: 0;
   padding: 6px 12px; border: 0; border-radius: 6px; font: 500 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); background: transparent; box-shadow: none; }
@@ -177,7 +180,7 @@ html.th-clean .c-n { height: 16px; padding: 0 4px; display: inline-grid; place-i
   font: 500 12px/16px var(--font); color: var(--c-t1); }
 
 /* ---- список: карточка «Хаб» 36, группы через 24, строка 40; справа — бейджи (через 6) и статус в боксе 16 (через 12) ---- */
-html.th-clean .list { padding: 28px 12px 0; }
+html.th-clean .list { padding: 28px var(--aside-field) 0; }
 html.th-clean .list.scrolled { border-top-color: transparent; }
 /* край прокрутки — плавно, а не обрезом: сверху 24, снизу 64 (макет), только там, куда есть что листать (main.js) */
 html.th-clean .list[data-clean-fade] { --fade-top: 0px; --fade-bottom: 0px;
@@ -1229,12 +1232,11 @@ html.th-clean .pal-reset:disabled { display: none; }
 /* ---- телефон 390: окно без полей, строки и кнопки — под палец ---- */
 @media (max-width: 760px) {
   html.th-clean .side { border-radius: 0; box-shadow: none; }   /* панель — на весь экран поверх ленты */
-  html.th-clean aside { padding: 4px 8px 8px; }
   html.th-clean .srow { min-height: 44px; }
-  html.th-clean .navmenu { left: 20px; width: 40px; height: 40px; }
-  html.th-clean .nav-pop { left: 20px; right: 20px; }   /* левый край — как у ☰; значок пункта 4 + 8 = 12 от края — под значком ☰ 40 */
+  html.th-clean .navmenu { width: 40px; height: 40px; }
+  /* меню ☰: левый край — как у ☰ (--aside-field); значок пункта 4 + 8 = 12 от края — под значком ☰ 40 */
   html.th-clean .nav-pop .srow.nav { padding: 0 8px; }
-  html.th-clean .aside-foot { padding-left: 64px; }
+  html.th-clean .aside-foot { --menu-w: 40px; }
   html.th-clean main > .head { padding: 0 16px; }
   html.th-clean main > .banner.on { padding: 8px 16px; }
   html.th-clean main > .head .chips { display: none; }
