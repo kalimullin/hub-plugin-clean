@@ -303,6 +303,30 @@ export default function register(hub) {
       b.addEventListener("click", () => finishDialog(w));
     }
   };
+  // Code blocks: the core's copy button (.md .code-copy) is an icon only and says «Copied» in its aria-label. Here it gets a
+  // visible word for its state; CSS draws the word from data attributes (::after) over the longest word kept invisible in
+  // the same cell (::before), so «Copied» changes neither the button nor the box. The core rebuilds the button's children
+  // on every state change, so the words live in attributes and a per-button observer follows aria-label before the paint.
+  // Languages without their own words take the core's strings
+  const COPY = {
+    ru: { copy: "Копировать", copied: "Скопировано", failed: "Не вышло" },
+    en: { copy: "Copy", copied: "Copied", failed: "Failed" },
+    es: { copy: "Copiar", copied: "Copiado", failed: "Falló" },
+  };
+  const copyState = (b) => {
+    const a = b.getAttribute("aria-label");
+    b.dataset.cleanState = a === T("web.markdown.copied", "\0") ? "copied" : a === T("web.markdown.copy_failed", "\0") ? "failed" : "copy";
+  };
+  const copyWords = () => {
+    const w = COPY[String(hub.lang || "").toLowerCase().split(/[-_]/)[0]] || { copy: T("web.markdown.copy_code", "Copy"),
+      copied: T("web.markdown.copied", "Copied"), failed: T("web.markdown.copy_failed", "Failed") };
+    for (const b of document.querySelectorAll(".md .code-copy:not([data-clean-state])")) {
+      b.dataset.cleanCopy = w.copy; b.dataset.cleanCopied = w.copied; b.dataset.cleanFailed = w.failed;
+      b.dataset.cleanWide = [w.copy, w.copied, w.failed].reduce((x, y) => (y.length > x.length ? y : x));
+      copyState(b);
+      new MutationObserver(() => copyState(b)).observe(b, { attributes: true, attributeFilter: ["aria-label"] });
+    }
+  };
   // Сводка направления на «Доске»: ядро кладёт её в шапку (.head-meta > .dir-recap), CSS прячет — шапка не растёт; здесь она же
   // встаёт первой строкой тела доски и листается с ней. Копия, не перенос: ядро перерисовывает шапку на каждом снимке;
   // кнопки копии нажимают кнопки оригинала (он остаётся в DOM скрытым)
@@ -657,7 +681,7 @@ export default function register(hub) {
   const sweep = () => {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
-    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); recBars(); actions(); queuePlate(); headFold(); finishItem();
+    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); recBars(); actions(); queuePlate(); headFold(); finishItem(); copyWords();
     boardRecap(); rowDetail(); rowFaces(); recentOrder(); keepList();
     holdView();
     fit.hook();

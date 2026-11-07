@@ -1,0 +1,139 @@
+// Code blocks (main.js copyWords + clean.css): the core's icon-only copy button gets a visible word for its state —
+// «Copy» → «Copied» / «Failed» — in ru, en, es; other hub languages take the core's strings. The words live in data
+// attributes because the core rebuilds the button's children on every state change; CSS draws them with ::after over the
+// longest word kept invisible in ::before, so the button keeps its width. Browserless: main.js loads on stub nodes.
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
+import path from "node:path";
+
+const ROOT = path.join(import.meta.dirname, "..");
+const MAIN = pathToFileURL(path.join(ROOT, "main.js")).href;
+const CSS = readFileSync(path.join(ROOT, "clean.css"), "utf8");
+
+// The core's strings (i18n/<lang>.json); es has none of its own, so the core falls back to English.
+const EN = { "web.markdown.copy_code": "Copy code", "web.markdown.copied": "Copied", "web.markdown.copy_failed": "Could not copy" };
+const CORE = {
+  en: EN,
+  ru: { "web.markdown.copy_code": "Скопировать код", "web.markdown.copied": "Скопировано", "web.markdown.copy_failed": "Не скопировалось" },
+  es: EN,
+  de: { "web.markdown.copy_code": "Code kopieren", "web.markdown.copied": "Kopiert", "web.markdown.copy_failed": "Kopieren fehlgeschlagen" },
+};
+
+const node = (tag = "div", o = {}) => ({
+  tag, dataset: {}, style: {}, children: [], attrs: {}, textContent: "",
+  classList: { contains: () => false, toggle() {}, add() {}, remove() {} },
+  querySelector: () => null, querySelectorAll: () => [], closest: () => null, matches: () => false,
+  setAttribute() {}, removeAttribute() {}, getAttribute: () => null, append() {}, remove() {}, addEventListener() {},
+  ...o,
+});
+
+async function scene({ lang, count = 2 }) {
+  const S = CORE[lang];
+  const t = (k) => S[k] ?? EN[k] ?? k;
+  const observers = [];
+  // The core's button (markdown.js copyButtons): show() sets title and aria-label for each state.
+  const button = () => {
+    const b = node("button", { attrs: {} });
+    b.getAttribute = (k) => b.attrs[k] ?? null;
+    b.show = (key) => { b.attrs["aria-label"] = t(key); for (const o of observers) if (o.target === b) o.fn([]); };
+    b.show("web.markdown.copy_code");
+    return b;
+  };
+  const buttons = Array.from({ length: count }, button);
+  const root = node("html", { classList: { contains: (c) => c === "th-clean", toggle() {}, add() {}, remove() {} } });
+  const doc = {
+    documentElement: root, body: node("body"), activeElement: null, readyState: "complete", head: node("head"),
+    querySelector: () => null, createElement: (x) => node(x), addEventListener() {}, getElementById: () => null,
+    querySelectorAll: (q) => (q === ".md .code-copy:not([data-clean-state])" ? buttons.filter((b) => !("cleanState" in b.dataset)) : []),
+  };
+  const redraws = [];
+  Object.assign(globalThis, {
+    document: doc, localStorage: { getItem: () => null, setItem() {} },
+    addEventListener: (type, fn) => { if (type === "hub-redraw") redraws.push(fn); }, removeEventListener() {},
+    requestAnimationFrame: (f) => f(), innerWidth: 1440, innerHeight: 900,
+    MutationObserver: class { constructor(fn) { this.fn = fn; } observe(target) { this.target = target; observers.push(this); } disconnect() {} },
+    ResizeObserver: class { observe() {} disconnect() {} },
+    getComputedStyle: () => ({ getPropertyValue: () => "" }), matchMedia: () => ({ matches: false, addEventListener() {} }),
+    setInterval: () => 0, CSS: { escape: (x) => x },
+  });
+  const mod = await import(MAIN + "?s=" + Math.random());
+  await mod.default({ addStyle() {}, addSlot() {}, addOptions() {}, addOrder() {}, option: () => false, el: (x) => node(x), t, snapshot: () => ({}), redraw() {}, lang });
+  const sweep = () => redraws.forEach((f) => f());
+  sweep();
+  return { buttons, observers, sweep };
+}
+
+const WANT = {
+  ru: { copy: "Копировать", copied: "Скопировано", failed: "Не вышло" },
+  en: { copy: "Copy", copied: "Copied", failed: "Failed" },
+  es: { copy: "Copiar", copied: "Copiado", failed: "Falló" },
+};
+
+for (const [lang, w] of Object.entries(WANT)) {
+  test(`${lang}: the button's words follow the core's state — ${w.copy} → ${w.copied} / ${w.failed} → ${w.copy}`, async () => {
+    const { buttons: [b] } = await scene({ lang });
+    assert.deepEqual([b.dataset.cleanCopy, b.dataset.cleanCopied, b.dataset.cleanFailed], [w.copy, w.copied, w.failed]);
+    assert.equal(b.dataset.cleanState, "copy");
+    b.show("web.markdown.copied");
+    assert.equal(b.dataset.cleanState, "copied");
+    b.show("web.markdown.copy_code");
+    assert.equal(b.dataset.cleanState, "copy");
+    b.show("web.markdown.copy_failed");
+    assert.equal(b.dataset.cleanState, "failed");
+  });
+
+  test(`${lang}: the invisible width keeper holds the longest of the three words`, async () => {
+    const { buttons: [b] } = await scene({ lang });
+    const longest = Math.max(...Object.values(w).map((x) => x.length));
+    assert.equal(b.dataset.cleanWide.length, longest);
+  });
+}
+
+test("hub language de: the core's own strings are the words", async () => {
+  const { buttons: [b] } = await scene({ lang: "de" });
+  assert.deepEqual([b.dataset.cleanCopy, b.dataset.cleanCopied, b.dataset.cleanFailed], ["Code kopieren", "Kopiert", "Kopieren fehlgeschlagen"]);
+  b.show("web.markdown.copied");
+  assert.equal(b.dataset.cleanState, "copied");
+});
+
+test("repeated sweeps keep one observer per button", async () => {
+  const s = await scene({ lang: "en" });
+  s.sweep(); s.sweep();
+  assert.equal(s.observers.filter((o) => s.buttons.includes(o.target)).length, s.buttons.length);
+});
+
+// CSS: the rules that make the box, the scroll and the steady width.
+const rule = (sel) => {
+  const i = CSS.indexOf(sel + " {");
+  assert.ok(i >= 0, `no rule for ${sel}`);
+  return CSS.slice(i, CSS.indexOf("}", i));
+};
+
+test("code scrolls sideways instead of wrapping", () => {
+  const r = rule("html.th-clean .md .code-box > pre");
+  assert.match(r, /white-space: pre;/);
+  assert.match(r, /overflow-x: auto/);
+});
+
+test("the button is always visible and sits in its own row above the code", () => {
+  const r = rule("html.th-clean .md .code-copy[data-clean-state]");
+  assert.match(r, /opacity: 1/);
+  assert.match(r, /position: static/);
+  assert.match(r, /grid-row: 1/);
+});
+
+test("the shown word and the width keeper share one grid cell; the keeper is invisible", () => {
+  assert.match(CSS, /\.code-copy\[data-clean-state\]::before, html\.th-clean \.md \.code-copy\[data-clean-state\]::after \{ grid-area: 1 \/ 2; \}/);
+  assert.match(rule("html.th-clean .md .code-copy[data-clean-state]::before"), /content: attr\(data-clean-wide\); visibility: hidden/);
+  for (const s of ["copy", "copied", "failed"]) {
+    assert.match(CSS, new RegExp(`data-clean-state="${s}"\\]::after \\{ content: attr\\(data-clean-${s}\\); \\}`));
+  }
+});
+
+test("on touch the button is 44 tall", () => {
+  const m = CSS.match(/@media \(hover: none\), \(max-width: 760px\) \{\s*html\.th-clean \.md \.code-copy\[data-clean-state\] \{([^}]*)\}/);
+  assert.ok(m, "no touch rule");
+  assert.match(m[1], /height: 44px/);
+});

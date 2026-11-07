@@ -1099,6 +1099,24 @@ html.th-clean .md .code-copy { width: 24px; height: 24px; border: 0; border-radi
 @media (hover: hover) and (pointer: fine) {
   html.th-clean .md .code-copy:hover { color: var(--c-t1); background-image: linear-gradient(var(--c-fill), var(--c-fill)); }
 }
+/* code block: a quiet row on top with «Copy» — icon and word, always visible (the core shows its button on hover only); code
+   scrolls sideways instead of wrapping. The word comes from data attributes (main.js copyWords): ::after shows the state's word,
+   ::before keeps the longest one invisible in the same cell — «Copied» changes neither the button nor the box */
+html.th-clean .md .code-box { display: grid; grid-template-columns: minmax(0, 1fr) auto; border-radius: 12px; background: var(--muted); }
+html.th-clean .md .code-box > pre { grid-row: 2; grid-column: 1 / -1; min-width: 0; white-space: pre; overflow-wrap: normal; overflow-x: auto; padding: 0 12px 10px; background: none; border-radius: 0 0 12px 12px; }
+html.th-clean .md .code-copy[data-clean-state] { position: static; grid-row: 1; grid-column: 2; display: inline-grid; grid-template-columns: 16px auto;
+  align-items: center; column-gap: 6px; width: auto; height: 28px; margin: 2px 2px 2px 0; padding: 0 10px 0 8px; opacity: 1; background: none;
+  color: var(--c-t1); font: 400 12px/16px var(--font); white-space: nowrap; }
+html.th-clean .md .code-copy[data-clean-state] > .icon { grid-area: 1 / 1; width: 16px; height: 16px; }
+html.th-clean .md .code-copy[data-clean-state]::before, html.th-clean .md .code-copy[data-clean-state]::after { grid-area: 1 / 2; }
+html.th-clean .md .code-copy[data-clean-state]::before { content: attr(data-clean-wide); visibility: hidden; }
+html.th-clean .md .code-copy[data-clean-state="copy"]::after { content: attr(data-clean-copy); }
+html.th-clean .md .code-copy[data-clean-state="copied"]::after { content: attr(data-clean-copied); }
+html.th-clean .md .code-copy[data-clean-state="failed"]::after { content: attr(data-clean-failed); }
+/* on touch the tap target is 44 tall: the extra goes into negative margins, the row above the code stays 32 */
+@media (hover: none), (max-width: 760px) {
+  html.th-clean .md .code-copy[data-clean-state] { height: 44px; margin-block: -6px; }
+}
 
 html.th-clean .btn.primary, html.th-clean .btn.solid { background: var(--foreground); color: var(--background); border-color: transparent; }
 /* карточки ожидания (вопрос, разрешение, подключение): граница — внутренняя линия 1px поверх содержимого (::after), а не
