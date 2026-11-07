@@ -303,11 +303,12 @@ export default function register(hub) {
       b.addEventListener("click", () => finishDialog(w));
     }
   };
-  // Code blocks: the core's copy button (.md .code-copy) is an icon only and says «Copied» in its aria-label. Here it gets a
-  // visible word for its state; CSS draws the word from data attributes (::after) over the longest word kept invisible in
-  // the same cell (::before), so «Copied» changes neither the button nor the box. The core rebuilds the button's children
-  // on every state change, so the words live in attributes and a per-button observer follows aria-label before the paint.
-  // Languages without their own words take the core's strings
+  // Code blocks: the core's copy button in a block box (.md .code-box > .code-copy) is an icon only. Here it gets a visible
+  // word for its state; CSS draws the word from data attributes (::after) over the longest word kept invisible in the same
+  // cell (::before), so «Copied» changes neither the button nor the box. The state is the core's data-state when it has
+  // one; older cores say it only in aria-label and rebuild the button's children on every change, so there a per-button
+  // observer copies it into data-clean-state before the paint. Inline code to copy (.code-box.code-inline) is left as the
+  // core draws it. Languages without their own words take the core's strings
   const COPY = {
     ru: { copy: "Копировать", copied: "Скопировано", failed: "Не вышло" },
     en: { copy: "Copy", copied: "Copied", failed: "Failed" },
@@ -320,9 +321,10 @@ export default function register(hub) {
   const copyWords = () => {
     const w = COPY[String(hub.lang || "").toLowerCase().split(/[-_]/)[0]] || { copy: T("web.markdown.copy_code", "Copy"),
       copied: T("web.markdown.copied", "Copied"), failed: T("web.markdown.copy_failed", "Failed") };
-    for (const b of document.querySelectorAll(".md .code-copy:not([data-clean-state])")) {
+    for (const b of document.querySelectorAll(".md .code-box:not(.code-inline) > .code-copy:not([data-clean-copy])")) {
       b.dataset.cleanCopy = w.copy; b.dataset.cleanCopied = w.copied; b.dataset.cleanFailed = w.failed;
       b.dataset.cleanWide = [w.copy, w.copied, w.failed].reduce((x, y) => (y.length > x.length ? y : x));
+      if ("state" in b.dataset) continue;
       copyState(b);
       new MutationObserver(() => copyState(b)).observe(b, { attributes: true, attributeFilter: ["aria-label"] });
     }
