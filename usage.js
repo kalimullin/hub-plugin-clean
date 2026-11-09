@@ -1,6 +1,7 @@
 // Usage block at the bottom of the sidebar (place sidebar.footer), as in the native app (hub-ios LimitsBlock):
 // bars of the "5 hours" and "week" windows with an even-pace mark, the percent on hover or tap, a compact / expanded switch,
 // the account e-mail with a check when it is the active one, and a clock with a hint when the reading is old.
+// Bar colour: not working or 95%+ — red, 80–95% — orange, below 80% — grey, or yellow in economy (economy never covers red or orange).
 // Everything comes from the core snapshot: limits, account, accounts, accounts_live, economy. This file holds the pure part
 // (data and words) — main.js draws it; tests/usage-bars.test.mjs runs it without a browser.
 
@@ -120,9 +121,9 @@ export function usageModel(snap, { now, lang = "ru", linkDown = false, sinceSnap
     const lapsed = typeof resets === "number" && resets <= now;
     const pct = Math.round(clamp(used) * 100);
     const even = typeof resets === "number" && !lapsed ? clamp(1 - (resets - now) / SPAN[id]) : null;
-    // colour as LimitsBlock.tone: not working — red even in economy; economy — yellow (no red/orange "running out" in it),
-    // else 95%+ — red, 80–95% — orange, the rest — grey
-    const tone = lapsed ? "ok" : broken ? "high" : eco ? "eco" : pct >= 95 ? "high" : pct >= 80 ? "warn" : "ok";
+    // colour, red first: not working or 95%+ — red, 80–95% — orange, the rest — grey; economy turns only that grey yellow
+    // and never covers red or orange. A window whose reset has passed has no colour.
+    const tone = lapsed ? "ok" : broken || pct >= 95 ? "high" : pct >= 80 ? "warn" : eco ? "eco" : "ok";
     const reset = lapsed ? "" : typeof resets === "number" ? `${words.resets} ${left(resets, now, lang)}` : "";
     const spoken = lapsed ? `${words[id]}, ${words.lapsed}` : `${words[id]} ${pct}%${reset ? `, ${reset}` : ""}`;
     return { id, name: words[id], pct, used: clamp(used), even, lapsed, tone, reset, spoken };

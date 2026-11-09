@@ -24,14 +24,25 @@ const snap = ({ five = 0.4, week = 0.5, status = "allowed", eco = false, ts = NO
 });
 const tones = (m) => m.windows.map((w) => w.tone);
 
-test("colour: grey below 80%, orange 80–95%, red from 95%, yellow in economy, red when not working — even in economy", () => {
+test("colour: grey below 80%, orange 80–95%, red from 95% and when not working", () => {
   assert.deepEqual(tones(usageModel(snap({ five: 0.4, week: 0.79 }), { now: NOW })), ["ok", "ok"]);
   assert.deepEqual(tones(usageModel(snap({ five: 0.8, week: 0.944 }), { now: NOW })), ["warn", "warn"]);
   assert.deepEqual(tones(usageModel(snap({ five: 0.95, week: 1 }), { now: NOW })), ["high", "high"]);
-  assert.deepEqual(tones(usageModel(snap({ five: 0.97, week: 0.2, eco: true }), { now: NOW })), ["eco", "eco"]);
+  assert.deepEqual(tones(usageModel(snap({ five: 0.1, status: "rejected" }), { now: NOW })), ["high", "high"]);
+});
+
+test("colour in economy: red and orange stay, yellow only instead of grey", () => {
+  assert.deepEqual(tones(usageModel(snap({ five: 0.97, week: 0.99, eco: true }), { now: NOW })), ["high", "high"], "97–99% in economy — red");
+  assert.deepEqual(tones(usageModel(snap({ five: 0.95, week: 0.98, eco: true }), { now: NOW })), ["high", "high"], "95% in economy — red");
+  assert.deepEqual(tones(usageModel(snap({ five: 0.85, week: 0.8, eco: true }), { now: NOW })), ["warn", "warn"], "80–95% in economy — orange");
+  assert.deepEqual(tones(usageModel(snap({ five: 0.4, week: 0.79, eco: true }), { now: NOW })), ["eco", "eco"], "below 80% in economy — yellow");
+  assert.deepEqual(tones(usageModel(snap({ five: 0.4, week: 0.2 }), { now: NOW })), ["ok", "ok"], "below 80% without economy — grey");
   const broken = usageModel(snap({ five: 0.1, week: 0.2, status: "rejected", eco: true }), { now: NOW });
   assert.equal(broken.broken, true);
-  assert.deepEqual(tones(broken), ["high", "high"]);
+  assert.deepEqual(tones(broken), ["high", "high"], "not working in economy — red");
+  const s = snap({ five: 0.99, eco: true });
+  s.limits.windows.five_hour.resets = NOW - 10;
+  assert.equal(usageModel(s, { now: NOW }).windows[0].tone, "ok", "a window whose reset has passed — no colour, even in economy");
 });
 
 test("colour: a not-working account keeps a full-strength red bar even when the reading is old, as in the native app", () => {
