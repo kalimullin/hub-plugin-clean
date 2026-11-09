@@ -262,6 +262,15 @@ html.th-clean :is(.srow > .glyph:is([data-s="busy"], [data-s="starting"]), .row.
   html.th-clean :is(.srow > .glyph:is([data-s="busy"], [data-s="starting"]), .row.working > .g.spin)::before,
   html.th-clean :is(.srow > .glyph:is([data-s="busy"], [data-s="starting"]), .row.working > .g.spin)::after { animation: none; }
 }
+/* пауза по лимиту (main.js pauseMarks) — две планки 3×10 в боксе 16, как натив PauseMark: главнее любого статуса ядра,
+   точка «новое» уходит. Цвет — текст строки: цвета моделей в теме нет. #list — чтобы перебить правила «работает» и «спит» */
+html.th-clean #list .srow[data-clean-pause] > .glyph { display: flex; align-items: center; justify-content: center; gap: 3px; position: static;
+  width: 16px; height: 16px; margin: 0; padding: 0; border-radius: 0; background: none; animation: none; color: var(--c-t1); }
+html.th-clean #list .srow[data-clean-pause] > .glyph::before,
+html.th-clean #list .srow[data-clean-pause] > .glyph::after { content: ""; position: static; width: 3px; height: 10px; border-radius: 1.5px;
+  background: currentColor; opacity: 1; animation: none; -webkit-mask: none; mask: none; }
+html.th-clean #list .srow[data-clean-pause] > .dot { display: none; }
+html.th-clean #list li.has-forks:has(> .srow[data-clean-pause]) > .fork-toggle { right: 36px; }
 /* «ждёт вас» — красный бейдж DS 16 r4 числом вопросов (data-n ставит main.js; слова остаются для чтения с экрана) */
 html.th-clean :is(.srow .tag:not(.soft), main > .btn.jumpnew .n) { height: 16px; min-width: 16px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
   padding: 0 4px; align-self: center; margin-top: 0; border-radius: 4px; color: #fff; font: 500 12px/16px var(--font); }
@@ -297,12 +306,12 @@ html.th-clean.th-clean-detail #list .srow[data-clean-d] { position: relative; mi
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] { min-height: 56px; padding-top: 8px; padding-bottom: 8px; }
 /* место под время — полем снаружи имени: у padding многоточие не рисуется, текст ушёл бы под цифры */
 html.th-clean.th-clean-detail #list .srow[data-clean-d] .nm { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: var(--clean-ago-w, 0px); }
-html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two]:has(> :is(.dot, .tag:not(.soft), .glyph:not([data-s="idle"], [data-s="dialog"]))) .nm { margin-right: max(0px, calc(var(--clean-ago-w, 0px) - 28px)); }
+html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two]:is(:has(> :is(.dot, .tag:not(.soft), .glyph:not([data-s="idle"], [data-s="dialog"]))), [data-clean-pause]) .nm { margin-right: max(0px, calc(var(--clean-ago-w, 0px) - 28px)); }
 html.th-clean.th-clean-detail:not(.th-clean-av) #list .sgroup.bare .srow[data-clean-d] .nm > .avatar { float: left; margin: -2px 8px 0 0; }   /* картинка 24 слева от имени (она показана только в группе «Хаб»); flex не даёт имени многоточия */
 html.th-clean.th-clean-detail #list .srow[data-clean-d]::before { content: attr(data-clean-ago); position: absolute; top: 12px; right: 8px; font: 400 12px/16px var(--font); color: var(--c-t2); white-space: nowrap; }
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two]::before { top: 10px; }
 /* одна строка (нет проекта): статус рядом с именем по центру, время — левее него, а не поверх */
-html.th-clean.th-clean-detail #list .srow[data-clean-d]:not([data-clean-two]):has(> :is(.dot, .tag:not(.soft), .glyph:not([data-s="idle"], [data-s="dialog"])))::before { right: 36px; }
+html.th-clean.th-clean-detail #list .srow[data-clean-d]:not([data-clean-two]):is(:has(> :is(.dot, .tag:not(.soft), .glyph:not([data-s="idle"], [data-s="dialog"]))), [data-clean-pause])::before { right: 36px; }
 html.th-clean.th-clean-detail:not(.th-clean-av) #list .sgroup.bare .srow[data-clean-d][data-clean-two]:has(.nm > .avatar)::before { top: 12px; }   /* первая строка с картинкой 24 выше на 4 */
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > .txt { align-self: center; }
 html.th-clean.th-clean-detail #list .srow[data-clean-d] .nm { font-weight: 400; }   /* в подробном имя всегда Regular: «активна» читается по статусу и времени справа, а не по жирности */
@@ -392,6 +401,9 @@ html.th-clean main > .head .pill { color: var(--c-t2); background: var(--c-fill)
 html.th-clean main > .head .pill:is([data-s="idle"], .idle, .free) { color: var(--c-free); background: var(--c-free-bg); }
 html.th-clean main > .head .pill:is([data-s="busy"], [data-s="starting"]) { color: var(--c-busy); background: var(--c-busy-bg); }
 html.th-clean main > .head .pill:is([data-s="dialog"], [data-s="failed"]) { color: #fff; background: var(--c-alert); }
+/* на паузе по лимиту — срок «Продолжит в 03:00» вместо «свободна» (main.js pauseMarks), Neutral Subtle: это не «свободна» и не «работает» */
+html.th-clean main > .head .pill[data-clean-pause] { font-size: 0; color: var(--c-t1); background: var(--c-fill); }
+html.th-clean main > .head .pill[data-clean-pause]::after { content: attr(data-clean-pause); font: 500 12px/16px var(--font); }
 html.th-clean main > .head .chip { background: var(--c-fill); box-shadow: none; color: var(--c-t1); }
 @media (hover: hover) and (pointer: fine) {
   html.th-clean main > .head .chip:hover { background: var(--c-badge); }

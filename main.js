@@ -26,9 +26,12 @@
 // - «Подробный» список сессий (настройка в «Настройки → Вид», по умолчанию выключена): во второй строке начало последнего
 //   сообщения сессии (как превью в мессенджере), справа — время последней активности; строка открытой сессии — карточкой (rowDetail);
 // - bottom row of the composer card (+, status chips, plugin buttons, camera, mic, send): room is shared by the measured
-//   width and nothing overlaps (fit.js).
+//   width and nothing overlaps (fit.js);
+// - пауза по лимиту (сессия ждёт сброса окна своего провайдера, ядро продолжит само): в строке — две планки вместо статуса,
+//   срок «Продолжит в 03:00» — в подсказке, во второй строке подробного списка и на плашке шапки (pauseMarks, pause.js).
 import { mountFit } from "./fit.js";
 import { AGO, byRecent, detailOf, sessionFor } from "./rows.js";
+import { holdOf, modelLabel, pauseText, pauseTip } from "./pause.js";
 
 const MINE = /(^|:)clean:clean(-dark)?\.json$/;
 const OWNER = new Set(["владелец", "owner"]);   // как называет владельца ядро в событиях (core/reducer.py)
@@ -68,7 +71,7 @@ export default function register(hub) {
     if (!on()) return;
     for (const r of document.querySelectorAll("#list .srow")) {
       const nm = r.querySelector(".nm"), lb = r.querySelector(".lb")?.textContent?.trim();
-      const t = [nm?.title || nm?.textContent?.trim(), lb, r.dataset.cleanTip].filter(Boolean).join("\n");
+      const t = [nm?.title || nm?.textContent?.trim(), r.dataset.cleanPauseTip || lb, r.dataset.cleanTip].filter(Boolean).join("\n");
       if (t && r.title !== t) r.title = t;
     }
   };
@@ -508,10 +511,10 @@ export default function register(hub) {
     for (const r of rows) {
       const d = detailOf(rowSession(r, list, firstRow), now, WORDS);
       if (!d) { if (r.dataset.cleanD) clearDetail(r); continue; }
-      const txt = r.querySelector(":scope > .txt");
-      put(r, "cleanD", "1"); put(r, "cleanTip", d.cwd); put(r, "cleanAgo", d.ago); put(r, "cleanTwo", d.prev || r.parentElement?.classList.contains("has-forks") ? "1" : "");   // исполнители: «N ›» живёт внизу справа, поэтому и без превью строка двухэтажная
+      const txt = r.querySelector(":scope > .txt"), prev = r.dataset.cleanPause || d.prev;   // на паузе — срок вместо превью
+      put(r, "cleanD", "1"); put(r, "cleanTip", d.cwd); put(r, "cleanAgo", d.ago); put(r, "cleanTwo", prev || r.parentElement?.classList.contains("has-forks") ? "1" : "");   // исполнители: «N ›» живёт внизу справа, поэтому и без превью строка двухэтажная
       r.style.setProperty("--clean-ago-w", `${d.ago.length * 7 + 8}px`);
-      if (txt) put(txt, "cleanPrev", d.prev);
+      if (txt) put(txt, "cleanPrev", prev);
     }
   };
   const clearDetail = (r) => {
@@ -519,6 +522,37 @@ export default function register(hub) {
     r.style.removeProperty("--clean-ago-w");
     const txt = r.querySelector(":scope > .txt");
     if (txt) delete txt.dataset.cleanPrev;
+  };
+  // Пауза по лимиту (pause.js): строке — data-clean-pause со сроком (знак рисует clean.css: две планки вместо статуса) и
+  // подсказка «Opus 5.5 High · пауза: окно лимита кончилось, Продолжит в 03:00» вместо подписи ядра; плашке шапки открытой
+  // сессии — срок вместо «свободна». Узлов не прибавляется. Кнопки «Продолжить» нет: у ядра пока нет ручки, которая
+  // продолжает оборванный ход (перезапуск процесса этого не делает), — ядро продолжит само после сброса окна.
+  const pauseMarks = () => {
+    const snap = hub.snapshot?.() || {}, list = snap.sessions || [], now = Date.now() / 1000, lang = hub.lang || (RU ? "ru" : "en");
+    const firstRow = document.querySelector("#list .sgroup.bare .srow");
+    const mark = (s) => { const h = holdOf(snap, s, now); return h && { text: pauseText(lang, h.until, now), tip: pauseTip(lang, modelLabel(snap, s), h.until, now) }; };
+    for (const r of document.querySelectorAll("#list .srow:not(.nav, .queued)")) {
+      const p = mark(rowSession(r, list, firstRow));
+      put(r, "cleanPause", p?.text); put(r, "cleanPauseTip", p?.tip);
+      if (p) { if (r.getAttribute("aria-description") !== p.tip) r.setAttribute("aria-description", p.tip); }
+      else r.removeAttribute("aria-description");
+    }
+    const head = document.querySelector("main > .head"), pill = head?.querySelector(":scope > .pill");
+    if (!pill) return;
+    const name = head.querySelector("h2")?.title;
+    const p = name ? mark(list.find((x) => x.name === name)) : null;
+    if (p) {
+      put(pill, "cleanPause", p.text);
+      if (pill.title !== p.tip) pill.title = p.tip;
+      if (pill.getAttribute("aria-label") !== p.tip) pill.setAttribute("aria-label", p.tip);
+    } else if (pill.dataset.cleanPause) unPausePill(pill);
+  };
+  const unPausePill = (pill) => { delete pill.dataset.cleanPause; pill.removeAttribute("title"); pill.removeAttribute("aria-label"); };
+  const unPause = () => {
+    for (const r of document.querySelectorAll("#list .srow[data-clean-pause], #list .srow[data-clean-pause-tip]")) {
+      delete r.dataset.cleanPause; delete r.dataset.cleanPauseTip; r.removeAttribute("aria-description");
+    }
+    for (const p of document.querySelectorAll("main > .head .pill[data-clean-pause]")) unPausePill(p);
   };
   // «Аватарки у чатов» (настройка «Вид», по умолчанию включена): тип строки — data-clean-k (agent / exec / other / dir / hub), картинка —
   // --clean-face, рисует clean.css. Специалист и исполнитель — лицо из набора темы: свой значок сессии, иначе значок того, кто её
@@ -653,10 +687,10 @@ export default function register(hub) {
   };
   detailClass();
   addEventListener("hub-redraw", () => { detailClass(); sweep(); });
-  setInterval(() => { if (on()) rowDetail(); }, 20000);   // минуты идут и без перерисовки ядра
+  setInterval(() => { if (on()) { pauseMarks(); rowTitles(); rowDetail(); } }, 20000);   // минуты идут и без перерисовки ядра; срок паузы проходит
   const sweep = () => {
     if (!on()) return;
-    tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
+    tagBylines(document); splitTabs(); pauseMarks(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
     avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); recBars(); actions(); queuePlate(); headFold(); finishItem();
     boardRecap(); rowDetail(); rowFaces(); recentOrder(); keepList();
     holdView();
@@ -824,7 +858,7 @@ export default function register(hub) {
       for (const b of document.querySelectorAll(".byline[data-clean]")) delete b.dataset.clean;
       if (!on()) {
         for (const b of document.querySelectorAll(".lightbox.clean-tall")) b.classList.remove("clean-tall");
-        unmaskIcons(); unAvatars(); fade(); feedEnd(); unPlaceholders(); unPlate(); fit.reset();
+        unmaskIcons(); unAvatars(); fade(); feedEnd(); unPlaceholders(); unPlate(); unPause(); fit.reset();
         for (const h of document.querySelectorAll(".chat-head[data-clean-label]")) { h.removeAttribute("aria-label"); h.removeAttribute("title"); delete h.dataset.cleanLabel; }
 
         for (const x of document.querySelectorAll(".search-row .clean-x, .clean-bg, .clean-fold, .clean-fold-show, .clean-bars, .ce-n, .clean-recap")) x.remove();

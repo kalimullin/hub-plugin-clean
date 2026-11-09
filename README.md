@@ -70,6 +70,14 @@ move with it. The time is the later of `since` (the turn the owner started, the 
 (a row would spring back); use the row menu → Move to… for another group. The “Now” tab keeps its own order by state. Off — the
 hub's order.
 
+## Paused by limit
+
+A session that hit its provider's limit window waits for the reset, and the core resumes it by itself. Clean shows that like
+the native apps: two bars instead of the row's status, “Resumes at 03:00” (tomorrow, a weekday or a date when later) in the
+second line of the detailed list and on the status pill of the open chat, and the model with the reason in the tooltip. The
+data is the core's `session.quota_hold` feature and the `sessions_extra` record of the quota-hold module; without them nothing
+changes. There is no “Resume” item yet: the core has no endpoint that resumes the cut turn now.
+
 ## Keys while recording a voice message
 
 Only while Clean is the active theme and a recording is running:
