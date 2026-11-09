@@ -72,6 +72,13 @@ test("a window whose reset has passed: no fill colour, no mark, its own words", 
   assert.match(w.spoken, /лимит сброшен/);
 });
 
+test("a fresh reading stays fresh when the link drops or the hub is quiet, as in the native app", () => {
+  // the stream sends a snapshot only on a hub event: 15 quiet minutes or a reconnect blip are not an old reading
+  assert.equal(usageModel(snap(), { now: NOW, linkDown: true }).stale, null, "link down, reading 1 min old — no clock");
+  assert.equal(usageModel(snap(), { now: NOW, sinceSnap: 20 * 60 }).stale, null, "no hub event for 20 min — no clock");
+  assert.equal(usageModel(snap({ ts: NOW - 50 * 60 }), { now: NOW, sinceSnap: 20 * 60 }).stale, null, "50 min old reading — still fresh");
+});
+
 test("a fresher accounts_live reading wins over limits", () => {
   const live = { work: { five_hour: { used: 0.9, reset: NOW + 3600 }, seven_day: { used: 0.1, reset: NOW + 86400 }, measured_at: NOW - 5, stale: false } };
   const m = usageModel(snap({ five: 0.2, ts: NOW - 100, live }), { now: NOW });
@@ -84,8 +91,10 @@ test("old reading: a clock hint with the time and the reason; the link to the hu
   const hourOld = usageModel(snap({ ts: NOW - 2 * 3600 }), { now: NOW });
   assert.equal(hourOld.stale.why, "rest");
   assert.match(hourOld.stale.text, /^Замер от /);
-  assert.equal(usageModel(snap(), { now: NOW, linkDown: true }).stale.why, "link");
-  assert.equal(usageModel(snap(), { now: NOW, sinceSnap: null }).stale.why, "cache");
+  const stale = snap({ ts: NOW - 2 * 3600 });
+  assert.equal(usageModel(stale, { now: NOW, linkDown: true }).stale.why, "link");
+  assert.equal(usageModel(stale, { now: NOW, sinceSnap: 16 * 60 }).stale.why, "link");
+  assert.equal(usageModel(stale, { now: NOW, sinceSnap: null }).stale.why, "cache");
   const auth = { work: { five_hour: { used: 0.3, reset: NOW + 3600 }, seven_day: null, measured_at: NOW - 30, stale: true, error: "auth" } };
   assert.equal(usageModel(snap({ live: auth }), { now: NOW }).stale.why, "auth");
   const net = { work: { five_hour: { used: 0.3, reset: NOW + 3600 }, seven_day: null, measured_at: NOW - 30, stale: true, error: "timeout" } };

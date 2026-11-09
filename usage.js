@@ -114,7 +114,10 @@ export function usageModel(snap, { now, lang = "ru", linkDown = false, sinceSnap
   const words = WORDS[lang];
   const broken = limits.status === "rejected", eco = !!snap?.economy?.on;
   const measured = fresh ? live.measured_at : limits.ts || null;
-  const old = !!(fresh && live.stale) || (measured != null && now - measured > HOUR) || !!linkDown || sinceSnap == null || sinceSnap > LINK;
+  // old = the reading itself is old (marked stale, or over an hour) — as PublicFeed.UsageAge.note in the native app; no link
+  // or no snapshot for a while only explains why (ageWhy), it does not make a fresh reading old: the stream sends a
+  // snapshot only on a hub event, so a quiet hub or a reconnect blip must not pale the bars and claim the link is down
+  const old = !!(fresh && live.stale) || (measured != null && now - measured > HOUR);
   const active = !acc.active || current === acc.active;
   const windows = ids.map((id) => {
     const { used, resets } = src[id];
