@@ -53,6 +53,24 @@ test("colour: a not-working account keeps a full-strength red bar even when the 
   assert.ok(m.stale && m.broken);
 });
 
+test("not working, as UsageState.of in the native app: an old reading whose last probe failed on auth or a missing token", () => {
+  const probe = (error, extra = {}) => ({ work: { five_hour: { used: 0.3, reset: NOW + 3600 }, seven_day: { used: 0.4, reset: NOW + 86400 }, measured_at: NOW - 2 * 3600, stale: true, error, ...extra } });
+  for (const error of ["auth", "no_token"]) {
+    const old = usageModel(snap({ five: 0.2, week: 0.3, ts: NOW - 2 * 3600, live: probe(error) }), { now: NOW });
+    assert.ok(old.stale, `${error}: the reading is old`);
+    assert.equal(old.broken, true, `${error}: old reading with a failed probe — not working`);
+    assert.deepEqual(tones(old), ["high", "high"], `${error}: red`);
+    // the error is read even when limits are fresher than the probe and win (miss in PublicFeed+Accounts)
+    const won = usageModel(snap({ five: 0.2, ts: NOW - 90 * 60, live: probe(error, { measured_at: NOW - 3 * 3600 }) }), { now: NOW });
+    assert.equal(won.broken, true, `${error}: limits win, still not working`);
+  }
+  const fresh = usageModel(snap({ five: 0.2, live: probe("auth", { measured_at: NOW - 30, stale: false }) }), { now: NOW });
+  assert.equal(fresh.broken, false, "a fresh reading is never broken by the probe error");
+  const net = usageModel(snap({ five: 0.2, ts: NOW - 2 * 3600, live: probe("net") }), { now: NOW });
+  assert.equal(net.broken, false, "a network error is only a reason in the hint, not «not working»");
+  assert.deepEqual(tones(net), ["ok", "ok"]);
+});
+
 test("percent and even-pace mark: the mark is how much of the window has passed", () => {
   const m = usageModel(snap({ five: 0.834 }), { now: NOW });
   const five = m.windows.find((w) => w.id === "five_hour"), week = m.windows.find((w) => w.id === "seven_day");
