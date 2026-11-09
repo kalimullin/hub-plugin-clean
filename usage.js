@@ -137,7 +137,8 @@ export function usageModel(snap, { now, lang = "ru", linkDown = false, sinceSnap
   });
   const pool = Array.isArray(accounts.pool) ? accounts.pool : [];
   const mail = pool.find((p) => p?.name === current)?.email;
-  const email = accounts.on && pool.length > 1 && goodMail(mail) ? mail : "";
+  const several = !!accounts.on && pool.length > 1;
+  const email = several && goodMail(mail) ? mail : "";
   let stale = null;
   if (old) {
     const why = ageWhy(fresh ? live : null, active, linkDown, sinceSnap);
@@ -148,8 +149,10 @@ export function usageModel(snap, { now, lang = "ru", linkDown = false, sinceSnap
     lines.push(words[why].replace("%@", lastSnap || time));
     stale = { why, text: lines.join("\n") };
   }
+  const title = email || accountTitle(current, lang);
+  // the account line of the expanded view: the e-mail, or the account name when the pool gives no e-mail
   return {
-    account: current, title: email || accountTitle(current, lang), email, active: !!acc.active && current === acc.active,
+    account: current, title, email, line: several ? title : "", active: !!acc.active && current === acc.active,
     broken, eco, windows, stale, words, pool: !!accounts.on,
   };
 }

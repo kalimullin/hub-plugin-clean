@@ -846,15 +846,15 @@ export default function register(hub) {
   // the account line of the expanded view: its own row under the windows, as wide as they are — next to the menu
   // button and the switch an e-mail had under 100 px and was cut inside the domain
   const usageAcc = (m) => {
-    // accounts are on: the e-mail opens the accounts settings (usage of every account), as the old line did
+    // accounts are on: the e-mail (or the account name without one) opens the accounts settings (usage of every account), as the old line did
     const link = m.pool;
     const acc = hub.el(link ? "button" : "span", "cu-acc");
     if (link) { acc.type = "button"; acc.addEventListener("click", () => hub.openSettings?.("accounts")); }
-    const shown = hub.el("span", "cu-mail", m.email);
+    const shown = hub.el("span", "cu-mail", m.line);
     shown.setAttribute("aria-hidden", "true");
-    shown.title = m.email;
-    acc.append(shown, hub.el("span", "cu-sr", m.email));
-    fitMail(shown, emailSteps(m.email));
+    shown.title = m.line;
+    acc.append(shown, hub.el("span", "cu-sr", m.line));
+    fitMail(shown, m.email ? emailSteps(m.email) : [m.line]);
     if (m.active) {
       const ok = hub.el("span", "cu-active");
       ok.setAttribute("role", "img");
@@ -928,7 +928,7 @@ export default function register(hub) {
     const box = hub.el("div", `clean-usage${open ? " open" : ""}`);
     if (m.broken) box.dataset.state = "broken";
     if (open) box.append(usageRows(m));
-    if (open && m.email) box.append(usageAcc(m));
+    if (open && m.line) box.append(usageAcc(m));
     box.append(usageFoot(m, open));
     const focused = root.contains(document.activeElement) ? [...root.querySelectorAll("button")].indexOf(document.activeElement) : -1;
     usage.drawing = true;

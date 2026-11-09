@@ -133,6 +133,23 @@ test("the account line: the e-mail only with a pool of 2+ accounts, ✓ when it 
   assert.equal(accountTitle("", "en"), WORDS.en.machine);
 });
 
+test("the account line without an e-mail: the account name, the same link to the accounts settings", () => {
+  const pool = [{ name: "icons8-claude" }, { name: "token-vph" }];
+  const m = usageModel(snap({ pool, active: "icons8-claude" }), { now: NOW });
+  assert.equal(m.email, "");
+  assert.equal(m.line, "icons8", "no e-mail in the pool — the name, as the title");
+  assert.equal(m.pool, true, "accounts on — the line is the link");
+  const bad = usageModel(snap({ pool: [{ name: "work", email: "not a mail" }, { name: "spare" }] }), { now: NOW });
+  assert.equal(bad.line, accountTitle("work", "ru"), "a broken e-mail counts as none");
+  const mail = usageModel(snap({ pool: [{ name: "work", email: "someone@example.com" }, { name: "spare" }] }), { now: NOW });
+  assert.equal(mail.line, "someone@example.com", "the e-mail when there is one");
+  assert.equal(usageModel(snap({ pool: [pool[0]], active: "icons8-claude" }), { now: NOW }).line, "", "one account — no line, as before");
+  assert.equal(usageModel(snap(), { now: NOW }).line, "", "accounts off — no line, as before");
+  const acc = main.slice(main.indexOf("const usageAcc = "), main.indexOf("const usageFoot = "));
+  assert.match(acc, /hub\.el\("span", "cu-mail", m\.line\)/);
+  assert.match(acc, /fitMail\(shown, m\.email \? emailSteps\(m\.email\) : \[m\.line\]\)/, "a name is not cut at its dot");
+});
+
 test("e-mail steps: whole, then without the top-level zone; the middle is never cut", () => {
   assert.deepEqual(emailSteps("name@company.example.com"), ["name@company.example.com", "name@company.example"]);
   assert.deepEqual(emailSteps("name@localhost"), ["name@localhost"]);
@@ -185,7 +202,7 @@ test("old reading: each row has its own clock and only the pressed one opens its
 });
 
 test("expanded view: the account e-mail is its own line as wide as the windows; the bottom line keeps only the switch", () => {
-  assert.match(main, /if \(open && m\.email\) box\.append\(usageAcc\(m\)\);/);
+  assert.match(main, /if \(open && m\.line\) box\.append\(usageAcc\(m\)\);/);
   const foot = main.slice(main.indexOf("const usageFoot = "), main.indexOf("return foot;"));
   assert.doesNotMatch(foot, /cu-acc|cu-mail/, "the e-mail is not squeezed next to ☰ and the switch");
   assert.match(css, /\.cu-acc \{[^}]*margin: -4px 0 -4px var\(--cu-pull\)/, "the line starts under the windows, at their left edge");
