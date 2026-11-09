@@ -181,3 +181,15 @@ test("expanded view: the name stays on the left and the reset on the right; the 
   assert.doesNotMatch(rows, /cu-tip/, "no number over the bar in the expanded view");
   assert.doesNotMatch(css, /\.cu-line\.peek > :not\(\.cu-tip\) \{ visibility: hidden/);
 });
+
+test("keyboard: a redraw's own focus and blur do not redraw again, and the hide waits until the focus has moved", () => {
+  // checked in Chromium: Tab onto a bar used to redraw until "Maximum call stack size exceeded", and the next Tab dropped the
+  // focus to the page instead of the second bar
+  const peek = main.slice(main.indexOf("const wirePeek = "), main.indexOf("const usageClock = "));
+  assert.match(peek, /addEventListener\("focus", \(\) => \{ if \(!usage\.drawing && peekable && usage\.peek !== w\.id/);
+  assert.match(peek, /addEventListener\("blur", \(\) => \{ if \(!usage\.drawing\) setTimeout\(\(\) => peekHide\(w\.id\)\); \}\)/);
+  const clock = main.slice(main.indexOf("const usageClock = "), main.indexOf("const usageSwitch = "));
+  assert.match(clock, /addEventListener\("blur", \(\) => \{ if \(!usage\.drawing\) setTimeout\(\(\) => set\(false\)\); \}\)/);
+  const draw = main.slice(main.indexOf("function usageDraw("), main.indexOf("hub.addSlot(\"sidebar.footer\""));
+  assert.match(draw, /usage\.drawing = true;\s*try \{\s*root\.replaceChildren\(box\);[\s\S]*?\} finally \{ usage\.drawing = false; \}/);
+});

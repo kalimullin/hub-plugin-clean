@@ -731,7 +731,7 @@ export default function register(hub) {
     const v = localStorage.getItem(USAGE_KEY);
     return v ? v === "open" : matchMedia("(max-width: 760px)").matches;
   };
-  const usage = { root: null, snap: null, at: 0, peek: null, mark: null, tip: null, timer: 0 };
+  const usage = { root: null, snap: null, at: 0, peek: null, mark: null, tip: null, timer: 0, drawing: false };
   const usageLang = () => langOf(hub.lang || hub.locale || document.documentElement.lang);
   // caption x over a bar: the percent — over the middle of the filled part, the even-pace note — over the mark; never closer
   // to the edge than half the caption (16 / 34 px, as outlookX in the native app)
@@ -782,8 +782,11 @@ export default function register(hub) {
       if (!peekable && !nearMark(e, 10)) return;
       peekShow(w.id, nearMark(e, e.pointerType === "mouse" ? 6 : 10), 3000);
     });
-    node.addEventListener("focus", () => { if (peekable && node.matches(":focus-visible")) peekShow(w.id); });
-    node.addEventListener("blur", () => peekHide(w.id));
+    // a redraw puts the focus back on the new button: that focus (and a blur of the old one) is not the user's — without
+    // the check Tab onto a bar redrew in a loop until the stack overflowed. The hide on blur waits until the focus has moved:
+    // a redraw in the middle of Tab replaced the button the focus was going to, and it fell out of the block
+    node.addEventListener("focus", () => { if (!usage.drawing && peekable && usage.peek !== w.id && node.matches(":focus-visible")) peekShow(w.id); });
+    node.addEventListener("blur", () => { if (!usage.drawing) setTimeout(() => peekHide(w.id)); });
   };
   // clock next to an old reading: the hint says when it was measured and why it is old
   // one clock per row; usage.tip holds the id of the window whose hint is open, so only that hint shows
@@ -805,7 +808,7 @@ export default function register(hub) {
     b.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") set(true); });
     b.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") set(false); });
     b.addEventListener("keydown", (e) => { if (e.key === "Escape") set(false); });
-    b.addEventListener("blur", () => set(false));
+    b.addEventListener("blur", () => { if (!usage.drawing) setTimeout(() => set(false)); });
     return b;
   };
   const usageSwitch = (open, m) => {
@@ -928,8 +931,11 @@ export default function register(hub) {
     if (open && m.email) box.append(usageAcc(m));
     box.append(usageFoot(m, open));
     const focused = root.contains(document.activeElement) ? [...root.querySelectorAll("button")].indexOf(document.activeElement) : -1;
-    root.replaceChildren(box);
-    if (focused >= 0) root.querySelectorAll("button")[focused]?.focus({ preventScroll: true });
+    usage.drawing = true;
+    try {
+      root.replaceChildren(box);
+      if (focused >= 0) root.querySelectorAll("button")[focused]?.focus({ preventScroll: true });
+    } finally { usage.drawing = false; }
     // captions are placed after layout: over the filled part or over the mark
     for (const tip of box.querySelectorAll(".cu-tip")) {
       const host = tip.closest(".cu-bar, .cu-row"), track = host.querySelector(".cu-track");
