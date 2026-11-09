@@ -28,6 +28,7 @@ html.th-clean {
   --c-alert: light-dark(#ef4e4e, #cf3a3a);   /* красная заливка с белым текстом: в тёмной 4,9:1 */
   --c-free: light-dark(#1fb141, #4cd46a); --c-free-bg: light-dark(#e7f9eb, #173a22);
   --c-eco: light-dark(#876200, #ffd60a);   /* жёлтый «режима экономии» в блоке расхода: тёмная охра на светлом (4,5:1+), яркий жёлтый на тёмном */
+  --c-warn-bar: light-dark(#d35d00, var(--warning));   /* оранжевый 80–95 % в блоке расхода: на светлом --warning (#ec6e0e) даёт 2,7:1 к панели, этот — 3,5:1 */
   --c-busy: light-dark(#a35d1c, #f2b25a); --c-busy-bg: light-dark(#fffbea, #3a2c12);
   --c-key: 0 0 0 1px light-dark(#18181b0d, #ffffff14), 0 1px 2px light-dark(#18181b0d, #0000004d);   /* белая клавиша */
   --c-field: 0 0 2px light-dark(#18181b12, #00000066), 0 2px 4px light-dark(#18181b0a, #0000004d), 0 8px 20px light-dark(#18181b1f, #00000080);
@@ -172,7 +173,7 @@ html.th-clean .cu-peek { font-weight: 400; }
 html.th-clean .cu-track { position: relative; display: block; height: 5px; border-radius: 9999px; background: var(--c-line); }
 html.th-clean .cu-fill { position: absolute; left: 0; top: 0; bottom: 0; min-width: 5px; border-radius: inherit; background: var(--muted-foreground); }
 html.th-clean .cu-fill.old { opacity: 0.4; }
-html.th-clean [data-tone="warn"] .cu-fill { background: var(--warning); }
+html.th-clean [data-tone="warn"] .cu-fill { background: var(--c-warn-bar); }
 html.th-clean [data-tone="high"] .cu-fill { background: var(--destructive); }
 html.th-clean [data-tone="eco"] .cu-fill { background: var(--c-eco); }
 html.th-clean .cu-mark { position: absolute; top: -2.5px; bottom: -2.5px; width: 1.5px; margin-left: -0.75px; border-radius: 1px; background: var(--muted-foreground); }

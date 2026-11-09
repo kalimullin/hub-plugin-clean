@@ -128,7 +128,7 @@ test("nothing to show without windows", () => {
 });
 
 test("CSS: colours from the theme tokens, old reading paler, the mark and the hint", () => {
-  assert.match(css, /\[data-tone="warn"\] \.cu-fill \{ background: var\(--warning\)/);
+  assert.match(css, /\[data-tone="warn"\] \.cu-fill \{ background: var\(--c-warn-bar\)/);
   assert.match(css, /\[data-tone="high"\] \.cu-fill \{ background: var\(--destructive\)/);
   assert.match(css, /\[data-tone="eco"\] \.cu-fill \{ background: var\(--c-eco\)/);
   assert.match(css, /\.cu-fill\.old \{ opacity: 0\.4/);
