@@ -176,6 +176,10 @@
       "list": {
         "id": "Ah1tCJqU41Lq",
         "commonName": "list"
+      },
+      "bars": {
+        "id": "yDMbZ2iSo6qO",
+        "commonName": "equal-sign"
       }
     }
   }

@@ -228,3 +228,14 @@ test("keyboard: a redraw's own focus and blur do not redraw again, and the hide 
   const draw = main.slice(main.indexOf("function usageDraw("), main.indexOf("hub.addSlot(\"sidebar.footer\""));
   assert.match(draw, /usage\.drawing = true;\s*try \{\s*root\.replaceChildren\(box\);[\s\S]*?\} finally \{ usage\.drawing = false; \}/);
 });
+
+test("the view switch icons come from the theme's Icons8 pack, none drawn by hand", () => {
+  const icons = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, "..", "icons8.json"), "utf8")).icons;
+  for (const name of ["bars", "list"]) {
+    assert.match(css, new RegExp(`\\.cu-seg-${name}::before \\{[^}]*url\\("${name}\\.svg"\\)`));
+    assert.ok(icons.items[name]?.id, `${name}.svg is listed in icons8.json with its Icons8 id`);
+    const svg = fs.readFileSync(path.join(import.meta.dirname, "..", `${name}.svg`), "utf8");
+    assert.match(svg, /viewBox="0 0 24 24"/, `${name}.svg keeps the pack's 24 grid, as the other Forma icons`);
+  }
+  assert.equal(icons.items.bars.commonName, "equal-sign");
+});
