@@ -52,7 +52,7 @@ export function mountFit(on) {
     if (!d || !on() || !supported()) { if (d) clear(d); return; }
     const card = d.querySelector(":scope > form.composer"), status = d.querySelector(":scope > .status");
     const bar = card?.querySelector(":scope > .bar:not(.reply-bar)");
-    if (!card || !status || !bar || card.classList.contains("rec")) { clear(d); return; }
+    if (!card || !status || !bar || card.classList.contains("rec") || card.classList.contains("clean-vt-rec")) { clear(d); return; }
     for (const e of [d, card, bar, d.querySelector(":scope > .slot-host.composer")]) if (e) ro?.observe(e);
 
     const chips = {};
@@ -69,7 +69,7 @@ export function mountFit(on) {
       const sr = status.getBoundingClientRect(), cr = card.getBoundingClientRect();
       const left = shown(plus) ? plus.getBoundingClientRect().right + GAP : cr.left + 12;
       let right = cr.right - 12;
-      const occupants = [...bar.querySelectorAll(":scope > .mic, :scope > .send, :scope > .slot-composer-tools"), ...d.querySelectorAll(".vf-slot .btn")];
+      const occupants = [...bar.querySelectorAll(":scope > .mic, :scope > .send, :scope > .slot-composer-tools, :scope > .spacer > .dictate"), ...d.querySelectorAll(".vf-slot .btn")];
       for (const e of occupants) {
         if (!shown(e)) continue;
         const r = e.getBoundingClientRect();

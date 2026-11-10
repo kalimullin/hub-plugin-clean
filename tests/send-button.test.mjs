@@ -1,5 +1,7 @@
 // The send button of Clean, as in Telegram: an empty field shows only the mic, text or a file turns the one button at the
-// right end into a black circle with the thin Forma Regular «up» arrow. The core decides which one it draws; the theme adds no send of its own.
+// right end into a black circle with the thin Forma Regular «up» arrow, with the mic before it (voice goes with the typed words).
+// The core draws its one button (mic or send); with a draft the mic before send is the theme's own (voicetext.js, hub.dictate);
+// the theme adds no send of its own.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -62,6 +64,26 @@ test("hover of the send button only where there is a hover", () => {
 test("the record pill grows leftwards from the mic at the right end of the row", () => {
   assert.match(css, /@keyframes clean-pill \{ from \{ clip-path: inset\(0 0 0 40px round 8px\)/);
   assert.match(css, /@keyframes clean-pill-phone \{ from \{ clip-path: inset\(0 0 0 44px round 8px\)/);
-  assert.match(rule("html.th-clean .composer.rec .btn.round.stop::before"), /right: 8px/);
+  assert.match(rule("html.th-clean .composer:is(.rec, .clean-vt-rec) .btn.round.stop::before"), /right: 8px/);
   assert.doesNotMatch(css, /:has\(form\.composer \.bar > \.btn\.round\.mic\)\) \{ --tail/);
+});
+
+test("with a draft and voice on the theme's mic stands before send: the camera moves one button left, the two stay side by side", () => {
+  const vt = String.raw`\.bar:has\(> \.btn\.round\.send\) > \.spacer > \.btn\.dictate:not\(\[hidden\]\)`;
+  // two :has side by side: a :has inside :has is invalid CSS and drops the whole rule
+  assert.doesNotMatch(css, /:has\([^(){}]*:has\(/);
+  assert.match(css, new RegExp(String.raw`\.dock-inner:has\(form\.composer:not\(\.rec, \.clean-vt-rec\) \.bar > \.btn\.round\.send\):has\(form\.composer \.bar > \.spacer > \.btn\.dictate:not\(\[hidden\]\)\) \.slot-host\.composer:has\(> \.vf-slot\)[^{]*\{ right: calc\(12px \+ 2 \* var\(--row, 32px\) \+ 16px\); \}`));
+  assert.match(css, /\.bar:not\(\.reply-bar\):has\(> \.spacer > \.btn\.dictate:not\(\[hidden\]\)\) > \.send \{ margin-left: 0; \}/);
+  // shown only while send is: an empty field keeps the core's own mic alone
+  assert.match(css, /\.composer \.bar > \.spacer > \.btn\.dictate \{ display: none; \}/);
+  assert.match(css, new RegExp(String.raw`\.composer:not\(\.rec, \.clean-vt-rec\) ` + vt + String.raw` \{ display: grid;`));
+});
+
+test("a recording over a draft takes the record look of the core's voice message: the strip in the spacer, the pill in place of send", () => {
+  assert.match(css, /\.composer\.clean-vt-rec \.bar > \.spacer \{ display: contents; \}/);
+  assert.match(css, /\.composer\.clean-vt-rec \.bar > :is\(\.send, \.hint\) \{ display: none; \}/);
+  assert.match(rule("html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round.stop, html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round.stop"), /width: 72px/);
+  assert.match(rule("html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip"), /display: contents/);
+  // the rules for the idle row stay off while either recording runs
+  assert.doesNotMatch(css, /:not\(\.rec\)/);
 });

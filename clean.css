@@ -765,6 +765,20 @@ html.th-clean .composer .reply-bar > .btn { flex: none; min-height: 0; height: 2
 html.th-clean .composer .reply-bar > .btn:focus-visible { border-radius: 4px; outline-offset: -2px; }
 html.th-clean :is(.btn.round.quiet:is(.attach, .mic), .composer .bar > .btn.round, .vf-slot > .btn.round) { box-sizing: border-box; min-width: 0; min-height: 0; border: 0; }
 html.th-clean .btn.round.quiet:is(.attach, .mic), html.th-clean .composer .bar > .btn.round.quiet { width: 32px; height: 32px; border-radius: 8px; color: var(--muted-foreground); }
+/* voice over a draft (voicetext.js): the theme's own mic lives in the row's spacer, right before send, and shows only while
+   send does (an empty field has the core's mic); while it records the card takes the record look below (.clean-vt-rec) */
+html.th-clean .composer:not(.rec, .clean-vt-rec) .bar > .spacer:has(> .btn.dictate) { display: flex; align-items: center; justify-content: flex-end; min-width: 0; }
+html.th-clean .composer .bar > .spacer > .btn.dictate { display: none; }
+html.th-clean .composer:not(.rec, .clean-vt-rec) .bar:has(> .btn.round.send) > .spacer > .btn.dictate:not([hidden]) { display: grid; place-items: center; }
+html.th-clean .composer.clean-vt-rec .bar > .spacer { display: contents; }
+html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.dictate { display: grid; place-items: center; }
+html.th-clean .composer.clean-vt-rec > .attach, html.th-clean .composer.clean-vt-rec .bar > :is(.send, .hint) { display: none; }
+html.th-clean .composer .bar > .spacer > .btn.round.dictate:not(.stop, :disabled) { box-sizing: border-box; flex: none; width: 32px; min-width: 0; height: 32px; min-height: 0; padding: 0; border: 0; border-radius: 8px; background: none; box-shadow: none; color: var(--muted-foreground); }
+html.th-clean .composer .bar > .spacer > .btn.round.dictate.err:not(.stop, :disabled) { color: var(--destructive); }
+html.th-clean .composer .bar > .spacer > .btn.round.dictate .icon { width: 16px; height: 16px; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .composer .bar > .spacer > .btn.round.dictate:not(.stop, :disabled):hover { background: var(--c-fill); color: var(--c-t1); }
+}
 html.th-clean .composer .bar > .btn.round.mic { width: 32px; min-width: 0; height: 32px; padding: 0; border: 0; border-radius: 8px; background: none; color: var(--muted-foreground); }
 @media (hover: hover) and (pointer: fine) {
   html.th-clean :is(.btn.round.quiet:is(.attach, .mic), .composer .bar > .btn.round.mic):hover { background: var(--c-fill); color: var(--c-t1); }
@@ -847,8 +861,8 @@ html.th-clean .vf-slot :is(.vf-btn.vf-idle, .vf-trash) .icon > * { display: none
 /* ошибка поля (команда, микрофон) — над рядом кнопок: ряд остаётся внизу, где скрепка и камера */
 html.th-clean .composer > :is(.bar, .sr) { order: 2; }
 /* запись голоса: полоса записи — на весь ряд, скрепки (ядро прячет) и камеры нет */
-html.th-clean .dock-inner:has(form.composer.rec) .slot-host.composer { display: none; }
-html.th-clean .dock-inner form.composer.rec .bar { padding-left: 0; }
+html.th-clean .dock-inner:has(form.composer:is(.rec, .clean-vt-rec)) .slot-host.composer { display: none; }
+html.th-clean .dock-inner form.composer:is(.rec, .clean-vt-rec) .bar { padding-left: 0; }
 /* поля нет (сессия упала или закрыта) — камера обычным рядом, а не поверх подсказки */
 html.th-clean .dock-inner:not(:has(form.composer)) .slot-host.composer:has(> .vf-slot) { position: static; }
 /* перенос файла: одна подпись — на матовой подложке над лентой */
@@ -866,7 +880,7 @@ html.th-clean .btn.round.quiet.attach { background: var(--c-fill); color: var(--
   html.th-clean .btn.round.quiet.attach:hover { background: color-mix(in oklch, var(--c-t1) 10%, transparent); }
 }
 html.th-clean .btn.round.attach .icon { -webkit-mask: url("plus.svg") center / 16px no-repeat !important; mask: url("plus.svg") center / 16px no-repeat !important; }
-html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-left: 0; }
+html.th-clean .dock-inner:has(form.composer:is(.rec, .clean-vt-rec)) form.composer .bar { padding-left: 0; }
 @supports (anchor-name: --a) {
   /* row height (--row) and the room on the right for the one core button, mic or send (--tail) */
   html.th-clean .dock-inner { --row: 32px; --tail: 52px; container: status / inline-size; }
@@ -902,7 +916,7 @@ html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-le
   html.th-clean .status > :is(.stat-par, .stat-mod, .stat-eff)::after { content: none !important; }
   html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn { height: 28px; padding: 0 8px; border-radius: 8px; line-height: 28px; }
   html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu { left: auto; right: 0; }
-  html.th-clean .dock-inner:has(form.composer.rec) .status > :is(.stat-par, .stat-mod, .stat-eff) { display: none; }   /* идёт запись голоса: полоса записи на весь ряд, меню модели не нужны */
+  html.th-clean .dock-inner:has(form.composer:is(.rec, .clean-vt-rec)) .status > :is(.stat-par, .stat-mod, .stat-eff) { display: none; }   /* идёт запись голоса: полоса записи на весь ряд, меню модели не нужны */
   /* камера видео-фидбэка — на нижнем ряду, справа от «+» (дно dock-inner — на 6 ниже карточки: пустая дорожка статуса) */
   html.th-clean .slot-host.composer:has(> .vf-slot):not(:has(> .slot:not(.vf-slot))) { left: 48px; bottom: 18px; }
   /* поля нет — язычок и строка остаются обычной строкой под лентой */
@@ -910,7 +924,7 @@ html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-le
 }
 @media (max-width: 760px) {
   html.th-clean .composer > .attach { left: 12px; }
-  html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-left: 0; }
+  html.th-clean .dock-inner:has(form.composer:is(.rec, .clean-vt-rec)) form.composer .bar { padding-left: 0; }
   @supports (anchor-name: --a) {
     html.th-clean .dock-inner { --row: 36px; --tail: 56px; }
     html.th-clean .slot-host.composer:has(> .vf-slot):not(:has(> .slot:not(.vf-slot))) { left: 52px; bottom: 18px; }
@@ -943,68 +957,70 @@ html.th-clean .clean-bars > i:nth-child(3) { height: 11px; animation-duration: 1
 html.th-clean .clean-bars > i:nth-child(4) { height: 14px; animation-duration: 800ms; animation-delay: -300ms; }
 /* the leaving mic icon: the record button grows leftwards from its place at the right end, the icon fades with the same
    transition while the bars come in */
-html.th-clean .composer.rec .btn.round.stop::before { content: ""; position: absolute; right: 8px; top: 50%; width: 16px; height: 16px; margin-top: -8px; background: currentColor; pointer-events: none;
+html.th-clean .composer:is(.rec, .clean-vt-rec) .btn.round.stop::before { content: ""; position: absolute; right: 8px; top: 50%; width: 16px; height: 16px; margin-top: -8px; background: currentColor; pointer-events: none;
   -webkit-mask: url("mic.svg") center / 16px no-repeat; mask: url("mic.svg") center / 16px no-repeat; animation: clean-swap-out 280ms ease-out both; color: var(--muted-foreground); }
 @media (prefers-reduced-motion: reduce) {
   html.th-clean .clean-bars { animation: none; }
   html.th-clean .clean-bars > i { animation: none; transform: scaleY(0.7); }
-  html.th-clean .composer.rec .btn.round.stop::before { display: none; }
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .btn.round.stop::before { display: none; }
 }
 /* идёт запись голоса: карточка не меняет высоту — сверху точка, время и подсказка (на месте поля), внизу «Отмена» (на месте «+») и
    кнопка записи; it grows leftwards from the mic at the right end and holds the bars */
-html.th-clean .composer.rec .bar { display: grid; grid-template-columns: auto auto 1fr auto; grid-template-rows: 28px var(--row, 32px); row-gap: 12px;
+html.th-clean .composer:is(.rec, .clean-vt-rec) .bar { display: grid; grid-template-columns: auto auto 1fr auto; grid-template-rows: 28px var(--row, 32px); row-gap: 12px;
   align-items: center; column-gap: 8px; padding: 0; }
 /* поле ввода гаснет тем же переходом (opacity · scale .8 · blur 3 за 280 мс), пока полоса записи проявляется: без пустой карточки между ними */
 @keyframes clean-prompt-out { from { opacity: 1; filter: blur(0); } to { opacity: 0; filter: blur(3px); visibility: hidden; } }
-html.th-clean .composer.rec > .prompt { display: block; position: absolute; left: 12px; right: 12px; top: 12px; pointer-events: none; animation: clean-prompt-out 280ms ease-out both; }
-@media (prefers-reduced-motion: reduce) { html.th-clean .composer.rec > .prompt { animation: none; visibility: hidden; } }
-html.th-clean .composer.rec .recstrip { display: contents; font: 400 14px/20px var(--font); }
-html.th-clean .composer.rec .recstrip > :is(.rec-dot, .spin-dot) { grid-area: 1 / 1; }
-html.th-clean .composer.rec .recstrip > .t { grid-area: 1 / 2; font: 500 14px/20px var(--font); font-variant-numeric: tabular-nums; color: var(--c-t1); }
-html.th-clean .composer.rec .recstrip > .hint { grid-area: 1 / 3 / 2 / 5; justify-self: end; font: 400 12px/16px var(--font); color: var(--c-t2); }
-html.th-clean .composer.rec .recstrip > .spacer { display: none; }
-html.th-clean .composer.rec .recstrip > .rec-cancel { grid-area: 2 / 1 / 3 / 4; justify-self: start; margin-left: -4px; border: 0; border-radius: 8px;
+html.th-clean .composer:is(.rec, .clean-vt-rec) > .prompt { display: block; position: absolute; left: 12px; right: 12px; top: 12px; pointer-events: none; animation: clean-prompt-out 280ms ease-out both; }
+@media (prefers-reduced-motion: reduce) { html.th-clean .composer:is(.rec, .clean-vt-rec) > .prompt { animation: none; visibility: hidden; } }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip { display: contents; font: 400 14px/20px var(--font); }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > :is(.rec-dot, .spin-dot) { grid-area: 1 / 1; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .t { grid-area: 1 / 2; font: 500 14px/20px var(--font); font-variant-numeric: tabular-nums; color: var(--c-t1); }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .hint { grid-area: 1 / 3 / 2 / 5; justify-self: end; font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .spacer { display: none; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .rec-cancel { grid-area: 2 / 1 / 3 / 4; justify-self: start; margin-left: -4px; border: 0; border-radius: 8px;
   background: transparent; color: var(--c-t2); box-shadow: none; }
 @media (hover: hover) and (pointer: fine) {
-  html.th-clean .composer.rec .recstrip > .rec-cancel:hover { background: var(--c-fill); color: var(--c-t1); }
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .rec-cancel:hover { background: var(--c-fill); color: var(--c-t1); }
 }
-html.th-clean .composer.rec .rec-dot { width: 8px; height: 8px; margin: 0 2px; }
-html.th-clean .composer.rec .recstrip > * { animation-name: clean-rise; animation-duration: 160ms; animation-timing-function: var(--ease-out); animation-fill-mode: backwards; }
-html.th-clean .composer.rec .recstrip > .rec-dot { animation: clean-rise 160ms var(--ease-out) backwards, rec-pulse 1.2s ease-in-out 160ms infinite; }
-html.th-clean .composer.rec .recstrip > .t { animation-delay: 20ms; }
-html.th-clean .composer.rec .recstrip > .rec-cancel { animation-delay: 40ms; }
-html.th-clean .composer.rec .bar > .btn.round { grid-area: 2 / 4; justify-self: end; }
-html.th-clean .composer.rec .bar > .btn.round.stop { width: 72px; border: 0; border-radius: 8px; background: var(--foreground); color: var(--background); box-shadow: none;
+html.th-clean .composer:is(.rec, .clean-vt-rec) .rec-dot { width: 8px; height: 8px; margin: 0 2px; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > * { animation-name: clean-rise; animation-duration: 160ms; animation-timing-function: var(--ease-out); animation-fill-mode: backwards; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .rec-dot { animation: clean-rise 160ms var(--ease-out) backwards, rec-pulse 1.2s ease-in-out 160ms infinite; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .t { animation-delay: 20ms; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .rec-cancel { animation-delay: 40ms; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round, html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round { grid-area: 2 / 4; justify-self: end; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round.stop, html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round.stop { width: 72px; border: 0; border-radius: 8px; background: var(--foreground); color: var(--background); box-shadow: none;
   animation: clean-pill 280ms var(--ease-in-out) backwards; }
 @media (hover: hover) and (pointer: fine) {
-  html.th-clean .composer.rec .bar > .btn.round.stop:hover { background: color-mix(in oklch, var(--foreground) 85%, var(--background)); }
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round.stop:hover, html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round.stop:hover { background: color-mix(in oklch, var(--foreground) 85%, var(--background)); }
 }
-html.th-clean .composer.rec .bar > .btn.round.stop .icon { display: none; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round.stop .icon, html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round.stop .icon { display: none; }
 @media (prefers-reduced-motion: reduce) {
-  html.th-clean .composer.rec .bar > .btn.round.stop { animation: clean-rise 160ms var(--ease-out) both; }
-  html.th-clean .composer.rec .recstrip > * { animation: none !important; }
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round.stop, html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round.stop { animation: clean-rise 160ms var(--ease-out) both; }
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > * { animation: none !important; }
 }
 /* распознавание речи (и открытие микрофона): индикатор один — крутилка в серой плашке на месте кнопки записи (тёмная плашка
    гаснет в серую за 280 мс, высота и положение те же, что в записи); сверху только подпись, без второй крутилки и без точки */
 @keyframes clean-pill-busy { from { background-color: var(--foreground); } to { background-color: var(--c-fill); } }
-html.th-clean .composer.rec .recstrip > .spin-dot { display: none; }
-html.th-clean .composer.rec .recstrip > .spin-dot ~ .t { grid-area: 1 / 1 / 2 / 4; font-weight: 400; color: var(--c-t2); animation-delay: 0ms; }
-html.th-clean .composer.rec .bar > .btn.round:disabled { display: grid; place-items: center; width: 72px; border: 0; border-radius: 8px; background: var(--c-fill); box-shadow: none; opacity: 1;
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .spin-dot { display: none; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .spin-dot ~ .t { grid-area: 1 / 1 / 2 / 4; font-weight: 400; color: var(--c-t2); animation-delay: 0ms; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round:disabled, html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round:disabled { display: grid; place-items: center; width: 72px; border: 0; border-radius: 8px; background: var(--c-fill); box-shadow: none; opacity: 1;
   animation: clean-pill-busy 280ms var(--ease-in-out) backwards; }
-html.th-clean .composer.rec .bar > .btn.round:disabled > .spin-dot { margin: 0; border-color: var(--c-t2); border-top-color: transparent; animation: spin 0.8s linear infinite, clean-swap-in 280ms ease-out backwards; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round:disabled > .spin-dot, html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round:disabled > .spin-dot { margin: 0; border-color: var(--c-t2); border-top-color: transparent; animation: spin 0.8s linear infinite, clean-swap-in 280ms ease-out backwards; }
 @media (prefers-reduced-motion: reduce) {
-  html.th-clean .composer.rec .bar > .btn.round:disabled { animation: none; }
-  html.th-clean .composer.rec .bar > .btn.round:disabled > .spin-dot { animation: none; }
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round:disabled, html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round:disabled { animation: none; }
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round:disabled > .spin-dot, html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round:disabled > .spin-dot { animation: none; }
 }
 @supports (anchor-name: --a) {
   /* the video feedback camera sits 8 left of the one core button (mic or send), so it stays in place when typing swaps them;
      a video recording shows its bin and red time in the same row */
   html.th-clean .slot-host.composer:has(> .vf-slot):not(:has(> .slot:not(.vf-slot))) { left: auto; right: calc(12px + var(--row, 32px) + 8px); bottom: 18px; }
+  /* a draft with voice on: the theme's mic stands next to send (typed words and voice go together, voicetext.js), the camera moves one button left */
+  html.th-clean .dock-inner:has(form.composer:not(.rec, .clean-vt-rec) .bar > .btn.round.send):has(form.composer .bar > .spacer > .btn.dictate:not([hidden])) .slot-host.composer:has(> .vf-slot):not(:has(> .slot:not(.vf-slot))) { right: calc(12px + 2 * var(--row, 32px) + 16px); }
   html.th-clean .vf-slot { justify-content: flex-end; }
   @media (hover: hover) and (pointer: fine) {
     html.th-clean .vf-slot [data-tip]:hover::after { left: auto; right: 0; }
   }
-  html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-left: 0; }
+  html.th-clean .dock-inner:has(form.composer:is(.rec, .clean-vt-rec)) form.composer .bar { padding-left: 0; }
   html.th-clean .dock-inner { --tail: 56px; }
   html.th-clean .dock-inner:has(.vf-slot) { --tail: 92px; }
   /* идёт отсчёт, запись или расшифровка видео: модель и усилие уходят (под растущей кнопкой им нет места), микрофон остаётся
@@ -1013,13 +1029,13 @@ html.th-clean .composer.rec .bar > .btn.round:disabled > .spin-dot { margin: 0; 
   html.th-clean .dock-inner:has(.vf-btn:is(.vf-count, .vf-rec, .vf-work)) form.composer .bar > .btn.round.mic { display: grid; opacity: 0.4; pointer-events: none; }
 }
 @media (max-width: 760px) {
-  html.th-clean .composer.rec .bar > .btn.round.stop { width: 80px; animation-name: clean-pill-phone; }
-  html.th-clean .composer.rec .bar > .btn.round:disabled { width: 80px; }
-  html.th-clean .composer.rec .bar { grid-template-rows: 28px 36px; }
-  html.th-clean .composer.rec .clean-bars { animation-name: clean-swap-in-phone; }
-  html.th-clean .composer.rec .btn.round.stop::before { right: 10px; }
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round.stop, html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round.stop { width: 80px; animation-name: clean-pill-phone; }
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round:disabled, html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round:disabled { width: 80px; }
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .bar { grid-template-rows: 28px 36px; }
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .clean-bars { animation-name: clean-swap-in-phone; }
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .btn.round.stop::before { right: 10px; }
   @supports (anchor-name: --a) {
-    html.th-clean .dock-inner:has(form.composer.rec) form.composer .bar { padding-left: 0; }
+    html.th-clean .dock-inner:has(form.composer:is(.rec, .clean-vt-rec)) form.composer .bar { padding-left: 0; }
     html.th-clean .dock-inner { --tail: 60px; }
     html.th-clean .dock-inner:has(.vf-slot) { --tail: 96px; }
   }
@@ -1035,16 +1051,18 @@ html.th-clean .composer.rec .bar > .btn.round:disabled > .spin-dot { margin: 0; 
       the model menu (.clean-fit-noeff) → the model (.clean-fit-nomod) → the executors (.clean-fit-nopar).
    Below 520px the core hides effort and the model next to the executors by itself — here it does not decide: the room does. */
 html.th-clean .dock-inner:is(*, :has(.vf-slot)) form.composer .bar { padding-left: calc(var(--row, 32px) + 8px); }   /* 8 from «+» */
-html.th-clean .dock-inner form.composer:not(.rec) .bar:not(.reply-bar) { flex-wrap: nowrap; gap: 8px; }
-html.th-clean .dock-inner form.composer:not(.rec) .bar:not(.reply-bar) > :is(.mic, .send, .slot) { flex: none; }
+html.th-clean .dock-inner form.composer:not(.rec, .clean-vt-rec) .bar:not(.reply-bar) { flex-wrap: nowrap; gap: 8px; }
+html.th-clean .dock-inner form.composer:not(.rec, .clean-vt-rec) .bar:not(.reply-bar) > :is(.mic, .send, .slot) { flex: none; }
 /* the camera sits between the plugin buttons and the mic (absolutely, over the row): the row leaves it room — a button plus 8 on each side */
-html.th-clean .dock-inner:has(.vf-slot) form.composer:not(.rec) .bar:not(.reply-bar) > :is(.mic, .send) { margin-left: calc(var(--row, 32px) + 8px); }
-html.th-clean .dock-inner.clean-up form.composer:not(.rec) .bar:not(.reply-bar) { flex-wrap: wrap; justify-content: flex-end; row-gap: 0; }
-html.th-clean .dock-inner.clean-up form.composer:not(.rec) .bar:not(.reply-bar) > .slot-composer-tools { order: 1; margin-bottom: 8px; }
-html.th-clean .dock-inner.clean-up form.composer:not(.rec) .bar:not(.reply-bar)::after { content: ""; order: 2; flex: 0 0 100%; height: 0; }
-html.th-clean .dock-inner.clean-up form.composer:not(.rec) .bar:not(.reply-bar) > :is(.mic, .send) { order: 3; }
+html.th-clean .dock-inner:has(.vf-slot) form.composer:not(.rec, .clean-vt-rec) .bar:not(.reply-bar) > :is(.mic, .send) { margin-left: calc(var(--row, 32px) + 8px); }
+html.th-clean .dock-inner:has(.vf-slot) form.composer:not(.rec, .clean-vt-rec) .bar:not(.reply-bar):has(> .spacer > .btn.dictate:not([hidden])) > .send { margin-left: 0; }   /* mic and send side by side: the room is before the mic */
+html.th-clean .dock-inner:has(.vf-slot) form.composer:not(.rec, .clean-vt-rec) .bar:not(.reply-bar) > .spacer > .btn.dictate { margin-left: calc(var(--row, 32px) + 8px); }
+html.th-clean .dock-inner.clean-up form.composer:not(.rec, .clean-vt-rec) .bar:not(.reply-bar) { flex-wrap: wrap; justify-content: flex-end; row-gap: 0; }
+html.th-clean .dock-inner.clean-up form.composer:not(.rec, .clean-vt-rec) .bar:not(.reply-bar) > .slot-composer-tools { order: 1; margin-bottom: 8px; }
+html.th-clean .dock-inner.clean-up form.composer:not(.rec, .clean-vt-rec) .bar:not(.reply-bar)::after { content: ""; order: 2; flex: 0 0 100%; height: 0; }
+html.th-clean .dock-inner.clean-up form.composer:not(.rec, .clean-vt-rec) .bar:not(.reply-bar) > :is(.mic, .send, .spacer:has(> .btn.dictate)) { order: 3; }
 /* a recording (voice or video) is on: no room for plugin buttons in the row — same as for the model and effort */
-html.th-clean .composer.rec .bar > .slot-composer-tools { display: none !important; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .slot-composer-tools { display: none !important; }
 html.th-clean .dock-inner:has(.vf-btn:is(.vf-count, .vf-rec, .vf-work)) form.composer .bar > .slot-composer-tools { display: none !important; }   /* !important: a slot may carry its own display in style */
 @supports (anchor-name: --a) {
   html.th-clean .dock-inner .status > .stat-eff, html.th-clean .dock-inner .status > .stat-par + .stat-mod { display: block; }
@@ -1250,7 +1268,7 @@ html.th-clean .pal-reset:disabled { display: none; }
   html.th-clean .dock { padding: 0 12px calc(8px + env(safe-area-inset-bottom, 0px)); }
   html.th-clean .strip-row[data-k="wait"] { padding-inline: 20px; }   /* лента с полями 16, поле ввода с 12 — полоса «Ждёт вас» шире карточки на 4 */
   html.th-clean .row.mine > .b { width: auto; max-width: 88%; }
-  html.th-clean .btn.round.send, html.th-clean .btn.round.quiet:is(.attach, .mic), html.th-clean .composer .bar > .btn.round.mic { width: 36px; height: 36px; }
+  html.th-clean .btn.round.send, html.th-clean .btn.round.quiet:is(.attach, .mic), html.th-clean .composer .bar > .btn.round.mic, html.th-clean .composer .bar > .spacer > .btn.round.dictate:not(.stop, :disabled) { width: 36px; height: 36px; }
   html.th-clean .btn.round.send::after { content: ""; position: absolute; inset: -4px; border-radius: 9999px; }   /* tap target 44 */
   html.th-clean .vf-slot > .btn.round, html.th-clean .slot-composer-tools .btn.round:has(> :is(svg, .icon):only-child) { width: 36px; height: 36px; }
   html.th-clean .slot-composer-tools .btn.round { height: 36px; }

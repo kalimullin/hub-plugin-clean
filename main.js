@@ -26,8 +26,11 @@
 // - «Подробный» список сессий (настройка в «Настройки → Вид», по умолчанию выключена): во второй строке начало последнего
 //   сообщения сессии (как превью в мессенджере), справа — время последней активности; строка открытой сессии — карточкой (rowDetail);
 // - bottom row of the composer card (+, status chips, plugin buttons, camera, mic, send): room is shared by the measured
-//   width and nothing overlaps (fit.js).
+//   width and nothing overlaps (fit.js);
+// - voice over a draft: with text or a file in the field a mic stands next to send, and the recording goes out in one
+//   message with the draft and its files (voicetext.js).
 import { mountFit } from "./fit.js";
+import { mountVoiceText } from "./voicetext.js";
 import { AGO, byRecent, detailOf, sessionFor } from "./rows.js";
 
 const MINE = /(^|:)clean:clean(-dark)?\.json$/;
@@ -37,6 +40,7 @@ const on = () => document.documentElement.classList.contains("th-clean");
 export default function register(hub) {
   hub.addStyle("clean.css");
   const fit = mountFit(on);   // composer bottom row: room is shared by the real width (fit.js)
+  const voiceText = mountVoiceText(hub, on);   // the mic next to send over a draft (voicetext.js)
   const T = (k, fb) => { try { const v = hub.t?.(k); return v && v !== k ? v : fb; } catch { return fb; } };
   const names = () => ({ hub: T("web.who.hub", "Хаб"), core: T("web.who.core", "ядро") });
 
@@ -410,7 +414,7 @@ export default function register(hub) {
   // идёт запись голоса: в кнопке записи — четыре бегущих столбика (стили — clean.css); ядро пересоздаёт содержимое кнопки при смене
   // режима, поэтому их кладёт обход
   const recBars = () => {
-    for (const b of document.querySelectorAll("form.composer.rec .bar > .btn.round.stop:not(:has(> .clean-bars))")) {
+    for (const b of document.querySelectorAll("form.composer.rec .bar > .btn.round.stop:not(:has(> .clean-bars)), form.composer.clean-vt-rec .bar > .spacer > .btn.round.stop:not(:has(> .clean-bars))")) {
       const bars = hub.el("span", "clean-bars");
       bars.append(...[0, 1, 2, 3].map(() => hub.el("i")));
       b.append(bars);
@@ -661,6 +665,7 @@ export default function register(hub) {
     boardRecap(); rowDetail(); rowFaces(); recentOrder(); keepList();
     holdView();
     fit.hook();
+    voiceText.sweep();
   };
   let queued = false;   // лента меняется часто — не чаще кадра
   new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; sweep(); }); } }).observe(document.body, { childList: true, subtree: true, characterData: true });
@@ -762,7 +767,8 @@ export default function register(hub) {
   // Enter не трогает чужие поля (поиск, диалоги, кнопки), Esc действует где угодно — как у ядра.
   const VOICE_ESC_MS = 400, SPENT_MS = 800;
   let lastEsc = 0, spentAt = 0;   // spentAt: когда сработали Enter или двойной Esc — полоска ещё может не успеть смениться
-  const recStrip = () => document.querySelector("form.composer.rec .recstrip");
+  // the theme's own strip of a recording over a draft (voicetext.js) is the same strip and takes the same keys
+  const recStrip = () => document.querySelector("form.composer.rec .recstrip, form.composer.clean-vt-rec .recstrip");
   const fieldFocused = (a) => {
     if (!a || a === document.body) return false;
     if (a.closest?.("dialog[open], [role=dialog], [role=menu], [role=listbox]")) return true;
@@ -772,7 +778,9 @@ export default function register(hub) {
     return false;
   };
   addEventListener("keydown", (e) => {
-    if (!on() || (e.key !== "Escape" && e.key !== "Enter")) return;
+    if (e.code === "Space") return voiceText.space(e);   // Space over a draft's recording (voicetext.js)
+    if (e.key === "Enter" && voiceText.enter(e)) return;   // Enter in a draft whose recording runs: stop and send it all (voicetext.js)
+    if (!on() || (e.key !== "Escape" && e.key !== "Enter") || e.cleanVt) return;   // cleanVt: the strip's own × cancelling
     const strip = recStrip(), clock = strip?.querySelector("[data-rec-clock]");
     if (!strip || !strip.querySelector("[data-rec-clock], .rec-cancel")) { lastEsc = 0; return; }
     const spent = e.timeStamp - spentAt < SPENT_MS;
@@ -785,7 +793,7 @@ export default function register(hub) {
       return;
     }
     if (!clock || spent || e.repeat || e.isComposing || e.shiftKey || e.ctrlKey || e.metaKey || e.altKey || fieldFocused(document.activeElement)) return;
-    const stop = document.querySelector("form.composer.rec .bar > .btn.round.stop");
+    const stop = document.querySelector("form.composer.rec .bar > .btn.round.stop, form.composer.clean-vt-rec .bar > .spacer > .btn.round.stop");
     if (!stop) return;
     e.preventDefault();
     e.stopImmediatePropagation();
@@ -824,7 +832,7 @@ export default function register(hub) {
       for (const b of document.querySelectorAll(".byline[data-clean]")) delete b.dataset.clean;
       if (!on()) {
         for (const b of document.querySelectorAll(".lightbox.clean-tall")) b.classList.remove("clean-tall");
-        unmaskIcons(); unAvatars(); fade(); feedEnd(); unPlaceholders(); unPlate(); fit.reset();
+        unmaskIcons(); unAvatars(); fade(); feedEnd(); unPlaceholders(); unPlate(); fit.reset(); voiceText.reset();
         for (const h of document.querySelectorAll(".chat-head[data-clean-label]")) { h.removeAttribute("aria-label"); h.removeAttribute("title"); delete h.dataset.cleanLabel; }
 
         for (const x of document.querySelectorAll(".search-row .clean-x, .clean-bg, .clean-fold, .clean-fold-show, .clean-bars, .ce-n, .clean-recap")) x.remove();

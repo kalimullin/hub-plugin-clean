@@ -38,6 +38,10 @@ const matches = (n, sel) => sel.split(",").some((one) => {
   });
 });
 
+// The core's strip and stop, or the theme's own over a draft (voicetext.js): one query each
+const STRIP_Q = "form.composer.rec .recstrip, form.composer.clean-vt-rec .recstrip";
+const STOP_Q = "form.composer.rec .bar > .btn.round.stop, form.composer.clean-vt-rec .bar > .spacer > .btn.round.stop";
+
 // Сцена: идёт ли запись, какое поле в фокусе, сколько раз нажали стоп.
 async function scene({ theme = true, rec = "recording", focus = null, stopButton = true } = {}) {
   const s = { stops: 0, listeners: [], theme };
@@ -49,7 +53,7 @@ async function scene({ theme = true, rec = "recording", focus = null, stopButton
   s.setFocus = (f) => { doc.activeElement = f; };
   const doc = {
     documentElement: root, body, activeElement: focus || body, readyState: "complete",
-    querySelector: (q) => (q === "form.composer.rec .recstrip" ? (rec ? strip : null) : q === "form.composer.rec .bar > .btn.round.stop" ? (stopButton && rec && rec !== "busy" ? stop : null) : null),
+    querySelector: (q) => (q === STRIP_Q ? (rec ? strip : null) : q === STOP_Q ? (stopButton && rec && rec !== "busy" ? stop : null) : null),
     querySelectorAll: () => [], getElementById: () => null, createElement: (t) => node(t), addEventListener() {},
     head: node("head"),
   };
@@ -62,7 +66,8 @@ async function scene({ theme = true, rec = "recording", focus = null, stopButton
     setInterval: () => 0, CSS: { escape: (x) => x },
   });
   const mod = await import(MAIN + "?s=" + Math.random());
-  await mod.default({ addStyle() {}, addSlot() {}, addOptions() {}, addOrder() {}, option: () => false, el: (t) => node(t), t: (k) => k, snapshot: () => ({}), redraw() {}, locale: "ru" });
+  await mod.default({ addStyle() {}, addSlot() {}, addOptions() {}, addOrder() {}, option: () => false, el: (t) => node(t), t: (k) => k, snapshot: () => ({}), redraw() {}, locale: "ru",
+    capabilities: { dictate: 1 }, dictate: () => node("button"), banner() {}, icon: () => node("svg") });
   const keys = s.listeners.filter((l) => l.type === "keydown");
   s.keys = keys;
   // нажатие: возвращает, что с ним сделал плагин
