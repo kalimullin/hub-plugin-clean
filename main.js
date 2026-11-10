@@ -31,7 +31,7 @@
 //   message with the draft and its files (voicetext.js).
 import { mountFit } from "./fit.js";
 import { mountVoiceText } from "./voicetext.js";
-import { AGO, byRecent, detailOf, sessionFor } from "./rows.js";
+import { AGO, byRecent, detailOf, sessionIndex } from "./rows.js";
 
 const MINE = /(^|:)clean:clean(-dark)?\.json$/;
 const OWNER = new Set(["владелец", "owner"]);   // как называет владельца ядро в событиях (core/reducer.py)
@@ -42,6 +42,15 @@ export default function register(hub) {
   const fit = mountFit(on);   // composer bottom row: room is shared by the real width (fit.js)
   const voiceText = mountVoiceText(hub, on);   // the mic next to send over a draft (voicetext.js)
   const T = (k, fb) => { try { const v = hub.t?.(k); return v && v !== k ? v : fb; } catch { return fb; } };
+  // sessions by name: every row and every byline asks for its session on each redraw, so the snapshot's sessions are put into
+  // maps once per sessions array (the core hands out a new array only when a session changed), not scanned per row
+  const indexes = new WeakMap();
+  const sessions = () => {
+    const list = hub.snapshot?.()?.sessions || [];
+    let x = indexes.get(list);
+    if (!x) { x = sessionIndex(list); x.hub = list.find((s) => s.kind === "hub") || null; indexes.set(list, x); }
+    return x;
+  };
   const names = () => ({ hub: T("web.who.hub", "Хаб"), core: T("web.who.core", "ядро") });
 
   // подписи авторов в ленте: «Хаб» и «Ядро» — своими аватарками
@@ -82,7 +91,7 @@ export default function register(hub) {
   const waitCounts = () => {
     const tags = document.querySelectorAll("#list .srow .tag:not(.soft)");
     if (!tags.length) return;
-    const by = new Map((hub.snapshot?.()?.sessions || []).map((s) => [s.name, s]));
+    const by = sessions().byName;
     for (const tag of tags) {
       const nm = tag.closest(".srow")?.querySelector(".nm");
       const s = by.get((nm?.title || nm?.textContent || "").split(" — ")[0].trim());
@@ -174,11 +183,23 @@ export default function register(hub) {
   };
   // аватарки: у кого нет картинки (буква, эмодзи без картинки темы) — картинка из набора темы, по имени всегда одна и та же.
   // Адреса — из выбранной темы (avatars_url: страница отдаёт их сама; .jpg из папки плагина она не отдаёт)
-  const kitAvatars = () => { try { return JSON.parse(localStorage.getItem("hub.theme") || "null")?.theme?.avatars_url || {}; } catch { return {}; } };
+  // the theme is read from localStorage as text and parsed only when that text changed (it is the whole theme: parsing it per avatar
+  // and per redraw was most of the avatar work)
+  let kitRaw = null, kitNow = { kit: {}, pool: [] };
+  const kitOf = () => {
+    const raw = localStorage.getItem("hub.theme");
+    if (raw !== kitRaw) {
+      kitRaw = raw;
+      let kit = {};
+      try { kit = JSON.parse(raw || "null")?.theme?.avatars_url || {}; } catch { /* not a theme */ }
+      kitNow = { kit, pool: Object.values(kit).filter((u) => /\.jpe?g\b/.test(u)) };
+    }
+    return kitNow;
+  };
   const hash = (t) => { let h = 5381; for (const ch of t) h = ((h << 5) + h + ch.codePointAt(0)) >>> 0; return h; };
   const pictureFor = (name) => {
-    const kit = kitAvatars(), pool = Object.values(kit).filter((u) => /\.jpe?g\b/.test(u));
-    const s = (hub.snapshot?.()?.sessions || []).find((x) => x.name === name);
+    const { kit, pool } = kitOf();
+    const s = sessions().byName.get(name);
     const url = (s?.icon && kit[s.icon]) || pool[hash(name) % pool.length];
     return url ? `url("${url}")` : "";
   };
@@ -231,7 +252,7 @@ export default function register(hub) {
     const extra = [...(head?.querySelectorAll(":scope > .head-meta > :not(.dir-recap, .sep)") || [])];
     if (!head || !extra.length) { now?.remove(); return; }
     const name = head.querySelector("h2")?.title;
-    const bgs = (hub.snapshot?.()?.sessions || []).find((x) => x.name === name)?.background || [];
+    const bgs = sessions().byName.get(name)?.background || [];
     const live = [...bgs].sort((a, b) => a.since - b.since);
     const label = live.length && extra[0].classList.contains("bg-line") ? bgLabel(live) : extra[0].textContent.trim();
     const tip = extra.map((x) => x.textContent.trim()).join("\n");
@@ -503,14 +524,14 @@ export default function register(hub) {
   };
   const put = (node, key, v) => { if (v) { if (node.dataset[key] !== v) node.dataset[key] = v; } else if (key in node.dataset) delete node.dataset[key]; };
   // the session of a row: by the name in it; the hub row carries its own label ("Хаб"), not the session name — it is the first row of the list
-  const rowSession = (r, list, firstRow) => sessionFor(rowName(r), list) || (r === firstRow ? list.find((x) => x.kind === "hub") : null);
+  const rowSession = (r, ix, firstRow) => ix.find(rowName(r)) || (r === firstRow ? ix.hub : null);
   const rowDetail = () => {
     const detail = document.documentElement.classList.contains("th-clean-detail");
     const rows = document.querySelectorAll("#list .srow:not(.nav, .queued)");
     if (!detail) { for (const r of document.querySelectorAll("#list .srow[data-clean-d]")) clearDetail(r); return; }
-    const list = hub.snapshot?.()?.sessions || [], now = Date.now() / 1000, firstRow = document.querySelector("#list .sgroup.bare .srow");
+    const ix = sessions(), now = Date.now() / 1000, firstRow = document.querySelector("#list .sgroup.bare .srow");
     for (const r of rows) {
-      const d = detailOf(rowSession(r, list, firstRow), now, WORDS);
+      const d = detailOf(rowSession(r, ix, firstRow), now, WORDS);
       if (!d) { if (r.dataset.cleanD) clearDetail(r); continue; }
       const txt = r.querySelector(":scope > .txt");
       put(r, "cleanD", "1"); put(r, "cleanTip", d.cwd); put(r, "cleanAgo", d.ago); put(r, "cleanTwo", d.prev || r.parentElement?.classList.contains("has-forks") ? "1" : "");   // исполнители: «N ›» живёт внизу справа, поэтому и без превью строка двухэтажная
@@ -549,18 +570,17 @@ export default function register(hub) {
     const rows = document.querySelectorAll("#list .srow:not(.nav, .queued)");
     const clear = (r) => { for (const k of ["cleanK", "cleanTile"]) delete r.dataset[k]; r.style.removeProperty("--clean-face"); r.style.removeProperty("--clean-ic"); };
     if (!document.documentElement.classList.contains("th-clean-av")) { for (const r of document.querySelectorAll("#list .srow[data-clean-k]")) clear(r); return; }
-    const snap = hub.snapshot?.() || {}, list = snap.sessions || [], dirs = snap.directions || [], kit = kitAvatars();
-    const pool = Object.values(kit).filter((u) => /\.jpe?g\b/.test(u));
+    const snap = hub.snapshot?.() || {}, ix = sessions(), dirs = snap.directions || [], { kit, pool } = kitOf();
     const own = (x) => (x?.icon && /\.jpe?g\b/.test(kit[x.icon] || "") ? kit[x.icon] : "");
     const face = (x) => {
       let up = x, u = own(x);
-      for (let i = 0; !u && up?.raised_by && i < 5; i++) { up = list.find((y) => y.name === up.raised_by); u = own(up); }
+      for (let i = 0; !u && up?.raised_by && i < 5; i++) { up = ix.byName.get(up.raised_by); u = own(up); }
       return u || pool[hash((up || x).name) % pool.length] || "";
     };
     const firstRow = document.querySelector("#list .sgroup.bare .srow");
     const setVar = (r, k, v) => { if (v) { if (r.style.getPropertyValue(k) !== v) r.style.setProperty(k, v); } else if (r.style.getPropertyValue(k)) r.style.removeProperty(k); };
     for (const r of rows) {
-      const s = rowSession(r, list, firstRow);
+      const s = rowSession(r, ix, firstRow);
       if (!s) { if (r.dataset.cleanK) clear(r); continue; }
       const hubRow = s.kind === "hub";
       const k = hubRow ? "hub" : s.role === "agent" ? "agent" : dirs.includes(s.name) || s.backlog ? "dir" : r.closest("li.forks") ? "exec" : "other";
@@ -578,7 +598,7 @@ export default function register(hub) {
   const recentOrder = () => {
     const l = document.getElementById("list");
     if (!l || !recent() || l.querySelector(":scope > section.asec")) return;
-    const byName = new Map((hub.snapshot?.()?.sessions || []).map((x) => [x.name, x]));
+    const byName = sessions().byName;
     for (const ul of l.querySelectorAll(":scope > section.sgroup:not(.sg-own) > ul, :scope > details.resting > ul")) {
       const blocks = [];
       for (const li of ul.children) {
@@ -658,17 +678,39 @@ export default function register(hub) {
   detailClass();
   addEventListener("hub-redraw", () => { detailClass(); sweep(); });
   setInterval(() => { if (on()) rowDetail(); }, 20000);   // минуты идут и без перерисовки ядра
+  // one pass per frame: first everything that writes the page, then everything that reads its geometry (scroll edges, rows in
+  // view) — a read between writes made the browser lay the whole page out again in the middle of the pass
   const sweep = () => {
     if (!on()) return;
-    tagBylines(document); splitTabs(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
-    avatars(); boardCount(); headNote(); groupTools(); fade(); feedEnd(); placeholders(); separators(); forkCounts(); recBars(); actions(); queuePlate(); headFold(); finishItem();
-    boardRecap(); rowDetail(); rowFaces(); recentOrder(); keepList();
-    holdView();
+    tagBylines(document); splitTabs(); rowDetail(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
+    avatars(); boardCount(); headNote(); groupTools(); placeholders(); separators(); forkCounts(); recBars(); actions(); queuePlate(); finishItem();
+    boardRecap(); rowFaces(); recentOrder(); keepList();
     fit.hook();
     voiceText.sweep();
+    holdView(); fade(); feedEnd();
+    headFold();   // reads computed style (is a switch hidden by the narrow header?) — after the layout the reads above already paid for
   };
-  let queued = false;   // лента меняется часто — не чаще кадра
-  new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; sweep(); }); } }).observe(document.body, { childList: true, subtree: true, characterData: true });
+  // What wakes the pass. The core rewrites some text on its own clock: the "working 9 min" timer of a row (every second), the
+  // spinner (every 100 ms), the elapsed time of a working row in the feed, the clock of a recording. None of it changes what the
+  // pass lays out, so such a change runs only the part that reads it: the row tooltips (they quote the timer) or the "·" of the
+  // working row; everything else wakes the whole pass. Not more often than a frame
+  const TICKS = ".elapsed, .g.spin, .glyph.spin, [data-rec-clock]";
+  const where = (m) => (m.target.nodeType === 1 ? m.target : m.target.parentElement);
+  const tick = (m) => !!where(m)?.closest?.(TICKS);
+  const inWorking = (m) => !!where(m)?.closest?.(".row.working > .b");
+  let queued = 0;   // 0 — nothing, 1 — only the ticking parts, 2 — the whole pass
+  new MutationObserver((list) => {
+    const need = list.every((m) => tick(m) || inWorking(m)) ? 1 : 2;
+    if (need <= queued) return;
+    const first = !queued;
+    queued = need;
+    if (first) requestAnimationFrame(() => {
+      const all = queued === 2;
+      queued = 0;
+      if (all) sweep();
+      else if (on()) { rowTitles(); separators(); }
+    });
+  }).observe(document.body, { childList: true, subtree: true, characterData: true });
 
   // лимиты — внизу боковой панели (место sidebar.footer), из снимка ядра: «corp  5 ч 10%  неделя 1%»; доля и сброс — в подсказке
   // окно без названия (шлюз присылает новые, например seven_day_overage_included) в строку не попадает — сырой ключ вместо подписи хуже, чем ничего

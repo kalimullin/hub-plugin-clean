@@ -4,7 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { AGO, agoText, flat, sessionFor, detailOf, lastAt, byRecent } from "../rows.js";
+import { AGO, agoText, flat, sessionFor, sessionIndex, detailOf, lastAt, byRecent } from "../rows.js";
 
 const css = fs.readFileSync(path.join(import.meta.dirname, "..", "clean.css"), "utf8");
 const NOW = 1_800_000_000;
@@ -115,4 +115,14 @@ test("time in a row is the time the list is sorted by: a result that arrived wit
   assert.equal(agoText({ state: "idle", since: NOW - 3 * 3600, out_head_ts: NOW - 7200 }, NOW, AGO.en), "2h", "the later of the two wins");
   assert.equal(agoText({ state: "idle", since: NOW - 3600, out_head_ts: NOW - 7200 }, NOW, AGO.en), "1h", "an older result does not make it older");
   assert.equal(agoText({ state: "idle", since: NOW - 3 * 3600, out_head_ts: NOW - 60 }, NOW, AGO.en), "1m");
+});
+
+test("the index of a list finds every name exactly as sessionFor does, without a scan per row", () => {
+  const list = ["maps-dev", "maps-dev-api", "web-api", "hub-core", "a-b-c", "c", "x--y", "dup", "dup"].map((name, i) => ({ name, i }));
+  const ix = sessionIndex(list);
+  for (const name of ["maps-dev", "maps-dev-api", "api", "dev", "dev-api", "core", "b-c", "c", "y", "-y", "dup", "", "nope", "maps"]) {
+    assert.equal(ix.find(name), sessionFor(name, list), name);
+  }
+  assert.equal(ix.find("dup").i, 7, "the first of two sessions with one name, as Array.find");
+  assert.equal(sessionIndex([]).find("x"), null);
 });

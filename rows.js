@@ -34,6 +34,21 @@ export function sessionFor(name, list) {
   return tails.length === 1 ? tails[0] : null;
 }
 
+// the same lookup for a whole list at once: every row of the list asks for its session on every snapshot, so the names are
+// put into maps once per sessions array (the core hands out a new array only when the sessions changed) instead of a scan
+// of all sessions per row. find(name) answers exactly as sessionFor(name, list)
+export function sessionIndex(list) {
+  const byName = new Map(), tails = new Map();
+  for (const s of list) {
+    if (!byName.has(s.name)) byName.set(s.name, s);
+    for (let i = s.name.indexOf("-"); i >= 0; i = s.name.indexOf("-", i + 1)) {
+      const t = s.name.slice(i + 1);
+      tails.set(t, tails.has(t) ? null : s);   // two sessions end the same way: no guess
+    }
+  }
+  return { byName, find: (name) => (name ? byName.get(name) || tails.get(name) || null : null) };
+}
+
 // что рисовать в строке: превью, время, полный путь для подсказки; null — строка остаётся компактной
 export function detailOf(s, now, words) {
   if (!s) return null;

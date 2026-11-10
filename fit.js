@@ -105,8 +105,11 @@ export function mountFit(on) {
     dock = d;
     if (!d) return;
     ro = new ResizeObserver(schedule);
-    mo = new MutationObserver((list) => { if (list.some((m) => m.target !== d)) schedule(); });   // our own classes on .dock-inner do not count
-    mo.observe(d, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["hidden", "class"] });
+    // our own classes on .dock-inner do not count; nor does an attribute written over with the same value (the core sets the form's
+    // class on every key: measuring the row again for it cost a few forced layouts per key)
+    const real = (m) => m.target !== d && !(m.type === "attributes" && m.oldValue === m.target.getAttribute(m.attributeName));
+    mo = new MutationObserver((list) => { if (list.some(real)) schedule(); });
+    mo.observe(d, { childList: true, subtree: true, characterData: true, attributes: true, attributeOldValue: true, attributeFilter: ["hidden", "class"] });
     ro.observe(d);
     schedule();
     document.fonts?.ready?.then(schedule);
