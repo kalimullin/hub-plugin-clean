@@ -148,6 +148,26 @@
       "check": {
         "id": "mjbmZaqL8EJr",
         "commonName": "checkmark"
+      },
+      "failed": {
+        "id": "Qgjnp78cDeJi",
+        "commonName": "delete-sign"
+      },
+      "sort": {
+        "id": "EVNIdw9lheVM",
+        "commonName": "generic-sorting"
+      },
+      "undo": {
+        "id": "S7SKZVBPSZp3",
+        "commonName": "undo"
+      },
+      "compass": {
+        "id": "agP5MiwyBE5K",
+        "commonName": "compass"
+      },
+      "account": {
+        "id": "Or3Eb98tGbJL",
+        "commonName": "user"
       }
     }
   }
