@@ -614,7 +614,8 @@ html.th-clean .byline[data-clean="core"] .av { background: url("avatar-core.png"
 html.th-clean .byline:is([data-clean="hub"], [data-clean="core"]) .av.av, html.th-clean .byline .av.av[data-clean-av] { font-size: 0; color: transparent; }
 html.th-clean .byline .av[data-clean-av] { background: var(--clean-av) center / cover; }
 html.th-clean .byline:is([data-clean="core"], [data-clean-owner]) > b::first-letter { text-transform: uppercase; }   /* «Ядро» и «Владелец», как «Хаб» и «Расписание» */
-html.th-clean .row .meta { font: 400 12px/16px var(--font); letter-spacing: 0; color: var(--c-t3); }
+/* Feed times, step captions and statuses are read, not skimmed: the secondary ink (4,8:1 light, 6,8:1 dark), not --c-t3 (2:1). */
+html.th-clean .row .meta { font: 400 12px/16px var(--font); letter-spacing: 0; color: var(--c-t2); }
 html.th-clean .row.out > .b:has(> .byline) > .meta { align-self: center; }
 /* «Ответить» — одно место и один вид у всех сообщений: тихая кнопка 24 со значком 16 справа на строке имени, при наведении
    на сообщение и с клавиатуры; без подложки и тени, подложка — только под курсором (как кнопки над сообщением в Slack).
@@ -679,7 +680,7 @@ html.th-clean .row.out.err > .g::before { content: ""; width: 12px; height: 12px
 html.th-clean .row.from { grid-template-columns: 32px minmax(0, 1fr); }
 html.th-clean .row.from > .g { display: block; }
 html.th-clean .row.from > .b { border-left: 0; padding-left: 0; }
-html.th-clean :is(.row.from > .b, .reply-box) > .meta { margin-bottom: 2px; font: 400 12px/20px var(--font); color: var(--c-t3); }
+html.th-clean :is(.row.from > .b, .reply-box) > .meta { margin-bottom: 2px; font: 400 12px/20px var(--font); color: var(--c-t2); }
 html.th-clean .row.from > .b > .meta > .byline { font: 500 14px/20px var(--font); color: var(--c-t1); vertical-align: top; }
 /* «hub-dev ответила на ваше сообщение» в ленте хаба: аватарка ответившей вместо ●, без зелёного края */
 html.th-clean .reply-box { border-left: 0; padding-left: 0; gap: 0; }
