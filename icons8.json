@@ -137,10 +137,6 @@
         "id": "EVNIdw9lheVM",
         "commonName": "generic-sorting"
       },
-      "steer": {
-        "id": "mGWNJGGwrFlE",
-        "commonName": "u-turn-to-right"
-      },
       "key": {
         "id": "kVKdB5BnYQ0h",
         "commonName": "key-security"
