@@ -39,7 +39,7 @@ const CASES = [
   ["html.th-clean .row .meta", "feed time", "background"],
   ["html.th-clean .row .meta", "time in your bubble (.row.mine > .b > .meta)", "muted"],
   ["html.th-clean :is(.row.from > .b, .reply-box) > .meta", "reply meta line", "background"],
-  ["html.th-clean .status > .stat-left > .stat-dir", "folder in the status line", "background"],
+  ["html.th-clean .status > .stat-left > .stat-dir", "folder in the status line (on the queue plate when one is shown)", "background", "--c-fill"],
   ["html.th-clean .clean-queue .strip-row > .k", "queue label", "background", "--c-fill"],
   ["html.th-clean .clean-queue .strip-row > .strip-urg", "queue urgency", "background", "--c-fill"],
 ];
