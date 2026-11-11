@@ -1217,6 +1217,8 @@ html.th-clean .clean-queue .strip-row[data-clean="item"] > .k { display: none; }
 html.th-clean .clean-queue .strip-row > .t { flex: 1 1 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--c-t2); }
 html.th-clean .clean-queue .strip-row > button.t { color: var(--c-t2); font: inherit; }
 html.th-clean .clean-queue .strip-row > .strip-urg { color: var(--c-t2); font: 400 12px/16px var(--font); }
+html.th-clean .clean-queue .strip-row > .strip-urg[data-level="mid"] { color: color-mix(in srgb, var(--warning) 70%, var(--c-ink)); }   /* жёлтая и красная срочность ядра — оранжевым и красным расхода; с 30% чернила — ≥4,5:1 на плашке в светлой и тёмной */
+html.th-clean .clean-queue .strip-row > .strip-urg[data-level="high"] { color: color-mix(in srgb, var(--destructive) 70%, var(--c-ink)); font-weight: 600; }
 html.th-clean .clean-queue .strip-row .btn { flex: none; box-sizing: border-box; height: 24px; min-height: 0; padding: 0 6px; gap: 4px; border: 0; border-radius: 6px; box-shadow: none;
   background: none; color: var(--c-t2); font: 400 12px/16px var(--font); letter-spacing: 0; display: inline-flex; align-items: center; margin-inline: -2px; }
 @media (hover: hover) and (pointer: fine) {
