@@ -863,6 +863,17 @@ export default function register(hub) {
   // on document, not window: a load event never reaches window listeners (the DOM spec drops Window from its path)
   document.addEventListener("load", tallMark, true);
   document.addEventListener("error", tallMark, true);
+  // ☰ opened with a mouse or a tap: the core focuses "Settings" from a script, which a browser may count as keyboard focus (Safari does
+  // not focus a clicked button; a script focus after typing in a field also counts) — so the menu is marked and clean.css drops the
+  // ring; the first key pressed in the menu or on ☰ clears the mark, the keyboard ring is back
+  const navPtr = (e) => {
+    const box = document.getElementById("nav-extra");
+    if (!box) return;
+    if (e.type === "pointerdown") { if (e.target.closest?.("#navmenu, #nav-extra")) box.dataset.cleanPtr = ""; else delete box.dataset.cleanPtr; }
+    else if ("cleanPtr" in box.dataset) delete box.dataset.cleanPtr;
+  };
+  document.addEventListener("pointerdown", navPtr, true);
+  document.addEventListener("keydown", navPtr, true);
 
   const sync = () => {
     let id = "";

@@ -71,6 +71,12 @@ html.th-clean .app.left-folded main > .head { padding-left: 56px; }
 html.th-clean .app.left-folded .grip.left::before { display: none; }
 html.th-clean .app.left-folded .grip.left:not(:hover, :focus-visible, .dragging)::after { background: transparent; }
 @media (max-width: 760px) { html.th-clean :is(.clean-fold, .clean-fold-show) { display: none !important; } }
+/* телефон: колонка списка без полосы прокрутки (в тёмной теме ядро красит её светлой поверх края списка); прокрутка остаётся —
+   касание, колесо, клавиатура */
+@media (max-width: 760px) {
+  html.th-clean .app > aside #list { scrollbar-width: none; }
+  html.th-clean .app > aside #list::-webkit-scrollbar { display: none; }
+}
 /* как в Slack: с запросом поле белое с рамкой и крестиком «очистить»; ничего не нашлось — объяснение и кнопка (main.js) */
 /* фокус — белое поле и тонкая серая рамка чуть темнее обычной, без цветного ореола */
 html.th-clean .search input:not(:placeholder-shown) { background: var(--background); box-shadow: 0 0 0 1px var(--c-line); }
@@ -175,8 +181,10 @@ html.th-clean .active-bar button { display: inline-flex; align-items: center; ju
   html.th-clean .active-bar button:hover { background: var(--c-hover); }
 }
 html.th-clean .active-bar button[aria-pressed="true"] { background: var(--background); box-shadow: none; }
-html.th-clean .c-n { height: 16px; padding: 0 4px; display: inline-grid; place-items: center; border-radius: 4px; background: var(--c-badge);
-  font: 500 12px/16px var(--font); color: var(--c-t1); }
+/* без счётчиков во вкладках и у заголовков групп (решение владельца: число — только у непрочитанного): «Все 13 | Сейчас 2» → «Все | Сейчас»,
+   «Исполнители 12» → «Исполнители». Число ядра остаётся в DOM (splitTabs кладёт его в .c-n), но не рисуется; значки непрочитанного,
+   «ждёт вас», число исполнителей у строки и плитки модулей не трогаем */
+html.th-clean .active-bar .c-n { display: none; }
 
 /* ---- список: карточка «Хаб» 36, группы через 24, строка 40; справа — бейджи (через 6) и статус в боксе 16 (через 12) ---- */
 html.th-clean .list { padding: 28px 12px 0; }
@@ -376,8 +384,7 @@ html.th-clean .reactions { margin-top: 6px; }
 html.th-clean .row.mine > .b:has(> .reactions > .react-chip:only-child) { position: relative; padding-bottom: 24px; margin-bottom: 6px; }
 html.th-clean .row.mine > .b > .reactions:has(> .react-chip:only-child) { position: absolute; right: -4px; bottom: -6px; margin: 0; }
 
-html.th-clean .gcount { height: 16px; min-width: 0; padding: 0 4px; border-radius: 4px; background: var(--c-badge); opacity: .4;
-  font: 500 12px/16px var(--font); color: var(--c-t1); }
+html.th-clean .gcount { display: none; }
 
 /* ---- баннер ядра («Хаб обновился…», «Нет связи…») — первая строка карточки чата, над шапкой, своя подложка --c-badge
    (не фон окна и не белая карточка); верхние углы — как у окна, иначе ядровая прямоугольная заливка срезает скругление ---- */
@@ -1282,6 +1289,10 @@ html.th-clean .pal-reset:disabled { display: none; }
 /* ---- фокус с клавиатуры: плоские плашки темы без тени — кольцо явно ---- */
 html.th-clean :is(.srow, .active-bar button, .navmenu, .clean-fold, .clean-fold-show, .seg button, .fork-toggle, .sgroup-h, .gmore, .btn, .chat-head, .clean-lim, .clean-x, .linkbtn, .gpop-i, .md .code-copy, .board-card):focus-visible {
   outline: 2px solid var(--c-ring); outline-offset: 2px; }
+/* меню ☰, открытое мышью или касанием: ядро ставит фокус на первый пункт («Настройки») скриптом, и браузер может засчитать его как
+   клавиатурный (в Safari клик не фокусирует кнопку, фокус скриптом после ввода в поле — тоже) — тогда у «Настроек» рамка. main.js
+   помечает такое открытие (data-clean-ptr); первая же клавиша в меню снимает метку, и рамка с клавиатуры снова видна */
+html.th-clean #nav-extra[data-clean-ptr] :focus-visible { outline: 0; }
 
 /* ---- тихие hover и focus: синего нет ни у наведения, ни у фокуса; подложка --c-hover/--c-fill, рамка --c-line-strong,
    кольцо с клавиатуры --c-ring. Здесь — то, что приходит из ядра и плагинов: картинка во вложении (ядро lightbox.css и
