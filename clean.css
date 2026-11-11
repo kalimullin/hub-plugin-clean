@@ -611,6 +611,22 @@ html.th-clean .row:is(:focus-within) > .b > .reply-box > .meta > .reply-btn { op
   html.th-clean .row > .b > .reply-btn:hover, html.th-clean .row > .b > .reply-box > .meta > .reply-btn:hover { color: var(--c-t1); background: var(--c-fill); }
 }
 html.th-clean .reply-box > .meta > .clean-dot { display: none; }
+/* «Реакция» под ответом сессии: ядро пишет её словом в строке имени, а «Ответить» тема держит значком в углу — слово
+   наезжало на значок (телефон) или висело посреди строки (компьютер). Такая же тихая кнопка 24 со значком 16 слева от
+   «Ответить», видна тогда же; слово — в подсказке (main.js) и для чтения с экрана. Пока выбор реакций открыт — видна */
+html.th-clean .row > .b > .reply-btn ~ .react-add { position: absolute; z-index: 2; top: -2px; right: 28px; width: 24px; height: 24px; margin: 0; padding: 0;
+  display: flex; align-items: center; justify-content: center; box-sizing: border-box; border: 0; border-radius: 8px; font-size: 0; color: var(--c-t2);
+  background: none; box-shadow: none; opacity: 0; transition: opacity 120ms ease; }
+html.th-clean .row > .b > .reply-btn ~ .react-add::before { content: ""; width: 16px; height: 16px;
+  background: currentColor; -webkit-mask: url("react.svg") center / 16px no-repeat; mask: url("react.svg") center / 16px no-repeat; }
+html.th-clean .row:is(:focus-within) > .b > .reply-btn ~ .react-add, html.th-clean .row > .b > .reply-btn ~ .react-add[aria-expanded="true"] { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .row:is(:hover) > .b > .reply-btn ~ .react-add { opacity: 1; }
+  html.th-clean .row > .b > .reply-btn ~ .react-add:hover { color: var(--c-t1); background: var(--c-fill); }
+}
+@media (hover: none) {
+  html.th-clean .row > .b > .reply-btn ~ .react-add { opacity: 1; color: var(--c-t3); }
+}
 @media (hover: none) {
   html.th-clean .row > .b > .reply-btn, html.th-clean .row > .b > .reply-box > .meta > .reply-btn { opacity: 1; color: var(--c-t3); }
 }

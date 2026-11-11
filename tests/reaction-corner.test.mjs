@@ -37,3 +37,21 @@ test("on an own message the badge hangs on the bubble's bottom-right corner, 4px
 test("the open picker is not pinned to the corner", () => {
   assert.doesNotMatch(css, /\.reactions:has\(> \.react-pick\)[^{]*\{[^}]*position: absolute/);
 });
+
+// «Reaction» under a session's reply: the core writes it as a word in the name row, the theme keeps «Reply» as an icon in the
+// corner — the word ran into that icon on a phone. Here it is the same quiet 24 button with a 16 icon, left of «Reply»
+test("«Reaction» under a session's reply is an icon button left of «Reply», visible when «Reply» is", () => {
+  const sel = "html.th-clean .row > .b > .reply-btn ~ .react-add";
+  const btn = rule(sel);
+  assert.match(btn, /position: absolute/);
+  assert.match(btn, /top: -2px; right: 28px; width: 24px; height: 24px/);   // «Reply»: right 0, 24 wide, 4 apart
+  assert.match(btn, /font-size: 0/);
+  assert.match(btn, /opacity: 0/);
+  assert.match(rule(sel + "::before"), /mask: url\("react\.svg"\) center \/ 16px no-repeat/);
+  assert.match(css, /\.react-add\[aria-expanded="true"\] \{ opacity: 1; \}/);
+  assert.match(css, /@media \(hover: none\) \{\n  html\.th-clean \.row > \.b > \.reply-btn ~ \.react-add \{ opacity: 1;/);
+  const icons = JSON.parse(fs.readFileSync(path.join(root, "icons8.json"), "utf8"));
+  assert.equal(icons.icons.items.react.commonName, "happy");
+  assert.ok(fs.readFileSync(path.join(root, "react.svg"), "utf8").startsWith("<svg"));
+  assert.match(fs.readFileSync(path.join(root, "main.js"), "utf8"), /\.reply-btn ~ \.react-add:not\(\[title\]\)/);   // the word goes to the tooltip
+});

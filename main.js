@@ -441,11 +441,11 @@ export default function register(hub) {
       b.append(bars);
     }
   };
-  // «Ответить» — значком: слова — в подсказке; « · » перед ней в «ответила на ваше сообщение» — знаком, который тема прячет.
+  // «Ответить» и «Реакция» — значками: слова — в подсказке; « · » перед ней в «ответила на ваше сообщение» — знаком, который тема прячет.
   // Раскрытая переписка: от кнопки ядра остаётся шеврон — подпись «Свернуть». Меню группы без заголовка — имя для чтения с экрана
   const COLLAPSE = RU ? "Свернуть" : "Collapse";
   const actions = () => {
-    for (const b of document.querySelectorAll(".row .reply-btn:not([title])")) {
+    for (const b of document.querySelectorAll(".row .reply-btn:not([title]), .row > .b > .reply-btn ~ .react-add:not([title])")) {
       b.title = b.textContent.trim();
       const dot = b.previousSibling;
       if (b.parentElement.matches(".reply-box > .meta") && dot?.nodeType === 3 && dot.nodeValue === " · ") dot.replaceWith(hub.el("span", "clean-dot", " · "));
