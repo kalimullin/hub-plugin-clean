@@ -59,3 +59,17 @@ test("the icon map is local: the folder is ignored by git, a missing map or a na
   assert.match(js, /if \(!chatIcons\) return ""/);
   assert.match(js, /\^\[\\w-\]\+\\\.svg\$/, "only a plain file name from the map goes into url()");
 });
+
+test("a row finds its session by the core's key on <li> first: the bus liaison is labelled in the page's language, not by its name", () => {
+  assert.match(js, /const keyOf = \(r\) => \{ const d = r\.parentElement\?\.dataset; return d \? d\.s \|\| d\.m \|\| d\.f \|\| "" : ""; \};/);
+  assert.match(js, /const rowSession = \(r, ix, firstRow\) => ix\.byName\.get\(keyOf\(r\)\) \|\| ix\.find\(rowName\(r\)\)/);
+});
+
+test("the liaison's icon (📡) has a felt face of the theme, listed after the emoji that already owns that picture (the palette keeps one cell per picture)", () => {
+  for (const f of ["clean.json", "clean-dark.json"]) {
+    const av = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).avatars, keys = Object.keys(av);
+    assert.match(av["📡"], /^a\/fuzzy-[\w-]+\.jpg$/, f);
+    const owner = keys.find((k) => av[k] === av["📡"]);
+    assert.ok(owner !== "📡" && keys.indexOf(owner) < keys.indexOf("📡"), f);
+  }
+});

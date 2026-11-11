@@ -526,8 +526,11 @@ export default function register(hub) {
     return text || "";
   };
   const put = (node, key, v) => { if (v) { if (node.dataset[key] !== v) node.dataset[key] = v; } else if (key in node.dataset) delete node.dataset[key]; };
-  // the session of a row: by the name in it; the hub row carries its own label ("Хаб"), not the session name — it is the first row of the list
-  const rowSession = (r, ix, firstRow) => ix.find(rowName(r)) || (r === firstRow ? ix.hub : null);
+  // the session of a row: first by the key the core puts on the row's <li> (data-s / data-m top level, data-f an executor: the real
+  // session name), then by the name in it; rows whose label is not the session name — the hub ("Хаб"), the bus liaison ("Связной",
+  // sessionLabel in the page's language) — would not be found by the label alone; the hub row is also the first row of the list
+  const keyOf = (r) => { const d = r.parentElement?.dataset; return d ? d.s || d.m || d.f || "" : ""; };
+  const rowSession = (r, ix, firstRow) => ix.byName.get(keyOf(r)) || ix.find(rowName(r)) || (r === firstRow ? ix.hub : null);
   const rowDetail = () => {
     const detail = document.documentElement.classList.contains("th-clean-detail");
     const rows = document.querySelectorAll("#list .srow:not(.nav, .queued)");
