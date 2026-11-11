@@ -33,6 +33,10 @@ test("the tool name is in the text font; the path or command stays monospaced", 
   assert.match(rule("html.th-clean .tool .call .arg"), /color:\s*inherit/);
 });
 
+test("a helper agent's steps inside an Agent step name the tool in the text font too", () => {
+  assert.match(rule("html.th-clean .sub-step > summary b"), /font-family:\s*var\(--font\)/);
+});
+
 test("secondary step text is at least 4.5:1 on the feed and on the file chip, light and dark", () => {
   assert.match(rule("html.th-clean .tool .call"), /color:\s*var\(--c-t2\)/);
   assert.match(rule("html.th-clean .tool .res"), /color:\s*var\(--c-t2\)/);
