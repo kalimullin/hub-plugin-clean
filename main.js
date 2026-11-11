@@ -425,13 +425,6 @@ export default function register(hub) {
       tok.replaceChildren(document.createTextNode(t.slice(0, -3)), sep());
     }
   };
-  // бейдж исполнителей «2 ›»: место под него держит невидимый двойник строки — ему нужно только число
-  const forkCounts = () => {
-    for (const r of document.querySelectorAll("#list li.has-forks > .srow[data-fw]")) {
-      const n = r.dataset.fw.replace(/\D/g, "");
-      if (r.dataset.cleanFw !== n) r.dataset.cleanFw = n;
-    }
-  };
   // идёт запись голоса: в кнопке записи — четыре бегущих столбика (стили — clean.css); ядро пересоздаёт содержимое кнопки при смене
   // режима, поэтому их кладёт обход
   const recBars = () => {
@@ -683,7 +676,7 @@ export default function register(hub) {
   const sweep = () => {
     if (!on()) return;
     tagBylines(document); splitTabs(); rowDetail(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
-    avatars(); boardCount(); headNote(); groupTools(); placeholders(); separators(); forkCounts(); recBars(); actions(); queuePlate(); finishItem();
+    avatars(); boardCount(); headNote(); groupTools(); placeholders(); separators(); recBars(); actions(); queuePlate(); finishItem();
     boardRecap(); rowFaces(); recentOrder(); keepList();
     fit.hook();
     voiceText.sweep();

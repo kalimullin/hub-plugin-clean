@@ -41,7 +41,16 @@ test("the All | Now tabs carry no count: the number split out by the theme is no
 test("unread and waiting marks stay: the waiting count and the To-do tile count are not hidden", () => {
   assert.match(rule("html.th-clean .srow .tag:not(.soft)[data-n]::after"), /content: attr\(data-n\)/);
   assert.doesNotMatch(css, /\.wt-tile-count[^{]*\{[^}]*display: none/);
-  assert.doesNotMatch(css, /\.fork-toggle \.n[^{]*\{[^}]*display: none/);
+});
+
+test("the executors badge on a row carries no count, and its room in the row shrinks to the badge without a digit", () => {
+  assert.match(rule("html.th-clean .fork-toggle .n"), /display: none/);
+  const twin = rule("html.th-clean li.has-forks > .srow::after");
+  assert.match(twin, /content: ""/, "the invisible twin holds no digits");
+  assert.match(twin, /padding: 0 12px 0 4px/, "4 + 12 = the badge's padding plus its 10 px chevron");
+  assert.match(rule("html.th-clean .fork-toggle"), /padding: 0 2px 0 4px/);
+  assert.match(rule("html.th-clean .fork-toggle .chev"), /width: 10px/);
+  assert.doesNotMatch(css, /attr\(data-clean-fw\)/);
 });
 
 test("on a phone the list has no scroll bar, it still scrolls", () => {
