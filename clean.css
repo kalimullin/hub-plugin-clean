@@ -71,6 +71,12 @@ html.th-clean .app.left-folded main > .head { padding-left: 56px; }
 html.th-clean .app.left-folded .grip.left::before { display: none; }
 html.th-clean .app.left-folded .grip.left:not(:hover, :focus-visible, .dragging)::after { background: transparent; }
 @media (max-width: 760px) { html.th-clean :is(.clean-fold, .clean-fold-show) { display: none !important; } }
+/* телефон: колонка списка без полосы прокрутки (в тёмной теме ядро красит её светлой поверх края списка); прокрутка остаётся —
+   касание, колесо, клавиатура */
+@media (max-width: 760px) {
+  html.th-clean .app > aside #list { scrollbar-width: none; }
+  html.th-clean .app > aside #list::-webkit-scrollbar { display: none; }
+}
 /* как в Slack: с запросом поле белое с рамкой и крестиком «очистить»; ничего не нашлось — объяснение и кнопка (main.js) */
 /* фокус — белое поле и тонкая серая рамка чуть темнее обычной, без цветного ореола */
 html.th-clean .search input:not(:placeholder-shown) { background: var(--background); box-shadow: 0 0 0 1px var(--c-line); }
@@ -175,6 +181,11 @@ html.th-clean .active-bar button { display: inline-flex; align-items: center; ju
   html.th-clean .active-bar button:hover { background: var(--c-hover); }
 }
 html.th-clean .active-bar button[aria-pressed="true"] { background: var(--background); box-shadow: none; }
+/* без счётчиков во вкладках и у заголовков групп (решение владельца: число — только у непрочитанного): «Все 13 | Сейчас 2» → «Все | Сейчас»,
+   «Исполнители 12» → «Исполнители». Число ядра остаётся в DOM (splitTabs кладёт его в .c-n), но не рисуется; значки непрочитанного,
+   «ждёт вас», число исполнителей у строки и плитки модулей не трогаем */
+html.th-clean:not(.th-clean-counts) .active-bar .c-n { display: none; }
+/* настройка «Счётчики в списке» (Вид, main.js: класс th-clean-counts) возвращает числа — вкладки, группы, бейдж исполнителей «252 ›» */
 html.th-clean .c-n { height: 16px; padding: 0 4px; display: inline-grid; place-items: center; border-radius: 4px; background: var(--c-badge);
   font: 500 12px/16px var(--font); color: var(--c-t1); }
 
@@ -273,10 +284,14 @@ html.th-clean .srow .tag:not(.soft)[data-n] { font-size: 0; }
 html.th-clean .srow .tag:not(.soft)[data-n]::after { content: attr(data-n); font: 500 12px/16px var(--font); font-variant-numeric: tabular-nums; }
 html.th-clean li.has-forks > .srow > .tag:not(.soft) { margin-right: -6px; }   /* до бейджа исполнителей — 6, не 12 */
 html.th-clean .srow.blocked { box-shadow: none; }
-/* исполнители «2 ›» — бейдж 16 r4 на 10% с прозрачностью .4 (ядро ставит его поверх строки; место под него держит
-   невидимый двойник ::after): справа от него — статус через 12, а нет статуса — край строки */
+/* исполнители «›» — бейдж 16 r4 на 10% с прозрачностью .4 (ядро ставит его поверх строки; место под него держит
+   невидимый двойник ::after): справа от него — статус через 12, а нет статуса — край строки. Числа исполнителей нет —
+   декоративный счётчик (сколько их, скажет подсказка и раскрытый список); двойник — пустой, 4 + 12 = ширина бейджа без цифры */
 html.th-clean li.has-forks > .srow { padding-right: 8px; }
-html.th-clean li.has-forks > .srow::after { content: attr(data-clean-fw); visibility: hidden; margin: 0; padding: 0 12px 0 4px; font: 500 12px/16px var(--font); }
+html.th-clean li.has-forks > .srow::after { content: ""; visibility: hidden; margin: 0; padding: 0 12px 0 4px; font: 500 12px/16px var(--font); }
+html.th-clean:not(.th-clean-counts) .fork-toggle .n { display: none; }
+/* со счётчиками («Счётчики в списке» в Вид) двойник снова несёт число (main.js forkCounts → data-clean-fw): «252 ›» */
+html.th-clean.th-clean-counts li.has-forks > .srow::after { content: attr(data-clean-fw); }
 html.th-clean li.has-forks > .srow.fw-dot::after { padding-right: calc(12px + 6px); }
 html.th-clean .fork-toggle { right: 8px; height: 16px; min-height: 0; padding: 0 2px 0 4px; gap: 0; border: 0; border-radius: 4px; background: var(--c-badge);
   box-shadow: none; opacity: .4; font: 500 12px/16px var(--font); color: var(--c-t1); }
@@ -289,6 +304,12 @@ html.th-clean .fork-toggle:has(.fdot.wants) { opacity: 1; border: 0; }
 html.th-clean .fork-toggle .fdot { width: 3px; height: 3px; margin: 0 2px; background: currentColor; }
 /* шеврон бейджа — 8 в боксе 10: при 12 он был крупнее цифры рядом */
 html.th-clean .fork-toggle .chev { width: 10px; height: 10px; -webkit-mask-size: 8px; mask-size: 8px; }
+/* без числа бейдж — квадрат 16 с одним «›»: поля поровну, шеврон по центру (поля 4/2 держат зазор только после цифры) */
+html.th-clean:not(.th-clean-counts) .fork-toggle { padding: 0 3px; justify-content: center; }
+/* глиф next-page.svg сидит в своём квадрате на 1/24 правее центра (x 8,3–17,7 из 24): при 8 px это 0,33 px. Сдвиг — translate
+   (сдвиг маски браузер округляет до пикселя); раскрытый «›» повёрнут вниз — тот же сдвиг вверх. По пикселям снимка поля 6/6 и 5/5 */
+html.th-clean:not(.th-clean-counts) .fork-toggle .chev { translate: -.33px 0; }
+html.th-clean:not(.th-clean-counts) .fork-toggle .chev[data-down="1"] { translate: 0 -.33px; }
 
 /* галочки и переключатели настроек — серо-чёрные, не синие системные (виден и флажок «Подробный список сессий») */
 html.th-clean :is(input[type="checkbox"], input[type="radio"]) { accent-color: var(--c-ink); }
@@ -378,6 +399,7 @@ html.th-clean .row.mine > .b > .reactions:has(> .react-chip:only-child) { positi
 
 html.th-clean .gcount { height: 16px; min-width: 0; padding: 0 4px; border-radius: 4px; background: var(--c-badge); opacity: .4;
   font: 500 12px/16px var(--font); color: var(--c-t1); }
+html.th-clean:not(.th-clean-counts) .gcount { display: none; }
 
 /* ---- баннер ядра («Хаб обновился…», «Нет связи…») — первая строка карточки чата, над шапкой, своя подложка --c-badge
    (не фон окна и не белая карточка); верхние углы — как у окна, иначе ядровая прямоугольная заливка срезает скругление ---- */
@@ -611,6 +633,22 @@ html.th-clean .row:is(:focus-within) > .b > .reply-box > .meta > .reply-btn { op
   html.th-clean .row > .b > .reply-btn:hover, html.th-clean .row > .b > .reply-box > .meta > .reply-btn:hover { color: var(--c-t1); background: var(--c-fill); }
 }
 html.th-clean .reply-box > .meta > .clean-dot { display: none; }
+/* «Реакция» под ответом сессии: ядро пишет её словом в строке имени, а «Ответить» тема держит значком в углу — слово
+   наезжало на значок (телефон) или висело посреди строки (компьютер). Такая же тихая кнопка 24 со значком 16 слева от
+   «Ответить», видна тогда же; слово — в подсказке (main.js) и для чтения с экрана. Пока выбор реакций открыт — видна */
+html.th-clean .row > .b > .reply-btn ~ .react-add { position: absolute; z-index: 2; top: -2px; right: 28px; width: 24px; height: 24px; margin: 0; padding: 0;
+  display: flex; align-items: center; justify-content: center; box-sizing: border-box; border: 0; border-radius: 8px; font-size: 0; color: var(--c-t2);
+  background: none; box-shadow: none; opacity: 0; transition: opacity 120ms ease; }
+html.th-clean .row > .b > .reply-btn ~ .react-add::before { content: ""; width: 16px; height: 16px;
+  background: currentColor; -webkit-mask: url("react.svg") center / 16px no-repeat; mask: url("react.svg") center / 16px no-repeat; }
+html.th-clean .row:is(:focus-within) > .b > .reply-btn ~ .react-add, html.th-clean .row > .b > .reply-btn ~ .react-add[aria-expanded="true"] { opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .row:is(:hover) > .b > .reply-btn ~ .react-add { opacity: 1; }
+  html.th-clean .row > .b > .reply-btn ~ .react-add:hover { color: var(--c-t1); background: var(--c-fill); }
+}
+@media (hover: none) {
+  html.th-clean .row > .b > .reply-btn ~ .react-add { opacity: 1; color: var(--c-t3); }
+}
 @media (hover: none) {
   html.th-clean .row > .b > .reply-btn, html.th-clean .row > .b > .reply-box > .meta > .reply-btn { opacity: 1; color: var(--c-t3); }
 }
@@ -1282,6 +1320,10 @@ html.th-clean .pal-reset:disabled { display: none; }
 /* ---- фокус с клавиатуры: плоские плашки темы без тени — кольцо явно ---- */
 html.th-clean :is(.srow, .active-bar button, .navmenu, .clean-fold, .clean-fold-show, .seg button, .fork-toggle, .sgroup-h, .gmore, .btn, .chat-head, .clean-lim, .clean-x, .linkbtn, .gpop-i, .md .code-copy, .board-card):focus-visible {
   outline: 2px solid var(--c-ring); outline-offset: 2px; }
+/* меню ☰, открытое мышью или касанием: ядро ставит фокус на первый пункт («Настройки») скриптом, и браузер может засчитать его как
+   клавиатурный (в Safari клик не фокусирует кнопку, фокус скриптом после ввода в поле — тоже) — тогда у «Настроек» рамка. main.js
+   помечает такое открытие (data-clean-ptr); первая же клавиша в меню снимает метку, и рамка с клавиатуры снова видна */
+html.th-clean #nav-extra[data-clean-ptr] :focus-visible { outline: 0; }
 
 /* ---- тихие hover и focus: синего нет ни у наведения, ни у фокуса; подложка --c-hover/--c-fill, рамка --c-line-strong,
    кольцо с клавиатуры --c-ring. Здесь — то, что приходит из ядра и плагинов: картинка во вложении (ядро lightbox.css и

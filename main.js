@@ -425,8 +425,9 @@ export default function register(hub) {
       tok.replaceChildren(document.createTextNode(t.slice(0, -3)), sep());
     }
   };
-  // бейдж исполнителей «2 ›»: место под него держит невидимый двойник строки — ему нужно только число
+  // «Счётчики в списке» (Вид): бейдж исполнителей «2 ›» — место под него держит невидимый двойник строки, ему нужно только число
   const forkCounts = () => {
+    if (!document.documentElement.classList.contains("th-clean-counts")) return;
     for (const r of document.querySelectorAll("#list li.has-forks > .srow[data-fw]")) {
       const n = r.dataset.fw.replace(/\D/g, "");
       if (r.dataset.cleanFw !== n) r.dataset.cleanFw = n;
@@ -441,11 +442,11 @@ export default function register(hub) {
       b.append(bars);
     }
   };
-  // «Ответить» — значком: слова — в подсказке; « · » перед ней в «ответила на ваше сообщение» — знаком, который тема прячет.
+  // «Ответить» и «Реакция» — значками: слова — в подсказке; « · » перед ней в «ответила на ваше сообщение» — знаком, который тема прячет.
   // Раскрытая переписка: от кнопки ядра остаётся шеврон — подпись «Свернуть». Меню группы без заголовка — имя для чтения с экрана
   const COLLAPSE = RU ? "Свернуть" : "Collapse";
   const actions = () => {
-    for (const b of document.querySelectorAll(".row .reply-btn:not([title])")) {
+    for (const b of document.querySelectorAll(".row .reply-btn:not([title]), .row > .b > .reply-btn ~ .react-add:not([title])")) {
       b.title = b.textContent.trim();
       const dot = b.previousSibling;
       if (b.parentElement.matches(".reply-box > .meta") && dot?.nodeType === 3 && dot.nodeValue === " · ") dot.replaceWith(hub.el("span", "clean-dot", " · "));
@@ -510,7 +511,9 @@ export default function register(hub) {
     { key: "avatars", on: true, label: RU ? "Аватарки у чатов" : "Chat avatars",
       hint: RU ? "У специалистов и исполнителей — аватарка, у направлений — значок. Без галочки — только названия." : "Specialists and executors get an avatar, directions get an icon. Unchecked, names only." },
     { key: "recent", on: true, label: RU ? "Сортировать по последнему сообщению" : "Sort by last message",
-      hint: RU ? "В каждой группе сверху чат с самым свежим сообщением, «Хаб» первый. Строки не перетаскиваются: в другую группу — через меню строки. Без галочки — порядок хаба." : "In each group the chat with the newest message is on top, the Hub stays first. Rows are not draggable: to another group via the row menu. Unchecked, the hub's own order." }],
+      hint: RU ? "В каждой группе сверху чат с самым свежим сообщением, «Хаб» первый. Строки не перетаскиваются: в другую группу — через меню строки. Без галочки — порядок хаба." : "In each group the chat with the newest message is on top, the Hub stays first. Rows are not draggable: to another group via the row menu. Unchecked, the hub's own order." },
+    { key: "counts", on: false, label: RU ? "Счётчики в списке" : "Counts in the list",
+      hint: RU ? "Числа во вкладках «Все | Сейчас», у групп и в бейдже исполнителей. Без галочки — только непрочитанное и «ждёт вас»." : "Totals in the All | Now tabs, next to groups and in the executors badge. Unchecked, only unread and waiting marks." }],
   });
   // sorting is the core's own order hook (hub.addOrder): rows come out of the core already in place, no DOM moves; the groups the core
   // does not order (Sleeping) and the ones with a manual order (drag and drop) are fixed up in recentOrder
@@ -674,6 +677,7 @@ export default function register(hub) {
     document.documentElement.classList.toggle("th-clean-detail", !!hub.option?.("detail"));
     document.documentElement.classList.toggle("th-clean-av", !!hub.option?.("avatars"));
     document.documentElement.classList.toggle("th-clean-recent", !!hub.option?.("recent"));
+    document.documentElement.classList.toggle("th-clean-counts", !!hub.option?.("counts"));
   };
   detailClass();
   addEventListener("hub-redraw", () => { detailClass(); sweep(); });
@@ -863,6 +867,17 @@ export default function register(hub) {
   // on document, not window: a load event never reaches window listeners (the DOM spec drops Window from its path)
   document.addEventListener("load", tallMark, true);
   document.addEventListener("error", tallMark, true);
+  // ☰ opened with a mouse or a tap: the core focuses "Settings" from a script, which a browser may count as keyboard focus (Safari does
+  // not focus a clicked button; a script focus after typing in a field also counts) — so the menu is marked and clean.css drops the
+  // ring; the first key pressed in the menu or on ☰ clears the mark, the keyboard ring is back
+  const navPtr = (e) => {
+    const box = document.getElementById("nav-extra");
+    if (!box) return;
+    if (e.type === "pointerdown") { if (e.target.closest?.("#navmenu, #nav-extra")) box.dataset.cleanPtr = ""; else delete box.dataset.cleanPtr; }
+    else if ("cleanPtr" in box.dataset) delete box.dataset.cleanPtr;
+  };
+  document.addEventListener("pointerdown", navPtr, true);
+  document.addEventListener("keydown", navPtr, true);
 
   const sync = () => {
     let id = "";
