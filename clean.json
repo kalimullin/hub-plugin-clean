@@ -14,7 +14,7 @@
     "primary": "#4f6cf6",
     "primary-foreground": "#ffffff",
     "ring": "#c9c9d0",
-    "destructive": "#ef4e4e",
+    "destructive": "#c4170e",
     "warning": "#ec6e0e",
     "success": "#1fb141",
     "code": "#27272a",

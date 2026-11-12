@@ -25,7 +25,8 @@ html.th-clean {
   --c-t3: light-dark(rgb(0 0 0 / 0.28), rgb(255 255 255 / 0.30));        /* время, подписи групп, «·» */
   --c-preview: light-dark(rgb(0 0 0 / 0.55), rgb(255 255 255 / 0.50));   /* превью сообщения в «Подробном» списке: ≥4,5:1 к фону, к карточке и в тёмной (в светлой темой светлее нельзя: 50% даёт 3,9:1) */
   --c-ink: light-dark(#000, #fff);                                         /* точки «работает»: этим цветом с прозрачностью */
-  --c-alert: light-dark(#ef4e4e, #cf3a3a);   /* красная заливка с белым текстом: в тёмной 4,9:1 */
+  --c-alert: #d93636;   /* красная заливка под белым текстом, одна в обеих темах: белый на ней 4,63:1, к фону ≥3:1 */
+  --c-alert-ink: light-dark(var(--destructive), #ff6961);   /* красный текст на красной плашке и под курсором: в тёмной #ff453a там 4,4:1 и 4,2:1, #ff6961 — 5,3 и 5,1 */
   --c-free: light-dark(#1fb141, #4cd46a); --c-free-bg: light-dark(#e7f9eb, #173a22);
   --c-eco: light-dark(#876200, #ffd60a);   /* жёлтый «режима экономии» в блоке расхода: тёмная охра на светлом (4,5:1+), яркий жёлтый на тёмном */
   --c-busy: light-dark(#a35d1c, #f2b25a); --c-busy-bg: light-dark(#fffbea, #3a2c12);
@@ -280,6 +281,7 @@ html.th-clean :is(.srow .tag:not(.soft), main > .btn.jumpnew .n) { height: 16px;
   padding: 0 4px; align-self: center; margin-top: 0; border-radius: 4px; color: #fff; font: 500 12px/16px var(--font); }
 html.th-clean .srow .tag:not(.soft) { background: var(--c-alert); }
 /* счётчик «К последнему» — та же форма, что бейдж списка; цвет свой (синий ядра) */
+html.th-clean main > .btn.jumpnew .n { color: light-dark(#fff, var(--primary-foreground)); }   /* на голубом #7d93ff тёмной белый — 2,8:1, тёмный — 6,8:1 */
 html.th-clean .srow .tag:not(.soft)[data-n] { font-size: 0; }
 html.th-clean .srow .tag:not(.soft)[data-n]::after { content: attr(data-n); font: 500 12px/16px var(--font); font-variant-numeric: tabular-nums; }
 html.th-clean li.has-forks > .srow > .tag:not(.soft) { margin-right: -6px; }   /* до бейджа исполнителей — 6, не 12 */
@@ -892,8 +894,10 @@ html.th-clean .vf-slot > .btn.round { width: 32px; height: 32px; border-radius: 
 html.th-clean .vf-slot > .btn.round.vf-rec { width: auto; padding: 0 10px 0 8px; gap: 8px; color: var(--destructive); }
 @media (hover: hover) and (pointer: fine) {
   html.th-clean .vf-slot > .btn.round:is(.vf-rec, .vf-trash):hover { background: var(--c-fill); }
-  html.th-clean .vf-slot > .btn.round.vf-rec:hover { color: var(--destructive); }
+  html.th-clean .vf-slot > .btn.round.vf-rec:hover { color: var(--c-alert-ink); }
 }
+/* «аккаунт остановлен» ядра: красный текст на красной плашке 12% — в тёмной светлее, ≥4,5:1 */
+html.th-clean .ac-stop { color: var(--c-alert-ink); }
 html.th-clean .vf-slot .vf-dot { width: 8px; height: 8px; flex: none; }
 html.th-clean .vf-slot .vf-time { font: 500 14px/20px var(--font); font-variant-numeric: tabular-nums; }
 @supports not (anchor-name: --a) { html.th-clean .dock-inner:has(.vf-btn:is(.vf-count, .vf-rec, .vf-work)) form.composer .bar > .btn.round.mic { display: none; } }
