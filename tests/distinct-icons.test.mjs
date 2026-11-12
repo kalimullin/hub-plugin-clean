@@ -19,6 +19,9 @@ test("hide and show the list: Icons8 side-panel icons, one for each direction, n
   assert.equal(items["sidebar-hide"].commonName, "hide-sidepanel");
   assert.equal(items["sidebar-show"].commonName, "show-sidepanel");
   assert.notEqual(d("sidebar-hide.svg"), d("sidebar-show.svg"));
+  for (const k of ["sidebar-hide", "sidebar-show"]) assert.match(items[k].note, /Forma Regular has no side-panel icon/);
+  const outside = Object.keys(items).filter((k) => items[k].platform && !items[k].platform.startsWith("forma-"));
+  assert.deepEqual(outside.sort(), ["sidebar-hide", "sidebar-show"]);   // the one exception to the pack
 });
 
 test("auto-sort of groups is not the queue icon, reset of groups is not the reply arrow", () => {
@@ -28,5 +31,11 @@ test("auto-sort of groups is not the queue icon, reset of groups is not the repl
   assert.notEqual(d("reset.svg"), d("reply.svg"));
   assert.notEqual(items.sort.id, items.queue.id);
   assert.notEqual(items.reset.id, items.reply.id);
+  for (const k of ["reset", "reset-groups"]) {
+    assert.notEqual(items[k].commonName, items.reply.commonName);
+    assert.ok(!/undo|reply/.test(items[k].commonName), `${k} must not be an undo/reply arrow`);
+  }
+  assert.ok(!fs.existsSync(path.join(root, "undo.svg")));
+  assert.ok(!d("reset.svg").startsWith("M 6.9804688 2.9902344"), "reset.svg is the old undo drawing");   // the arrow it replaced
   for (const k of ["sort", "reset", "auto-sort", "reset-groups"]) assert.equal(items[k].platform, undefined);   // Forma Regular, the set's pack
 });

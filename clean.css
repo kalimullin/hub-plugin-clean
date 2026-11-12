@@ -64,7 +64,7 @@ html.th-clean .clean-fold-show { --fold-ic: url("sidebar-show.svg"); }
 @media (hover: hover) and (pointer: fine) {
   html.th-clean :is(.clean-fold, .clean-fold-show):hover { background: var(--c-hover); color: var(--c-t1); }
 }
-html.th-clean .clean-fold-show { display: none; position: absolute; left: 22px; top: 18px; z-index: 3; }
+html.th-clean .clean-fold-show { display: none; position: absolute; left: 22px; top: 10px; z-index: 3; }   /* 36px centred on the 56px header row, level with the title */
 html.th-clean .app.left-folded .clean-fold-show { display: grid; }
 html.th-clean .app.left-folded main > .head { padding-left: 56px; }
 /* список скрыт — поля вокруг окна одинаковые: слева у ядра 8 + пустая колонка списка и зазор 8, справа 8; кнопка — значком на сетке ленты (14 + 10 = 24) */

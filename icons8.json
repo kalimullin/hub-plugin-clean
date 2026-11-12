@@ -172,12 +172,14 @@
       "sidebar-hide": {
         "id": "T0B5v23rpPnX",
         "commonName": "hide-sidepanel",
-        "platform": "fluent-systems-regular"
+        "platform": "fluent-systems-regular",
+        "note": "The only icons outside Forma: Forma Regular has no side-panel icon"
       },
       "sidebar-show": {
         "id": "Q06cP18SjRap",
         "commonName": "show-sidepanel",
-        "platform": "fluent-systems-regular"
+        "platform": "fluent-systems-regular",
+        "note": "The only icons outside Forma: Forma Regular has no side-panel icon"
       }
     }
   }
