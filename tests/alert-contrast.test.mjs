@@ -48,7 +48,7 @@ test("red text without a fill (--destructive): ≥4.5:1 on the window and on the
     assert.ok(css.includes(sel), sel);
 });
 
-test("red text on a red tint (the core's .ac-stop, 12%) and on hover (--c-fill): ≥4.5:1 in both themes", () => {
+test("red text on a red tint (the core's .ac-stop 12%, diff 13%) and on hover (--c-fill, --accent): ≥4.5:1 in both themes", () => {
   const [il, id] = token("--c-alert-ink");
   const [fl, fd] = token("--c-fill");
   const alpha = (v) => +/\/ ([\d.]+)\)/.exec(v)[1];
@@ -57,8 +57,10 @@ test("red text on a red tint (the core's .ac-stop, 12%) and on hover (--c-fill):
     const tint = over(rgb(colors.destructive), 0.12, page), hover = over(base, alpha(fill), page);
     assert.ok(ratio(text, tint) >= 4.5, `${name} on the tint: ${ratio(text, tint).toFixed(2)}`);
     assert.ok(ratio(text, hover) >= 4.5, `${name} on hover: ${ratio(text, hover).toFixed(2)}`);
+    for (const a of [0.12, 0.13]) { const t = over(rgb(colors.destructive), a, page); assert.ok(ratio(text, t) >= 4.5, `${name} on a ${a} tint: ${ratio(text, t).toFixed(2)}`); }
+    assert.ok(ratio(text, rgb(colors.accent)) >= 4.5, `${name} on --accent (hover of .btn): ${ratio(text, rgb(colors.accent)).toFixed(2)}`);
   }
-  assert.match(css, /html\.th-clean \.ac-stop \{ color: var\(--c-alert-ink\); \}/);
+  assert.ok(css.includes("html.th-clean :is(.ac-stop, pre.diff .del .mk, .btn.danger:hover, .job .btn.remove:is(:hover, :focus-visible)) { color: var(--c-alert-ink); }"));
   assert.match(css, /\.vf-slot > \.btn\.round\.vf-rec:hover \{ color: var\(--c-alert-ink\); \}/);
 });
 
