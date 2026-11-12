@@ -37,11 +37,10 @@ together with the code that follows it, and with a reason.
 - **Icons are Icons8 Forma Regular, drawn as a mask.** `background: currentColor` plus `mask: url("x.svg")` at
   12, 16 or 20px; the color comes from the text, never from the asset. Hover, active and disabled change the
   color in CSS, not the file. Dark theme icons are the white set in `id/`. One family: no emoji or text glyphs
-  doing an icon's job, no second icon set. If Forma has no glyph, draw it in the same stroke (2px on a 24 grid)
-  and say so in the PR. Exception: when Forma has no glyph for the meaning, an Icons8 icon from another set is
-  taken instead of a drawing and marked with `note` in `icons8.json`. Today that is only hide/show the list
-  (Fluent Regular `hide-sidepanel` T0B5v23rpPnX and `show-sidepanel` Q06cP18SjRap): Forma Regular has no
-  side-panel icon.
+  doing an icon's job, no hand-drawn icons. If Forma has no glyph for the meaning, take an Icons8 icon from
+  another set (not a drawing), mark it with `note` in `icons8.json` and say so in the PR. Today that is only
+  hide/show the list — Forma Regular has no side-panel icon: Fluent Regular `hide-sidepanel` T0B5v23rpPnX and
+  `show-sidepanel` Q06cP18SjRap.
 - **Radii: 4, 6, 8, 12, 16, 20.** 4 — badges; 6 — avatars; 8 — buttons, fields, rows, menu items; 12 — menus and
   cards in the feed; 16 — windows; 20 — composer and bubbles; `9999px` — pills and dots. Nested radius is the
   outer radius minus the padding. A new value in this list is not accepted.
@@ -106,8 +105,8 @@ Not accepted:
 
 - A new color literal, shadow, gradient, radius, font size or font family outside the lists above.
 - A bare `:hover`; a focus or hover color that is blue; a removed outline.
-- Icons from another set (beyond the noted exception above), emoji used as icons, a colored icon file instead of
-  a mask.
+- A hand-drawn icon; an icon from another set where Forma has the glyph, or without a `note`; emoji used as
+  icons; a colored icon file instead of a mask.
 - A second header row on desktop, a new always-visible element in a list row, a control that does not match the
   size of its neighbours.
 - Several unrelated changes in one PR: one PR, one question.
