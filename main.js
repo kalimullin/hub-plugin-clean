@@ -381,13 +381,15 @@ export default function register(hub) {
     if (v) { if (l.dataset.cleanFade !== v) l.dataset.cleanFade = v; } else if (l.hasAttribute("data-clean-fade")) delete l.dataset.cleanFade;
   };
   addEventListener("resize", fade, { passive: true });
-  // затухание под лентой (за полем ввода) гаснет к концу прокрутки: --clean-end на main, 1 — вся глубина 80, 0 — лента у низа
+  // затухание под лентой (за полем ввода) гаснет к концу прокрутки: --clean-end на .dock (его читает только .dock::before), 1 — вся
+  // глубина 80, 0 — лента у низа. На main переменную наследовала вся лента, и каждый шаг прокрутки у конца пересчитывал стили
+  // всех сообщений
   const feedEnd = () => {
-    const f = document.querySelector("main > .feed");
-    if (!f) return;
+    const f = document.querySelector("main > .feed"), d = f?.parentElement.querySelector(":scope > .dock");
+    if (!f || !d) return;
     if (!f.dataset.cleanEndOn) { f.dataset.cleanEndOn = "1"; f.addEventListener("scroll", feedEnd, { passive: true }); }
     const k = on() ? Math.round(Math.min(1, Math.max(0, (f.scrollHeight - f.clientHeight - f.scrollTop) / 80)) * 100) / 100 : 1;
-    if (f.parentElement.style.getPropertyValue("--clean-end") !== String(k)) f.parentElement.style.setProperty("--clean-end", String(k));
+    if (d.style.getPropertyValue("--clean-end") !== String(k)) d.style.setProperty("--clean-end", String(k));
   };
   addEventListener("resize", feedEnd, { passive: true });
   // подсказки полей — короче, как в макете: «Найти…», «Задача или вопрос хабу…» (про пробел для записи — в подсказке
