@@ -53,12 +53,14 @@ html.th-clean .search input { height: 36px; border: 0; border-radius: 8px; paddi
 html.th-clean .search input::placeholder { color: var(--c-t3); }
 html.th-clean .search .icon { left: 8px; width: 16px; height: 16px; color: var(--c-t3); }
 html.th-clean .search kbd { display: none; }
-/* скрыть список: кнопка 36 рядом с поиском (значок sidebar.svg — в Forma Regular такого нет, нарисован в её штрихе 2 на сетке 24);
+/* скрыть список: кнопка 36 рядом с поиском (значки Icons8 «hide-sidepanel» и «show-sidepanel» — в Forma Regular панели нет, взяты из Fluent Regular);
    у скрытого списка — такая же в углу страницы слева от заголовка, ядро держит выбор в hub.leftFolded */
 html.th-clean .clean-fold, html.th-clean .clean-fold-show { flex: none; width: 36px; height: 36px; padding: 0; display: grid; place-items: center;
   border: 0; border-radius: 8px; background: none; color: var(--c-t2); cursor: pointer; }
 html.th-clean :is(.clean-fold, .clean-fold-show)::before { content: ""; width: 16px; height: 16px; background: currentColor;
-  -webkit-mask: url("sidebar.svg") center / 16px no-repeat; mask: url("sidebar.svg") center / 16px no-repeat; }
+  -webkit-mask: var(--fold-ic) center / 16px no-repeat; mask: var(--fold-ic) center / 16px no-repeat; }
+html.th-clean .clean-fold { --fold-ic: url("sidebar-hide.svg"); }
+html.th-clean .clean-fold-show { --fold-ic: url("sidebar-show.svg"); }
 @media (hover: hover) and (pointer: fine) {
   html.th-clean :is(.clean-fold, .clean-fold-show):hover { background: var(--c-hover); color: var(--c-t1); }
 }
@@ -213,7 +215,7 @@ html.th-clean #list .g-tools .btn::before { content: ""; flex: none; width: 16px
   -webkit-mask: var(--g-ic) center / 16px no-repeat; mask: var(--g-ic) center / 16px no-repeat; }
 html.th-clean #list .g-tools .add-group { --g-ic: url("plus.svg"); }
 html.th-clean #list .g-tools .auto { --g-ic: url("sort.svg"); }
-html.th-clean #list .g-tools .btn:not(.add-group, .auto) { --g-ic: url("undo.svg"); }
+html.th-clean #list .g-tools .btn:not(.add-group, .auto) { --g-ic: url("reset.svg"); }
 html.th-clean .srow { grid-template-columns: minmax(0, 1fr); align-content: center; align-items: center; gap: 12px; min-height: 40px; padding: 0 8px; border-radius: 8px; }
 html.th-clean .srow .txt { display: block; }
 /* имя: Regular, у активной (бейдж или статус) — Medium */

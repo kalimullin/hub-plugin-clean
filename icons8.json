@@ -122,12 +122,12 @@
         "commonName": "delete-sign"
       },
       "auto-sort": {
-        "id": "EVNIdw9lheVM",
-        "commonName": "generic-sorting"
+        "id": "QkRhaWJoR0ym",
+        "commonName": "sorting-arrows"
       },
       "reset-groups": {
-        "id": "S7SKZVBPSZp3",
-        "commonName": "undo"
+        "id": "zZuhf5Ir0HDN",
+        "commonName": "replay"
       },
       "folder": {
         "id": "AMPR2zSwInml",
@@ -150,12 +150,12 @@
         "commonName": "delete-sign"
       },
       "sort": {
-        "id": "EVNIdw9lheVM",
-        "commonName": "generic-sorting"
+        "id": "QkRhaWJoR0ym",
+        "commonName": "sorting-arrows"
       },
-      "undo": {
-        "id": "S7SKZVBPSZp3",
-        "commonName": "undo"
+      "reset": {
+        "id": "zZuhf5Ir0HDN",
+        "commonName": "replay"
       },
       "compass": {
         "id": "agP5MiwyBE5K",
@@ -168,6 +168,16 @@
       "react": {
         "id": "yTE6bJv3ee2S",
         "commonName": "happy"
+      },
+      "sidebar-hide": {
+        "id": "T0B5v23rpPnX",
+        "commonName": "hide-sidepanel",
+        "platform": "fluent-systems-regular"
+      },
+      "sidebar-show": {
+        "id": "Q06cP18SjRap",
+        "commonName": "show-sidepanel",
+        "platform": "fluent-systems-regular"
       }
     }
   }
