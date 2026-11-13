@@ -42,7 +42,8 @@
     "browser": "i/browser.svg",
     "flow": "i/flow.svg",
     "copy": "i/copy.svg",
-    "reply": "i/reply.svg"
+    "reply": "i/reply.svg",
+    "quote": "i/quote.svg"
   },
   "avatars": {
     "🤖": "a/clay-terracotta-stack.jpg",

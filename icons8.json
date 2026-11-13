@@ -76,6 +76,11 @@
         "id": "VKrv4hKyreHf",
         "commonName": "undo"
       },
+      "quote": {
+        "id": "Jqpd8DduHipC",
+        "commonName": "response",
+        "note": "the quote mark inside a sent bubble (i/quote.svg, id/quote.svg); the Reply action everywhere is undo"
+      },
       "bell": {
         "id": "ftMXZGFfen2R",
         "commonName": "appointment-reminders"
