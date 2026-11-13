@@ -691,12 +691,21 @@ html.th-clean .reply-box > .meta > .clean-who { font: 500 14px/20px var(--font);
 html.th-clean .reply-box > .meta .reply-btn { color: var(--c-t2); }
 html.th-clean .row > .g > .clean-av { display: block; width: 32px; height: 32px; border-radius: 6px; background: var(--clean-av) center / cover; }
 html.th-clean .row > .g > .clean-av[data-tile] { background: var(--clean-av) center / 16px no-repeat, var(--c-fill); }
-/* «работает» — одна строка 12/16 у левого края ленты: три точки (как в списке), через 12 — слова серым 55%, «·» — 28%
-   через 6 (main.js делит текст ядра). Живая строка шагов («Работает: 2 шага: Bash… · сейчас Bash») в «Кратко» не
+/* «работает» — одна строка 14/20 у левого края ленты (размер текста ленты, как .working в базовом вебе и строка статуса
+   натива): три точки (как в списке), через 12 — слова серым 55%, «·» — 28% через 6 (main.js делит текст ядра). Живая строка шагов («Работает: 2 шага: Bash… · сейчас Bash») в «Кратко» не
    показывается — шаги видны в «Подробно» */
-html.th-clean .row.working { grid-template-columns: 16px minmax(0, 1fr); column-gap: 12px; align-items: center; min-height: 16px;
-  font: 400 12px/16px var(--font); letter-spacing: 0; color: var(--c-t2); }
+html.th-clean .row.working { grid-template-columns: 16px minmax(0, 1fr); column-gap: 12px; align-items: center; min-height: 20px;
+  font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t2); }
 html.th-clean .row.working > .b > .muted { color: inherit; }
+/* одна строка при любой ширине: слова («Проверяет счета», название фоновой команды) уступают место с «…», то, что после них
+   (время, подсказка Esc), — целиком; имена исполнителей (.crew) переносятся как раньше */
+html.th-clean .row.working:not(.crew) > .b { display: flex; align-items: baseline; min-width: 0; white-space: pre; overflow: hidden; }
+html.th-clean .row.working:not(.crew) > .b > * { flex: none; }
+html.th-clean .row.working:not(.crew) > .b > .clean-what { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* на сенсорном экране Esc нет: подсказка и её «·» уходят, место — словам */
+@media (pointer: coarse) {
+  html.th-clean .row.working:not(.crew, .bg) > .b > :is(span.muted:last-child, .clean-sep:nth-last-child(2)) { display: none; }
+}
 html.th-clean .row.working .clean-sep { margin: 0 6px; color: var(--c-t3); }
 html.th-clean .feed .steps:not(.open):has(> .steps-head > .g.spin) { display: none; }
 /* «Подробно»: шаги агента (вызов, вывод, «задача … →», recap) — часть его сообщения. Колонка

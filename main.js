@@ -420,6 +420,16 @@ export default function register(hub) {
       part.textContent = rest;
       if (!part.previousElementSibling?.classList.contains("clean-sep") || part.previousSibling !== part.previousElementSibling) part.before(sep());
     }
+    // строка остаётся одной (clean.css): слова ядра (текстовый узел) — в span, который уступает место с «…», чтобы время
+    // и подсказка Esc оставались целыми
+    for (const b of document.querySelectorAll(".row.working:not(.crew) > .b")) {
+      for (const n of [...b.childNodes]) {
+        if (n.nodeType !== 3 || !n.textContent.trim()) continue;
+        const w = hub.el("span", "clean-what", n.textContent.replace(/\s*\n\s*/g, " "));   // перевод строки сделал бы две строки
+        w.title = w.textContent;   // то, что прячет «…»
+        n.replaceWith(w);
+      }
+    }
     for (const tok of document.querySelectorAll(".stat-ctx-tok:not([data-clean])")) {
       const t = tok.textContent;
       if (!t.endsWith(" · ")) continue;
