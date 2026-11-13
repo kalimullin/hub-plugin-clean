@@ -740,7 +740,7 @@ export default function register(hub) {
       const now = Date.now() / 1000;
       // цвет процента — как LimitsBlock.tone в нативе: экономия — жёлтый (красного и оранжевого «кончается» в ней нет),
       // иначе 95%+ и «не работает» (limits.status = rejected) — красный, 80–95% — оранжевый, остальное — серый
-      const stopped = snap?.limits?.status === "rejected", eco = !!snap?.economy?.on;
+      const stopped = snap?.limits?.status === "rejected", eco = snap?.budget?.mode === "economy";   // the core sends the mode in snap.budget (core/budget.py view(): null when normal)
       const tone = (u) => eco ? "eco" : stopped || u >= 95 ? "high" : u >= 80 ? "warn" : "ok";
       for (const [name, w] of wins) {
         const used = w.resets && w.resets < now ? 0 : Math.round(w.used * 100);
