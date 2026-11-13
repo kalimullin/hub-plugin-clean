@@ -43,7 +43,7 @@ test("the line stays one line: the words give way with an ellipsis, the time and
   assert.match(js, /"clean-what"/);
 });
 
-test("a touch screen hides the Esc hint and its separator (there is no Esc key), so the words keep the room", () => {
-  const m = css.match(/@media \(pointer: coarse\) \{\s*html\.th-clean \.row\.working:not\(\.crew, \.bg\) > \.b > :is\(span\.muted:last-child, \.clean-sep:nth-last-child\(2\)\) \{ display: none; \}/);
-  assert.ok(m, "the coarse-pointer rule hides the last muted part and the separator before it");
+test("without a mouse or trackpad the row hides the Esc hint and its separator (there is no Esc key), so the words keep the room", () => {
+  const m = css.match(/@media not \(\(hover: hover\) and \(pointer: fine\)\) \{\s*html\.th-clean \.row\.working:not\(\.crew, \.bg\) > \.b > :is\(span\.muted:last-child, \.clean-sep:nth-last-child\(2\)\) \{ display: none; \}/);
+  assert.ok(m, "the rule hides the last muted part and the separator before it");
 });

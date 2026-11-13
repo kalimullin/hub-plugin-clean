@@ -702,8 +702,8 @@ html.th-clean .row.working > .b > .muted { color: inherit; }
 html.th-clean .row.working:not(.crew) > .b { display: flex; align-items: baseline; min-width: 0; white-space: pre; overflow: hidden; }
 html.th-clean .row.working:not(.crew) > .b > * { flex: none; }
 html.th-clean .row.working:not(.crew) > .b > .clean-what { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-/* на сенсорном экране Esc нет: подсказка и её «·» уходят, место — словам */
-@media (pointer: coarse) {
+/* без мыши или трекпада (телефон) Esc под рукой нет: подсказка и её «·» уходят, место — словам */
+@media not ((hover: hover) and (pointer: fine)) {
   html.th-clean .row.working:not(.crew, .bg) > .b > :is(span.muted:last-child, .clean-sep:nth-last-child(2)) { display: none; }
 }
 html.th-clean .row.working .clean-sep { margin: 0 6px; color: var(--c-t3); }
