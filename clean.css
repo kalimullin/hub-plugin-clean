@@ -652,8 +652,12 @@ html.th-clean .row:is(:focus-within) > .b > .reply-btn ~ .react-add, html.th-cle
 @media (hover: none) {
   html.th-clean .row > .b > .reply-btn, html.th-clean .row > .b > .reply-box > .meta > .reply-btn { opacity: 1; color: var(--c-t2); }
 }
+/* «Ответить» у своего сообщения — вне пузыря, слева у верхнего угла: не на времени и не на тексте; у ответа на карточку — сразу после строки */
+html.th-clean .row.mine > .b > .reply-btn { top: 8px; right: calc(100% + 4px); }
+html.th-clean .row.answer > .b { position: relative; justify-self: start; padding-right: 28px; }
+html.th-clean .row.answer > .b > .reply-btn { top: -2px; }
 /* ваши сообщения: серый пузырь до 624, углы 20 20 4 20, время сверху справа */
-html.th-clean .row.mine > .b { width: min(624px, 85%); max-width: none; box-sizing: border-box; border-radius: 20px 20px 4px 20px; padding: 12px 16px 16px;
+html.th-clean .row.mine > .b { position: relative; width: min(624px, 85%); max-width: none; box-sizing: border-box; border-radius: 20px 20px 4px 20px; padding: 12px 16px 16px;
   background: var(--muted); display: flex; flex-direction: column; gap: 2px; }
 html.th-clean .row.mine > .b > .meta { order: -1; align-self: flex-end; }
 html.th-clean .row.remind, html.th-clean .row.sys { line-height: 20px; }
