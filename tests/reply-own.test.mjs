@@ -5,7 +5,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-const css = fs.readFileSync(path.join(import.meta.dirname, "..", "clean.css"), "utf8");
+const root = path.join(import.meta.dirname, "..");
+const css = fs.readFileSync(path.join(root, "clean.css"), "utf8");
 const rule = (sel) => {
   const out = [];
   for (let i = css.indexOf(sel + " {"); i >= 0; i = css.indexOf(sel + " {", i + 1)) {
@@ -24,4 +25,13 @@ test("у ответа на карточку кнопка сразу после �
   const b = rule("html.th-clean .row.answer > .b");
   assert.match(b, /position: relative/);
   assert.match(b, /justify-self: start/);
+});
+
+test("the quote icon is the same speech cloud in the light and the dark set; the Reply button keeps its arrow", () => {
+  const d = (f) => fs.readFileSync(path.join(root, f), "utf8").match(/ d="([^"]+)"/)[1];
+  assert.equal(d("i/reply.svg"), d("id/reply.svg"));
+  assert.notEqual(d("reply.svg"), d("i/reply.svg"));
+  const items = JSON.parse(fs.readFileSync(path.join(root, "icons8.json"), "utf8")).icons.items;
+  assert.equal(items["reply-quote"].commonName, "response");
+  assert.equal(items.reply.commonName, "undo");
 });

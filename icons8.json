@@ -76,6 +76,11 @@
         "id": "VKrv4hKyreHf",
         "commonName": "undo"
       },
+      "reply-quote": {
+        "id": "Jqpd8DduHipC",
+        "commonName": "response",
+        "note": "i/reply.svg and id/reply.svg (the quote line and the selection bar); the reply button mask reply.svg stays undo"
+      },
       "bell": {
         "id": "ftMXZGFfen2R",
         "commonName": "appointment-reminders"
