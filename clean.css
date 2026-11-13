@@ -28,6 +28,7 @@ html.th-clean {
   --c-alert: light-dark(#ef4e4e, #cf3a3a);   /* красная заливка с белым текстом: в тёмной 4,9:1 */
   --c-free: light-dark(#1fb141, #4cd46a); --c-free-bg: light-dark(#e7f9eb, #173a22);
   --c-eco: light-dark(#876200, #ffd60a);   /* жёлтый «режима экономии» в блоке расхода: тёмная охра на светлом (4,5:1+), яркий жёлтый на тёмном */
+  --c-warn-bar: light-dark(#d35d00, var(--warning));   /* оранжевый 80–95 % в блоке расхода: на светлом --warning (#ec6e0e) даёт 2,7:1 к панели, этот — 3,5:1 */
   --c-busy: light-dark(#a35d1c, #f2b25a); --c-busy-bg: light-dark(#fffbea, #3a2c12);
   --c-key: 0 0 0 1px light-dark(#18181b0d, #ffffff14), 0 1px 2px light-dark(#18181b0d, #0000004d);   /* белая клавиша */
   --c-field: 0 0 2px light-dark(#18181b12, #00000066), 0 2px 4px light-dark(#18181b0a, #0000004d), 0 8px 20px light-dark(#18181b1f, #00000080);
@@ -151,25 +152,66 @@ html.th-clean #conn .icon.kit-img { width: 16px; height: 16px; }   /* у ядр�
 html.th-clean #conn .glyph .dot { left: auto; right: 13px; bottom: auto; top: calc(50% - 3px); width: 6px; height: 6px; margin: 0; border: 0; }
 html.th-clean #conn .glyph .dot:not([data-s="warn"]):not([data-s="off"]) { display: none; }
 html.th-clean .nav-pop .srow.nav .nm { font: 400 14px/20px var(--font); letter-spacing: -0.1px; }
-/* лимиты: «5 ч» серым 28%, «10%» Medium; подписи аккаунта нет — клик ведёт к лимитам всех аккаунтов */
-html.th-clean .aside-foot { min-height: 56px; padding: 12px 12px 8px 60px; display: flex; align-items: center; justify-content: flex-end; }
+/* ---- расход внизу панели, как в нативе (LimitsBlock): нижняя строка 36 — вровень с ☰ (36, снизу 16); в ней полоски «5 часов» и
+   «неделя» (компактно) или почта аккаунта с ✓ (подробно) и справа переключатель; строки окон подробного вида — над ней, от левого
+   края ☰. Процент — подписью над полоской по наведению или нажатию, ничего не сдвигает ---- */
+html.th-clean .aside-foot { min-height: 56px; padding: 12px 12px 8px 60px; display: flex; align-items: flex-end; }
 html.th-clean .aside-foot .counts { display: none; }
-html.th-clean .aside-foot .slot-sidebar-footer { display: flex; justify-content: flex-end; flex: 1 1 0; min-width: 0; }
-/* строка не выходит за свои поля (слева — ☰ с точкой): окна, что не влезли целиком, переносятся на вторую строку и срезаются
-   (высота ровно одна строка), первые — «5 ч» и «неделя» — остаются; полный список — в подсказке строки */
-html.th-clean .clean-lim { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; height: 20px; overflow: hidden; min-width: 0; max-width: 100%; gap: 20px 12px; font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t3); }
-html.th-clean .clean-lim .limseg { display: inline-flex; gap: 6px; white-space: nowrap; min-width: 0; }
-html.th-clean .clean-lim .limname { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-html.th-clean .clean-lim .limpct { flex: none; }
-html.th-clean .clean-lim .limacc { display: none; }
-html.th-clean .clean-lim .limname { color: var(--muted-foreground); }   /* подписи «5 ч» / «неделя»: --c-t3 (28%) на светлом был слабым по контрасту */
-/* цвет процента — по состоянию, как в нативе (LimitsBlock.tone): обычный — тёмно-серый, 80–95% — оранжевый, 95%+ и «не работает» — красный,
-   экономия — жёлтый; синего и зелёного нет. Состояние ставит main.js в data-tone */
-html.th-clean .clean-lim .limpct { font-weight: 500; color: var(--muted-foreground); }
-html.th-clean .clean-lim .limseg[data-tone="warn"] .limpct { color: var(--warning); }
-html.th-clean .clean-lim .limseg[data-tone="high"] .limpct { color: var(--destructive); }
-html.th-clean .clean-lim .limseg[data-tone="eco"] .limpct { color: var(--c-eco); }
-html.th-clean .clean-lim.limlink { cursor: pointer; }
+html.th-clean .aside-foot .slot-sidebar-footer { flex: 1 1 0; min-width: 0; }
+html.th-clean .clean-usage { --cu-row: 36px; --cu-pull: -48px; display: flex; flex-direction: column; gap: 12px;
+  font: 400 12px/16px var(--font); color: var(--muted-foreground); }
+html.th-clean .clean-usage button { margin: 0; padding: 0; border: 0; background: none; color: inherit; font: inherit; letter-spacing: inherit; box-shadow: none; }
+html.th-clean .cu-rows { display: flex; flex-direction: column; gap: 12px; margin-left: var(--cu-pull); }
+html.th-clean .cu-rowwrap { position: relative; display: flex; align-items: flex-end; gap: 6px; }
+html.th-clean .cu-row { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; text-align: left; cursor: default; }
+html.th-clean .cu-line { position: relative; display: flex; justify-content: space-between; gap: 8px; min-width: 0; color: var(--c-t1); }
+html.th-clean .cu-row.old .cu-line { color: var(--muted-foreground); }
+html.th-clean .cu-name { flex: none; font-weight: 500; }
+html.th-clean .cu-val { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.th-clean .cu-peek { font-weight: 400; }
+/* полоска: дорожка --c-fill, заливка цветом состояния; у старого замера — бледнее (0,4); метка ровного темпа — черта 1,5 выше полоски на 5 */
+html.th-clean .cu-track { position: relative; display: block; height: 5px; border-radius: 9999px; background: var(--c-line); }
+html.th-clean .cu-fill { position: absolute; left: 0; top: 0; bottom: 0; min-width: 5px; border-radius: inherit; background: var(--muted-foreground); }
+html.th-clean .cu-fill.old { opacity: 0.4; }
+html.th-clean [data-tone="warn"] .cu-fill { background: var(--c-warn-bar); }
+html.th-clean [data-tone="high"] .cu-fill { background: var(--destructive); }
+html.th-clean [data-tone="eco"] .cu-fill { background: var(--c-eco); }
+html.th-clean .cu-mark { position: absolute; top: -2.5px; bottom: -2.5px; width: 1.5px; margin-left: -0.75px; border-radius: 1px; background: var(--muted-foreground); }
+/* подпись: над серединой залитой части (или над меткой); у края — не ближе половины своей ширины (main.js) */
+html.th-clean .cu-tip { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; pointer-events: none;
+  font: 500 12px/16px var(--font); color: var(--c-t1); }
+html.th-clean .cu-foot { display: flex; align-items: center; gap: 8px; height: var(--cu-row); min-width: 0; }
+html.th-clean .cu-bars { flex: 1 1 0; min-width: 0; display: flex; gap: 6px; height: 100%; }
+html.th-clean .cu-bar { position: relative; flex-basis: 0; min-width: 0; height: 100%; display: flex; align-items: center; cursor: default; }
+html.th-clean .cu-bar .cu-track { flex: 1 1 0; height: 3px; }
+html.th-clean .cu-bar .cu-fill { min-width: 3px; }
+html.th-clean .cu-bar .cu-tip { top: auto; bottom: calc(50% + 6px); }
+html.th-clean .cu-foot.open { justify-content: flex-end; }
+html.th-clean .clean-usage .cu-acc { display: flex; align-items: center; gap: 4px; min-width: 0; min-height: 24px; margin: -4px 0 -4px var(--cu-pull); color: var(--c-t1); text-align: left; }
+html.th-clean button.cu-acc { cursor: pointer; }
+html.th-clean .cu-mail { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.th-clean .cu-sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+html.th-clean .cu-active { flex: none; width: 16px; height: 16px; background: currentColor;
+  -webkit-mask: url("active.svg") center / 16px no-repeat; mask: url("active.svg") center / 16px no-repeat; }
+/* переключатель «компактно | подробно» — как вкладки «Все | Сейчас»: дорожка --c-fill, выбранный сегмент поднят */
+html.th-clean .cu-switch { flex: none; display: inline-flex; gap: 2px; padding: 2px; height: 28px; box-sizing: border-box; border-radius: 8px; background: var(--c-fill); }
+html.th-clean .cu-seg { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; color: var(--muted-foreground); cursor: pointer; }
+html.th-clean .cu-seg::before { content: ""; width: 16px; height: 16px; background: currentColor; }
+html.th-clean .cu-seg-bars::before { -webkit-mask: url("bars.svg") center / 16px no-repeat; mask: url("bars.svg") center / 16px no-repeat; }
+html.th-clean .cu-seg-list::before { -webkit-mask: url("list.svg") center / 16px no-repeat; mask: url("list.svg") center / 16px no-repeat; }
+html.th-clean .cu-seg[aria-pressed="true"] { background: light-dark(var(--background), var(--c-line-strong)); color: var(--c-t1); }
+/* старый замер: циферблат рядом с процентом, подсказка — когда и почему замер старый */
+html.th-clean .cu-clock { position: relative; flex: none; display: grid; place-items: center; width: 24px; height: 24px; margin-bottom: -4px; color: var(--muted-foreground); cursor: pointer; }
+html.th-clean .cu-clock::before { content: ""; width: 14px; height: 14px; background: currentColor;
+  -webkit-mask: url("i/clock.svg") center / 14px no-repeat; mask: url("i/clock.svg") center / 14px no-repeat; }
+html.th-clean .cu-hint { position: absolute; right: 0; bottom: calc(100% + 6px); z-index: 20; width: max-content; max-width: 232px; padding: 8px 10px;
+  border-radius: 8px; background: var(--foreground); color: var(--background); font: 400 12px/16px var(--font); text-align: left; white-space: pre-line; pointer-events: none; }
+html.th-clean .cu-hint[hidden] { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean button.cu-acc:hover .cu-mail { text-decoration: underline; text-underline-offset: 3px; }
+  html.th-clean .cu-seg[aria-pressed="false"]:hover { background: var(--c-hover); }
+  html.th-clean .cu-clock:hover { color: var(--c-t1); }
+}
 html.th-clean main .status .limline { display: none; }
 
 /* вкладки «Все | Сейчас» (DS Tab bar Filled Large): дорожка 36 серым, выбранная — белая; оба текста — тёмные, различает подложка */
@@ -1296,6 +1338,10 @@ html.th-clean .pal-reset:disabled { display: none; }
   html.th-clean .nav-pop { left: 20px; right: 20px; }   /* левый край — как у ☰; значок пункта 4 + 8 = 12 от края — под значком ☰ 40 */
   html.th-clean .nav-pop .srow.nav { padding: 0 8px; }
   html.th-clean .aside-foot { padding-left: 64px; }
+  html.th-clean .clean-usage { --cu-row: 40px; --cu-pull: -52px; }   /* нижняя строка — вровень с ☰ 40; строки окон — от его левого края */
+  html.th-clean .cu-switch { height: 40px; padding: 2px; }
+  html.th-clean .cu-seg { width: 40px; height: 36px; }
+  html.th-clean .cu-clock { width: 36px; height: 36px; margin-bottom: -15px; }
   html.th-clean main > .head { padding: 0 16px; }
   html.th-clean main > .banner.on { padding: 8px 16px; }
   html.th-clean main > .head .chips { display: none; }
@@ -1324,7 +1370,7 @@ html.th-clean .pal-reset:disabled { display: none; }
 }
 
 /* ---- фокус с клавиатуры: плоские плашки темы без тени — кольцо явно ---- */
-html.th-clean :is(.srow, .active-bar button, .navmenu, .clean-fold, .clean-fold-show, .seg button, .fork-toggle, .sgroup-h, .gmore, .btn, .chat-head, .clean-lim, .clean-x, .linkbtn, .gpop-i, .md .code-copy, .board-card):focus-visible {
+html.th-clean :is(.srow, .active-bar button, .navmenu, .clean-fold, .clean-fold-show, .seg button, .fork-toggle, .sgroup-h, .gmore, .btn, .chat-head, .cu-bar, .cu-row, .cu-seg, .cu-clock, .cu-acc, .clean-x, .linkbtn, .gpop-i, .md .code-copy, .board-card):focus-visible {
   outline: 2px solid var(--c-ring); outline-offset: 2px; }
 /* меню ☰, открытое мышью или касанием: ядро ставит фокус на первый пункт («Настройки») скриптом, и браузер может засчитать его как
    клавиатурный (в Safari клик не фокусирует кнопку, фокус скриптом после ввода в поле — тоже) — тогда у «Настроек» рамка. main.js
@@ -1359,7 +1405,7 @@ html.th-clean .lightbox:is(.clean-tall, .zoom) .lb-name { min-width: 0; max-widt
 html.th-clean .lightbox.clean-tall.zoom .lb-img { width: auto; max-width: none; margin: 0 auto; }
 html.th-clean .fs-row input:focus-visible { outline: 0; border-color: var(--c-line-strong); }
 /* кольцо с клавиатуры одного цвета везде: ядро красит outline в --ring (светлая тема — #c9c9d0, 1,6:1: у ссылок и чипов его не видно) */
-html.th-clean :is(:focus-visible, .opt.pick:has(input:focus-visible), .opt-preview:focus-visible, .limlink:focus-visible, .quote-bar .linkbtn:focus-visible, .ctx-menu button:focus-visible, .menu-item:focus-visible) { outline-color: var(--c-ring); }
+html.th-clean :is(:focus-visible, .opt.pick:has(input:focus-visible), .opt-preview:focus-visible, .quote-bar .linkbtn:focus-visible, .ctx-menu button:focus-visible, .menu-item:focus-visible) { outline-color: var(--c-ring); }
 /* чип, «Все сессии» и лупа в шапке (на телефоне они у самого края окна), вкладки «Кратко/Подробно»: края обрезают всё, что вне (overflow: hidden) — кольцо внутрь */
 html.th-clean :is(main > .head :is(.chip, .back, .fs-lupa), .seg button):focus-visible { outline-offset: -2px; }
 /* полоса ширины списка: с клавиатуры — серой линией --c-ring, не цветом ядра */
