@@ -76,10 +76,10 @@
         "id": "VKrv4hKyreHf",
         "commonName": "undo"
       },
-      "reply-quote": {
+      "quote": {
         "id": "Jqpd8DduHipC",
         "commonName": "response",
-        "note": "i/reply.svg and id/reply.svg (the quote line and the selection bar); the reply button mask reply.svg stays undo"
+        "note": "the quote mark inside a sent bubble (i/quote.svg, id/quote.svg); the Reply action everywhere is undo"
       },
       "bell": {
         "id": "ftMXZGFfen2R",

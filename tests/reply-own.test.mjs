@@ -27,11 +27,16 @@ test("у ответа на карточку кнопка сразу после �
   assert.match(b, /justify-self: start/);
 });
 
-test("the quote icon is the same speech cloud in the light and the dark set; the Reply button keeps its arrow", () => {
+test("the quote mark in a sent bubble is the speech cloud in both sets; the Reply action is the arrow", () => {
   const d = (f) => fs.readFileSync(path.join(root, f), "utf8").match(/ d="([^"]+)"/)[1];
+  assert.equal(d("i/quote.svg"), d("id/quote.svg"));
   assert.equal(d("i/reply.svg"), d("id/reply.svg"));
-  assert.notEqual(d("reply.svg"), d("i/reply.svg"));
-  const items = JSON.parse(fs.readFileSync(path.join(root, "icons8.json"), "utf8")).icons.items;
-  assert.equal(items["reply-quote"].commonName, "response");
+  assert.equal(d("i/reply.svg"), d("reply.svg"));
+  assert.notEqual(d("i/quote.svg"), d("i/reply.svg"));
+  const icons = (f) => JSON.parse(fs.readFileSync(path.join(root, f), "utf8")).icons;
+  assert.equal(icons("clean.json").quote, "i/quote.svg");
+  assert.equal(icons("clean-dark.json").quote, "id/quote.svg");
+  const items = icons("icons8.json").items;
+  assert.equal(items.quote.commonName, "response");
   assert.equal(items.reply.commonName, "undo");
 });
