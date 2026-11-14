@@ -28,6 +28,8 @@ html.th-clean {
   --c-alert: light-dark(#ef4e4e, #cf3a3a);   /* красная заливка с белым текстом: в тёмной 4,9:1 */
   --c-free: light-dark(#1fb141, #4cd46a); --c-free-bg: light-dark(#e7f9eb, #173a22);
   --c-eco: light-dark(#876200, #ffd60a);   /* жёлтый «режима экономии» в блоке расхода: тёмная охра на светлом (4,5:1+), яркий жёлтый на тёмном */
+  --c-link: light-dark(#2e69c1, var(--primary));   /* синий ТЕКСТ (ссылки и текстовые кнопки ядра и модулей): 5,4:1 на белом, 4,8:1 на сером фоне; в тёмной — прежний --primary */
+  --c-link-tint: light-dark(#2559a8, var(--primary));   /* тот же текст на синей подложке (бейджи, чипы): 5,6:1 на 16% подложке чипа шины; в тёмной — как было */
   --c-busy: light-dark(#a35d1c, #f2b25a); --c-busy-bg: light-dark(#fffbea, #3a2c12);
   --c-key: 0 0 0 1px light-dark(#18181b0d, #ffffff14), 0 1px 2px light-dark(#18181b0d, #0000004d);   /* белая клавиша */
   --c-field: 0 0 2px light-dark(#18181b12, #00000066), 0 2px 4px light-dark(#18181b0a, #0000004d), 0 8px 20px light-dark(#18181b1f, #00000080);
@@ -580,6 +582,13 @@ html.th-clean .md a:not([class]) code { color: inherit; }
    подчёркивания, а не синей ссылкой */
 html.th-clean a:not([class]):has(img, video, svg) { color: var(--c-t2); text-decoration: none; }
 html.th-clean .md a[href^="#/s/"] { font-weight: 500; }
+/* синий текст читается в светлой (≥4,5:1): ядро и модули красят ссылки и текстовые кнопки в --primary (#4f6cf6 — 4,4:1 на белом,
+   3,9:1 на сером фоне); здесь --c-link берёт только их текст — сам --primary, заливки, подложки и значки как были. На самом тексте
+   --primary подменяется на --c-link, поэтому свои смеси и hover модулей работают; у бейджей с подложкой меняется только цвет текста. */
+html.th-clean :where(.todos .t-now, .hljs-title, .hljs-section, .hljs-selector-id, .hljs-name, .wl-md-load, .wl-bell-expand, .wl-bell-reset,
+  .wl-session-link, .wl-file-open, .wv-task-source, .wv-undo-back, .vf-link, .vf-row) { --primary: var(--c-link); }
+/* бейджи и чипы на подложке: тон глубже, подложка темнее белого; нулевой вес — их варианты (busy, ok, warn, bad) сохраняют свой цвет */
+html.th-clean :where(.ac-badge, .voice-model-role, .bus-chip) { color: var(--c-link-tint); }
 html.th-clean .md a[href^="#/s/"] code { font: inherit; }
 /* текстовые действия («ещё», «свернуть», модель под полем…) — серым 55%, наведение — 90%; подчёркиваний нет нигде */
 html.th-clean .linkbtn { color: var(--c-t2); }
