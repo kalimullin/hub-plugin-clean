@@ -12,7 +12,7 @@ const rules = block.split("\n").filter((l) => /^html\./.test(l));
 
 test("the setting is on by default and behind the theme class", () => {
   assert.match(js, /key: "avatars", on: true/);
-  for (const l of rules) assert.match(l, /^html\.th-clean\./, "a rule outside the theme class: " + l);
+  for (const l of rules) assert.match(l, /^html\.th-clean[.\s\[:]/, "a rule outside the theme class: " + l);
 });
 
 test("avatar sizes: two per level — 16/12 in the compact list, 32/24 in the detailed one", () => {

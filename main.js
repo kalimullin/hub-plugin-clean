@@ -76,6 +76,21 @@ export default function register(hub) {
       b.replaceChildren(document.createTextNode(m[1]), n);
     }
   };
+  // вкладки настроек: ядро дописывает к названию « ·», когда там есть о чём знать («Модули ·», «Плагины ·») — в теме это
+  // точка 6 цвета предупреждения через 4 (Figma 09, Clean/Settings tabs, Attention). Знак «·» остаётся в кнопке (его
+  // читает скринридер), его прячет clean.css; ядро перерисовывает вкладки — проход ставит точку снова
+  const tabMarks = () => {
+    for (const b of document.querySelectorAll("[data-settings-tab]")) {
+      const tx = b.firstChild;
+      if (b.childNodes.length !== 1 || tx?.nodeType !== 3) continue;
+      const m = /^(.*?)\s*·$/.exec(tx.data);
+      if (!m) continue;
+      const dot = document.createElement("span");
+      dot.className = "clean-att";
+      dot.textContent = " ·";
+      b.replaceChildren(document.createTextNode(m[1]), dot);
+    }
+  };
   // подпись строки сессии (что делает, чего ждёт) тема прячет, как в макете, — она остаётся в подсказке строки
   const rowTitles = () => {
     if (!on()) return;
@@ -279,6 +294,9 @@ export default function register(hub) {
     }
     const menu = head.querySelector(".menu-wrap > .menu");
     if (!menu || menu.querySelector(".clean-fold-i")) return;
+    // на телефоне «Ещё» — лист снизу с заголовком: чья это сессия (Figma 02, Mobile menu sheet=More · working)
+    const title = head.querySelector("h2")?.textContent.trim() || "";
+    if (menu.dataset.cleanTitle !== title) menu.dataset.cleanTitle = title;
     const items = [];
     for (const cls of ["clean-view", "clean-board"]) {
       const seg = head.querySelector(`:scope > .seg.${cls}`);
@@ -295,6 +313,23 @@ export default function register(hub) {
       }
       items.push(hub.el("div", "menu-sep"));
     }
+    // «Остановить исполнителя» на телефоне — пунктом листа, не кнопкой в строке шапки (ревью 284:4890): тот же приём, клик по
+    // спрятанной кнопке ядра; выключенная («Останавливаю…») — выключенным пунктом
+    const stopExec = head.querySelector(":scope > .btn.stop-exec");
+    const after = [];
+    if (stopExec && getComputedStyle(stopExec).display === "none") {
+      const it = hub.el("button", "menu-item clean-fold-i", stopExec.textContent.trim());
+      it.type = "button";
+      it.tabIndex = -1;
+      it.setAttribute("role", "menuitem");
+      it.title = stopExec.title;
+      if (stopExec.disabled) it.setAttribute("aria-disabled", "true");
+      else it.addEventListener("click", () => { window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); stopExec.click(); });
+      after.push(it);
+    }
+    const sep = menu.querySelector(":scope > .menu-sep");
+    if (after.length) { if (sep) sep.after(...after); else menu.append(hub.el("div", "menu-sep"), ...after); }
+    if (!items.length && !after.length) { const mark = hub.el("span", "clean-fold-i"); mark.hidden = true; menu.append(mark); return; }
     menu.prepend(...items);
   };
   // Thread ⋯ menu: the core's «Put to sleep» item becomes «Finish and sleep», and its confirmation dialog says the same.
@@ -463,13 +498,30 @@ export default function register(hub) {
       if (t) p.setAttribute("aria-label", t);
     }
   };
+  // The composer notice (clean.css, Figma 323:7094) and the board's own line draw a red error mark by default; a line that only
+  // asks to wait, or says the microphone is allowed, or that the board is still loading, is not an error: it gets its own mark.
+  // Read by the core's own strings, so the words stay the core's
+  const kindOf = (text, map) => { for (const [kind, keys] of map) if (keys.some((k) => { const s = T(k, ""); return s && text.startsWith(s); })) return kind; return ""; };
+  const NOTICE = [["wait", ["web.composer.wait_upload"]], ["ok", ["web.voice.mic_allowed_hold"]]];
+  const notices = () => {
+    for (const p of document.querySelectorAll("form.composer > p.error-text")) {
+      const kind = p.textContent ? kindOf(p.textContent.trim(), NOTICE) : "";
+      if ((p.dataset.cleanKind || "") !== kind) p.dataset.cleanKind = kind;
+    }
+    for (const p of document.querySelectorAll(".boards-body:not(:has(> .board)) > p.hint")) {
+      const kind = p.textContent.trim() === T("web.boards.loading", "\0") ? "" : "error";
+      if ((p.dataset.cleanKind || "") !== kind) p.dataset.cleanKind = kind;
+    }
+  };
   // очередь над полем (strip.js ядра кладёт её строки в общую полосу «Ждёт вас»): здесь строки очереди и «Ждёт вас»
   // (вопрос, разрешение) переезжают в одну плашку — язычок над язычком токенов; «Не дошло» остаётся в полосе. Подписи кнопок уходят в подсказки (значки без
   // слов на телефоне и «Сейчас» вместо «Отправить сейчас» на широком); ядро пересоздаёт полосу целиком при смене состава строк
   const NOW = RU ? "Сейчас" : "Now";
+  const notRemoved = (T("web.strip.not_removed", "") || "").split("{")[0];
   const queuePlate = () => {
     for (const host of document.querySelectorAll(".strip-host")) {
-      const rows = host.querySelectorAll(":scope > .strip > .strip-row:is([data-k=queue], [data-k=wait])");
+      // ревью 237:6234: на плашке все строки полосы — и «Не дошло», и «Не прочитано» (шаг идёт дольше минуты, «Останавливаю…»)
+      const rows = host.querySelectorAll(":scope > .strip > .strip-row:is([data-k=queue], [data-k=wait], [data-k=unread], [data-k=fail])");
       if (!rows.length) continue;
       let plate = host.querySelector(":scope > .clean-queue");
       if (!plate) {
@@ -481,7 +533,9 @@ export default function register(hub) {
       for (const r of rows) {
         // обычная строка очереди — с подсказкой «уйдёт, когда закончит ход» и кнопками; «К сведению», «Убрано», «Выполняется» — свои
         const item = r.dataset.k === "queue" && !r.querySelector(":scope > button.t") && r.querySelector(":scope > .t[title]") && r.querySelector(":scope > .btn");
-        r.dataset.clean = r.dataset.k === "wait" ? "wait" : item ? "item" : r.matches(":has(> button.t)") ? "fyi" : r.matches(".strip-more") ? "more" : r.matches(".strip-sum") ? "sum" : "state";
+        // «Не убралось: …» — та же строка очереди с «Повторить», различима только по словам ядра: она ошибка, как «Не дошло»
+        const unremoved = r.dataset.k === "queue" && notRemoved && r.querySelector(":scope > .t")?.textContent.startsWith(notRemoved);
+        r.dataset.clean = r.dataset.k === "wait" ? "wait" : r.dataset.k === "fail" || unremoved ? "fail" : r.dataset.k === "unread" ? "unread" : item ? "item" : r.matches(":has(> button.t)") ? "fyi" : r.matches(".strip-more") ? "more" : r.matches(".strip-sum") ? "sum" : "state";
         if (item) {
           for (const b of r.querySelectorAll(":scope > .btn")) {
             const now = !b.classList.contains("quiet");
@@ -689,10 +743,20 @@ export default function register(hub) {
   setInterval(() => { if (on()) rowDetail(); }, 20000);   // минуты идут и без перерисовки ядра
   // one pass per frame: first everything that writes the page, then everything that reads its geometry (scroll edges, rows in
   // view) — a read between writes made the browser lay the whole page out again in the middle of the pass
+  // метка «Расписания» в меню ☰ (пауза / истекло) — один узел .tag без класса состояния: какая из двух, видно только по словам
+  // ядра; clean.css красит паузу мягким жёлтым, «истекло» — серым (Figma 02, Menu=Navigation · schedule paused / ended)
+  const navTags = () => {
+    const ended = T("web.schedule.expired_tag", "");
+    for (const g of document.querySelectorAll("#nav-extra .srow.nav > .tag")) {
+      const k = ended && g.textContent === ended ? "ended" : "paused";
+      if (g.dataset.cleanTag !== k) g.dataset.cleanTag = k;
+    }
+  };
   const sweep = () => {
     if (!on()) return;
-    tagBylines(document); splitTabs(); rowDetail(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
-    avatars(); boardCount(); headNote(); groupTools(); placeholders(); separators(); forkCounts(); recBars(); actions(); queuePlate(); finishItem();
+    navTags();
+    tagBylines(document); splitTabs(); tabMarks(); rowDetail(); rowTitles(); waitCounts(); chevrons(); maskIcons(); searchBox(); foldButtons(); emptySearch();
+    avatars(); boardCount(); headNote(); groupTools(); placeholders(); separators(); forkCounts(); recBars(); actions(); queuePlate(); finishItem(); notices();
     boardRecap(); rowFaces(); recentOrder(); keepList();
     fit.hook();
     voiceText.sweep();
@@ -894,6 +958,7 @@ export default function register(hub) {
       for (const b of document.querySelectorAll(".byline[data-clean]")) delete b.dataset.clean;
       if (!on()) {
         for (const b of document.querySelectorAll(".lightbox.clean-tall")) b.classList.remove("clean-tall");
+        for (const x of document.querySelectorAll("[data-settings-tab] .clean-att")) x.replaceWith(" ·");
         unmaskIcons(); unAvatars(); fade(); feedEnd(); unPlaceholders(); unPlate(); fit.reset(); voiceText.reset();
         for (const h of document.querySelectorAll(".chat-head[data-clean-label]")) { h.removeAttribute("aria-label"); h.removeAttribute("title"); delete h.dataset.cleanLabel; }
 

@@ -28,12 +28,11 @@ test("an empty field shows no send: the theme adds no send button of its own", (
   assert.doesNotMatch(read("fit.js"), /clean-send/);
 });
 
-test("with text the core's send is a circle: 32 on a desktop, 36 on a phone, a 44 px tap target", () => {
+test("with text the core's send is a rounded square r8 (owner review 226:6107): 32 on a desktop, 36 on a phone, a 44 px tap target", () => {
   const b = rule("html.th-clean .btn.round.send");
   assert.match(b, /width: 32px; height: 32px/);
-  assert.match(b, /border-radius: 9999px/);
+  assert.match(b, /border-radius: 8px/);
   assert.match(b, /position: relative/);
-  assert.doesNotMatch(css, /\.btn\.round\.send \{[^}]*border-radius: 8px/);
   assert.match(css, /\.btn\.round\.send, html\.th-clean \.btn\.round\.quiet:is\(\.attach, \.mic\)[^{]*\{ width: 36px; height: 36px; \}/);
   assert.match(css, /\.btn\.round\.send::after \{ content: ""; position: absolute; inset: -4px; border-radius: 9999px; \}/);
 });
