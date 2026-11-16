@@ -164,10 +164,11 @@ test("clean.css: the reply plate is the whole width of the field, the quote is o
   const bar = rule("html.th-clean :is(.composer, .dock-inner:has(.vf-slot) form.composer) > .bar.reply-bar");
   assert.match(bar, /width: 100%/);
   assert.match(bar, /background: var\(--c-fill\)/);
-  assert.match(bar, /padding: 0 0 0 8px/, "the core's 36px on the right would push «Cancel» off the edge of the plate");
+  assert.match(bar, /padding: 0 8px;/, "the core's 36px on the right would push «Cancel» off the edge of the plate; 8 on the right, as «Cancel» is a Quiet button without side padding");
   const chip = rule("html.th-clean .composer .reply-chip");
   assert.match(chip, /flex: 1 1 0/);
   assert.match(chip, /text-overflow: ellipsis/);
   assert.match(chip, /background: none/, "the plate is the bar, not the chip");
   assert.match(rule("html.th-clean .composer .reply-bar > .btn"), /flex: none/, "«Cancel» does not shrink under a long quote");
+  assert.match(rule("html.th-clean .composer .reply-bar > .btn"), /padding: 4px 0;/, "«Cancel» is Quiet 24 without side padding (Figma audit 16.11)");
 });
