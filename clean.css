@@ -25,12 +25,12 @@ html.th-clean {
   --c-t3: light-dark(rgb(0 0 0 / 0.28), rgb(255 255 255 / 0.30));        /* время, подписи групп, «·» */
   --c-preview: light-dark(rgb(0 0 0 / 0.55), rgb(255 255 255 / 0.50));   /* превью сообщения в «Подробном» списке: ≥4,5:1 к фону, к карточке и в тёмной (в светлой темой светлее нельзя: 50% даёт 3,9:1) */
   --c-ink: light-dark(#000, #fff);                                         /* точки «работает»: этим цветом с прозрачностью */
-  --c-alert: light-dark(#ef4e4e, #cf3a3a);   /* красная заливка с белым текстом: в тёмной 4,9:1 */
+  --c-alert: light-dark(#c92a2a, #cf3a3a);   /* красная заливка с белым текстом: 5,5:1 в светлой (было #ef4e4e, 3,6:1; владелец 16.11, q405788), в тёмной 4,9:1 */
   --c-free: light-dark(#1fb141, #4cd46a); --c-free-bg: light-dark(rgb(31 177 65 / 0.10), rgb(76 212 106 / 0.16));   /* мягкие подложки — прозрачностью: на цветном фоне не серые */
   --c-eco: light-dark(#876200, #ffd60a);   /* жёлтый «режима экономии» в блоке расхода: тёмная охра на светлом (4,5:1+), яркий жёлтый на тёмном */
   --c-busy: light-dark(#a35d1c, #f2b25a); --c-busy-bg: light-dark(rgb(255 200 0 / 0.08), rgb(255 190 40 / 0.14));
-  --c-alert-tint: light-dark(rgb(239 78 78 / 0.07), rgb(207 58 58 / 0.07));   /* шапка карточки «ждёт вас» */
-  --c-alert-soft: light-dark(rgb(239 78 78 / 0.12), rgb(207 58 58 / 0.20)); --c-alert-soft-hover: light-dark(rgb(239 78 78 / 0.18), rgb(207 58 58 / 0.28));   /* Danger и красные бейджи: мягкая красная подложка, красный текст */
+  --c-alert-tint: light-dark(rgb(201 42 42 / 0.07), rgb(207 58 58 / 0.07));   /* шапка карточки «ждёт вас» */
+  --c-alert-soft: light-dark(rgb(201 42 42 / 0.12), rgb(207 58 58 / 0.20)); --c-alert-soft-hover: light-dark(rgb(201 42 42 / 0.18), rgb(207 58 58 / 0.28));   /* Danger и красные бейджи: мягкая красная подложка, красный текст */
   --c-key: 0 0 0 1px light-dark(#18181b0d, #ffffff14), 0 1px 2px light-dark(#18181b0d, #0000004d);   /* белая клавиша */
   --c-field: 0 0 2px light-dark(#18181b12, #00000066), 0 2px 4px light-dark(#18181b0a, #0000004d), 0 8px 20px light-dark(#18181b1f, #00000080);
   --ease-io: cubic-bezier(0.77, 0, 0.175, 1);
@@ -2574,27 +2574,29 @@ html.th-clean :is(.module-head > .module-toggle,
 html.th-clean .module-card:is([data-state="on"], [data-state="off"]):has(> .module-head > .module-toggle) > .module-head > .pill:not(.third-badge),
 html.th-clean .plugin-row:not(.plugin-entry, .plugin-mp) > .plugin-main > .plugin-title > .chip:not(.warn),
 html.th-clean .bus-head > .bus-chip.ok { display: none; }
+/* галочки настроек на «Виде» (core settings.js optionsGroup → .feed-opts > label.opt) — тоже тоггл справа: вкл/выкл = тоггл
+   (владелец 16.11, q405788), как у шлюза аккаунтов ниже */
 /* шлюз аккаунтов: галочка ядра — тоггл справа от названия; строка «выключен» под описанием не нужна, другие состояния
    («включается», «включён: N аккаунтов», «не работает») — остаются, без отступа под галочку */
-html.th-clean .ac-gw > .opt { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px; align-items: start; }
-html.th-clean .ac-gw > .opt > span { grid-column: 1; grid-row: 1; }
-html.th-clean .ac-gw > .opt > input[type="checkbox"] { grid-column: 2; grid-row: 1; position: relative; box-sizing: border-box; width: 32px; height: 18px;
+html.th-clean :is(.ac-gw, .feed-opts) > .opt { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px; align-items: start; }
+html.th-clean :is(.ac-gw, .feed-opts) > .opt > span { grid-column: 1; grid-row: 1; }
+html.th-clean :is(.ac-gw, .feed-opts) > .opt > input[type="checkbox"] { grid-column: 2; grid-row: 1; position: relative; box-sizing: border-box; width: 32px; height: 18px;
   margin: 1px 0 0; padding: 0; border: 0; border-radius: 9px; -webkit-appearance: none; appearance: none; background: var(--c-line-strong);
   cursor: pointer; transition: background-color 120ms ease-out; }
-html.th-clean .ac-gw > .opt > input[type="checkbox"]:checked { background: var(--foreground); }
-html.th-clean .ac-gw > .opt > input[type="checkbox"]::before { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%;
+html.th-clean :is(.ac-gw, .feed-opts) > .opt > input[type="checkbox"]:checked { background: var(--foreground); }
+html.th-clean :is(.ac-gw, .feed-opts) > .opt > input[type="checkbox"]::before { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%;
   background: var(--background); box-shadow: 0 1px 2px rgb(0 0 0 / 0.15); transition: transform 120ms ease-out; }
-html.th-clean .ac-gw > .opt > input[type="checkbox"]:checked::before { transform: translateX(14px); }
-html.th-clean .ac-gw > .opt > input[type="checkbox"]:disabled,
+html.th-clean :is(.ac-gw, .feed-opts) > .opt > input[type="checkbox"]:checked::before { transform: translateX(14px); }
+html.th-clean :is(.ac-gw, .feed-opts) > .opt > input[type="checkbox"]:disabled,
 html.th-clean .ac-gw:has(> .ac-gw-state[data-level="warn"]) > .opt > input[type="checkbox"] { opacity: 0.4; cursor: default; }
 html.th-clean .ac-gw:has(> .ac-gw-state[data-level="warn"]) > .opt > input[type="checkbox"] { pointer-events: none; }   /* хаб проверяет шлюз */
-html.th-clean .ac-gw > .opt > input[type="checkbox"]:focus-visible { outline: 2px solid var(--c-ring); outline-offset: 2px; }
+html.th-clean :is(.ac-gw, .feed-opts) > .opt > input[type="checkbox"]:focus-visible { outline: 2px solid var(--c-ring); outline-offset: 2px; }
 html.th-clean .ac-gw-state, html.th-clean .ac-gw-state[data-level="bad"] { padding-left: 0; }
 html.th-clean .ac-gw-state[data-level="off"] { display: none; }
 @media (prefers-reduced-motion: reduce) {
   html.th-clean :is(.module-head > .module-toggle, .plugin-actions > .btn, .bus-head > .btn)::before,
   html.th-clean :is(.module-head > .module-toggle, .plugin-actions > .btn, .bus-head > .btn)::after,
-  html.th-clean .ac-gw > .opt > input[type="checkbox"], html.th-clean .ac-gw > .opt > input[type="checkbox"]::before { transition: none; }
+  html.th-clean :is(.ac-gw, .feed-opts) > .opt > input[type="checkbox"], html.th-clean :is(.ac-gw, .feed-opts) > .opt > input[type="checkbox"]::before { transition: none; }
 }
 
 /* ---- описание раздела настроек (Figma 09, Settings · General / Look; третий круг ревью 16.11) — ближе к заголовку: 4 от

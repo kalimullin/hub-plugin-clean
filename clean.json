@@ -14,12 +14,12 @@
     "primary": "#4f6cf6",
     "primary-foreground": "#ffffff",
     "ring": "#c9c9d0",
-    "destructive": "#ef4e4e",
+    "destructive": "#c92a2a",
     "warning": "#ec6e0e",
     "success": "#1fb141",
     "code": "#27272a",
     "hl-attr": "#6d4fd6",
-    "attention": "#ef4e4e"
+    "attention": "#c92a2a"
   },
   "font": "f/GeistVariable.woff2",
   "font_scope": "all",

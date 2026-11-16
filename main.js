@@ -563,13 +563,13 @@ export default function register(hub) {
     title: RU ? "Тема Clean" : "Clean theme",
     hint: RU ? "Действует, пока выбрана тема Clean." : "Applies while the Clean theme is selected.",
     options: [{ key: "detail", on: true, label: RU ? "Подробный список сессий" : "Detailed session list",
-      hint: RU ? "Под названием проект и папка, справа время. Без галочки список компактный." : "Project and folder under the name, time on the right. Unchecked, the list is compact." },
+      hint: RU ? "Под названием начало последнего сообщения, справа время. Если выключить, список компактный." : "The start of the last message under the name, time on the right. Off: the list is compact." },
     { key: "avatars", on: true, label: RU ? "Аватарки у чатов" : "Chat avatars",
-      hint: RU ? "У специалистов и исполнителей — аватарка, у направлений — значок. Без галочки — только названия." : "Specialists and executors get an avatar, directions get an icon. Unchecked, names only." },
+      hint: RU ? "У специалистов и исполнителей — аватарка, у направлений — значок. Если выключить, только названия." : "Specialists and executors get an avatar, directions get an icon. Off: names only." },
     { key: "recent", on: true, label: RU ? "Сортировать по последнему сообщению" : "Sort by last message",
-      hint: RU ? "В каждой группе сверху чат с самым свежим сообщением, «Хаб» первый. Строки не перетаскиваются: в другую группу — через меню строки. Без галочки — порядок хаба." : "In each group the chat with the newest message is on top, the Hub stays first. Rows are not draggable: to another group via the row menu. Unchecked, the hub's own order." },
+      hint: RU ? "В каждой группе сверху чат с самым свежим сообщением, «Хаб» первый. Строки не перетаскиваются: в другую группу — через меню строки. Если выключить, порядок хаба." : "In each group the chat with the newest message is on top, the Hub stays first. Rows are not draggable: to another group via the row menu. Off: the hub's own order." },
     { key: "counts", on: true, label: RU ? "Счётчики в списке" : "Counts in the list",
-      hint: RU ? "Числа во вкладках «Все | Сейчас», у групп и в бейдже исполнителей. Без галочки — только непрочитанное и «ждёт вас»." : "Totals in the All | Now tabs, next to groups and in the executors badge. Unchecked, only unread and waiting marks." }],
+      hint: RU ? "Числа во вкладках «Все | Сейчас», у групп и в бейдже исполнителей. Если выключить, только непрочитанное и «ждёт вас»." : "Totals in the All | Now tabs, next to groups and in the executors badge. Off: only unread and waiting marks." }],
   });
   // sorting is the core's own order hook (hub.addOrder): rows come out of the core already in place, no DOM moves; the groups the core
   // does not order (Sleeping) and the ones with a manual order (drag and drop) are fixed up in recentOrder
