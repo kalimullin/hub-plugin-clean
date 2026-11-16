@@ -29,10 +29,10 @@ const phone = () => {
   return out.join("\n");
 };
 
-// counts are off by default; "Counts in the list" in View (main.js: html.th-clean-counts) brings them back
+// counts are on by default (owner 16.11), off they hide; "Counts in the list" in View (main.js: html.th-clean-counts) brings them back
 const OFF = "html.th-clean:not(.th-clean-counts)";
 
-test("group headers carry no count by default: the core's .gcount is drawn only with the counts setting", () => {
+test("group headers carry no count with the setting off: the core's .gcount is drawn only with the counts setting", () => {
   assert.match(rule(OFF + " .gcount"), /display: none/);
   assert.doesNotMatch(rule("html.th-clean .gcount"), /display: none/, "with the setting the number is the old quiet badge");
 });
@@ -67,7 +67,7 @@ test("without a digit the chevron sits in the middle of the 16 px badge: equal s
 test("with the counts setting the twin carries the executor count again, so names truncate where the wider badge starts", () => {
   assert.match(rule("html.th-clean.th-clean-counts li.has-forks > .srow::after"), /content: attr\(data-clean-fw\)/);
   const js = fs.readFileSync(path.join(root, "main.js"), "utf8");
-  assert.match(js, /key: "counts", on: false/, "a View option, off by default");
+  assert.match(js, /key: "counts", on: true/, "a View option, on by default (owner 16.11)");
   assert.match(js, /toggle\("th-clean-counts", !!hub\.option\?\.\("counts"\)\)/);
   assert.match(js, /const forkCounts = \(\) => \{\n    if \(!document\.documentElement\.classList\.contains\("th-clean-counts"\)\) return;/);
 });
