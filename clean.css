@@ -2665,3 +2665,20 @@ html.th-clean .opt-thumb:not(.missing)::after { content: ""; inset-inline-end: 4
   background: rgb(0 0 0 / 0.55); }
 html.th-clean .opt-thumb:not(.missing)::before { content: ""; position: absolute; inset-inline-end: 8px; top: 8px; z-index: 2; width: 16px; height: 16px;
   background: rgb(255 255 255); -webkit-mask: url("expand.svg") center / 16px no-repeat; mask: url("expand.svg") center / 16px no-repeat; pointer-events: none; }
+
+/* ---- сетка картинок в карточке вопроса (плагин choice-images: .chi-*) — у плагина выбор и галочки берут --primary, а в Clean
+   это синий ядра. Тот же вид, что у вариантов с превью (Question=With previews): плитка r8 на --c-fill, выбранная — обводка
+   2px цветом текста, галочка — цвет текста, фокус — кольцо --c-ring; «открыть крупно» — плашка 24 r6 тёмная 55% в 4 от угла
+   со значком expand 16 (как «открыть» на миниатюре), лупа плагина спрятана; счётчик над сеткой — 12/16 --c-t2 ---- */
+html.th-clean .ask-card .chi-tile { border-radius: 8px; background: var(--c-fill); outline: 0; box-shadow: none; transition: none; }
+html.th-clean .ask-card .chi-tile:has(input:checked) { outline: 0; box-shadow: inset 0 0 0 2px var(--foreground); }
+html.th-clean .ask-card .chi-tile:has(input:focus-visible) { outline: 2px solid var(--c-ring); outline-offset: 2px; }
+html.th-clean .ask-card .chi-tile input { accent-color: var(--foreground); }
+html.th-clean .ask-card .chi-pics .chi-img { border-radius: 8px; }
+html.th-clean .ask-card .chi-zoom { top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 6px; background: rgb(0 0 0 / 0.55); }
+html.th-clean .ask-card .chi-zoom > svg { display: none; }
+html.th-clean .ask-card .chi-zoom::before { content: ""; width: 16px; height: 16px; background: rgb(255 255 255);
+  -webkit-mask: url("expand.svg") center / 16px no-repeat; mask: url("expand.svg") center / 16px no-repeat; }
+html.th-clean .ask-card .chi-zoom:focus-visible { outline: 2px solid var(--c-ring); outline-offset: 2px; }
+html.th-clean .ask-card .chi-bar { padding: 4px 0; font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .ask-card .chi-bar .chi-all { padding: 3px 7px; font: 500 12px/16px var(--font); }
