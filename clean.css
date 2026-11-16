@@ -333,12 +333,16 @@ html.th-clean.th-clean-detail #list .srow[data-clean-d] { position: relative; mi
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] { min-height: 56px; padding-top: 8px; padding-bottom: 8px; }
 /* место под время — полем снаружи имени: у padding многоточие не рисуется, текст ушёл бы под цифры */
 html.th-clean.th-clean-detail #list .srow[data-clean-d] .nm { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: var(--clean-ago-w, 0px); }
-html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two]:has(> :is(.dot, .tag:not(.soft), .glyph:not([data-s="idle"], [data-s="dialog"]))) .nm { margin-right: max(0px, calc(var(--clean-ago-w, 0px) - 28px)); }
+html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two]:has(> :is(.dot, .tag, .glyph:not([data-s="idle"], [data-s="dialog"]))) .nm { margin-right: max(0px, calc(var(--clean-ago-w, 0px) - 28px)); }
+/* мягкий тег наблюдателя «ответ?» стоит на нижней строке, как любой статус, и не закрывает время; он шире времени над ним,
+   поэтому имени не нужно своё место под время */
+html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two]:has(> .tag.soft) .nm { margin-right: 0; }
+html.th-clean.th-clean-detail #list .srow[data-clean-d]:not([data-clean-two]):has(> .tag.soft)::before { content: none; }   /* одна строка: места на двоих нет, а «ответ?» всегда приходит со свежим результатом */
 html.th-clean.th-clean-detail:not(.th-clean-av) #list .sgroup.bare .srow[data-clean-d] .nm > .avatar { float: left; margin: -2px 8px 0 0; }   /* картинка 24 слева от имени (она показана только в группе «Хаб»); flex не даёт имени многоточия */
 html.th-clean.th-clean-detail #list .srow[data-clean-d]::before { content: attr(data-clean-ago); position: absolute; top: 12px; right: 8px; font: 400 12px/16px var(--font); color: var(--c-t2); white-space: nowrap; }
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two]::before { top: 10px; }
 /* одна строка (нет проекта): статус рядом с именем по центру, время — левее него, а не поверх */
-html.th-clean.th-clean-detail #list .srow[data-clean-d]:not([data-clean-two]):has(> :is(.dot, .tag:not(.soft), .glyph:not([data-s="idle"], [data-s="dialog"])))::before { right: 36px; }
+html.th-clean.th-clean-detail #list .srow[data-clean-d]:not([data-clean-two]):has(> :is(.dot, .tag, .glyph:not([data-s="idle"], [data-s="dialog"])))::before { right: 36px; }
 html.th-clean.th-clean-detail:not(.th-clean-av) #list .sgroup.bare .srow[data-clean-d][data-clean-two]:has(.nm > .avatar)::before { top: 12px; }   /* первая строка с картинкой 24 выше на 4 */
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > .txt { align-self: center; }
 html.th-clean.th-clean-detail #list .srow[data-clean-d] .nm { font-weight: 400; }   /* в подробном имя всегда Regular: «активна» читается по статусу и времени справа, а не по жирности */
@@ -347,7 +351,7 @@ html.th-clean.th-clean-detail.th-clean-av #list .srow[data-clean-k="hub"] .nm { 
 html.th-clean.th-clean-detail #list .srow[data-clean-d] > .txt[data-clean-prev]::after { content: attr(data-clean-prev); display: block; margin-top: 4px; overflow: hidden;
   text-overflow: ellipsis; white-space: nowrap; font: 400 12px/16px var(--font); letter-spacing: 0; color: var(--c-preview); }
 html.th-clean.th-clean-detail:not(.th-clean-av) #list .sgroup.bare .srow[data-clean-d]:has(.nm > .avatar) > .txt[data-clean-prev]::after { padding-left: 32px; }   /* под именем, а не под картинкой 24 + 8; у остальных узел .avatar скрыт (display: none) — отступа нет */
-html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > :is(.glyph, .dot, .tag:not(.soft)) { align-self: end; }
+html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two] > :is(.glyph, .dot, .tag) { align-self: end; }
 html.th-clean.th-clean-detail #list li.has-forks > .srow[data-clean-d][data-clean-two] ~ .fork-toggle { top: auto; bottom: 8px; transform: none; }
 /* открытая строка «Подробного» списка: белая плашка r16 — концентрично аватарке 32 r8 с полем 8 (аудит Figma 16.11, #12) */
 html.th-clean.th-clean-detail #list .srow[data-clean-d][data-clean-two][aria-current="true"] { background: var(--background); border-radius: 16px; box-shadow: 0 0 0 1px var(--c-line-soft); }
