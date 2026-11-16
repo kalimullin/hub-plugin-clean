@@ -140,8 +140,8 @@ export default function register(hub) {
   };
   // поиск как в Slack: крестик «очистить» в поле; ничего не нашлось — что искали, где ищем, кнопка «Очистить поиск»
   const RU = !/^en/.test(hub.locale || document.documentElement.lang || "ru");
-  const W = RU ? { clear: "Очистить поиск", none: (q) => `Нет сессий с «${q}» в имени`, where: "Проверьте, нет ли опечатки." }
-    : { clear: "Clear search", none: (q) => `No sessions with “${q}” in the name`, where: "Check the spelling." };
+  const W = RU ? { clear: "Очистить поиск", none: (q) => `Нет сессий с «${q}» в имени`, where: "Проверьте, нет ли опечатки" }
+    : { clear: "Clear search", none: (q) => `No sessions with “${q}” in the name`, where: "Check the spelling" };
   const clearSearch = () => {
     const i = document.getElementById("filter");
     if (!i) return;
@@ -561,15 +561,15 @@ export default function register(hub) {
   // новых узлов (ядро их пересобирает) — только атрибуты, а текст рисует clean.css через attr()
   hub.addOptions({
     title: RU ? "Тема Clean" : "Clean theme",
-    hint: RU ? "Действует, пока выбрана тема Clean." : "Applies while the Clean theme is selected.",
+    hint: RU ? "Действует, пока выбрана тема Clean" : "Applies while the Clean theme is selected",
     options: [{ key: "detail", on: true, label: RU ? "Подробный список сессий" : "Detailed session list",
-      hint: RU ? "Под названием начало последнего сообщения, справа время. Если выключить, список компактный." : "The start of the last message under the name, time on the right. Off: the list is compact." },
+      hint: RU ? "Под названием начало последнего сообщения, справа время. Если выключить, список компактный" : "The start of the last message under the name, time on the right. Off: the list is compact" },
     { key: "avatars", on: true, label: RU ? "Аватарки у чатов" : "Chat avatars",
-      hint: RU ? "У специалистов и исполнителей — аватарка, у направлений — значок. Если выключить, только названия." : "Specialists and executors get an avatar, directions get an icon. Off: names only." },
+      hint: RU ? "У специалистов и исполнителей — аватарка, у направлений — значок. Если выключить, только названия" : "Specialists and executors get an avatar, directions get an icon. Off: names only" },
     { key: "recent", on: true, label: RU ? "Сортировать по последнему сообщению" : "Sort by last message",
-      hint: RU ? "В каждой группе сверху чат с самым свежим сообщением, «Хаб» первый. Строки не перетаскиваются: в другую группу — через меню строки. Если выключить, порядок хаба." : "In each group the chat with the newest message is on top, the Hub stays first. Rows are not draggable: to another group via the row menu. Off: the hub's own order." },
+      hint: RU ? "В каждой группе сверху чат с самым свежим сообщением, «Хаб» первый. Строки не перетаскиваются: в другую группу — через меню строки. Если выключить, порядок хаба" : "In each group the chat with the newest message is on top, the Hub stays first. Rows are not draggable: to another group via the row menu. Off: the hub's own order" },
     { key: "counts", on: true, label: RU ? "Счётчики в списке" : "Counts in the list",
-      hint: RU ? "Числа во вкладках «Все | Сейчас», у групп и в бейдже исполнителей. Если выключить, только непрочитанное и «ждёт вас»." : "Totals in the All | Now tabs, next to groups and in the executors badge. Off: only unread and waiting marks." }],
+      hint: RU ? "Числа во вкладках «Все | Сейчас», у групп и в бейдже исполнителей. Если выключить, только непрочитанное и «ждёт вас»" : "Totals in the All | Now tabs, next to groups and in the executors badge. Off: only unread and waiting marks" }],
   });
   // sorting is the core's own order hook (hub.addOrder): rows come out of the core already in place, no DOM moves; the groups the core
   // does not order (Sleeping) and the ones with a manual order (drag and drop) are fixed up in recentOrder
