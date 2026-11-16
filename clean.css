@@ -667,13 +667,14 @@ html.th-clean .row:is(:focus-within) > .b > .reply-btn ~ .react-add, html.th-cle
   html.th-clean .row > .b > .reply-btn, html.th-clean .row > .b > .reply-box > .meta > .reply-btn { opacity: 1; color: var(--c-t2); }
 }
 /* «Ответить» у своего сообщения — вне пузыря, слева у верхнего угла: не на времени и не на тексте; у ответа на карточку — сразу после строки */
-html.th-clean .row.mine > .b > .reply-btn { top: 50%; right: calc(100% + 4px); transform: translateY(-50%); }
-/* «Реакция» у своего сообщения — рядом с «Ответить», тоже по центру пузыря (как в WhatsApp Web и Messenger: действия на наведении
-   стоят сбоку от пузыря на его середине, а не у верхнего угла) */
-html.th-clean .row.mine > .b > .reply-btn ~ .react-add { top: 50%; right: calc(100% + 32px); transform: translateY(-50%); }
+html.th-clean .row.mine > .b > .reply-btn { top: 8px; right: calc(100% + 4px); }
+/* «Реакция» у своего сообщения — рядом с «Ответить», в том же ряду у верхнего края пузыря (владелец 16.11: «выровняем по верхнему
+   краю»; top 8 = середина 24-кнопки на строке времени при padding 12) */
+html.th-clean .row.mine > .b > .reply-btn ~ .react-add { top: 8px; right: calc(100% + 32px); }
 /* «В избранное» (звёздочка плагина todo, .td-msg-star) у своего сообщения: плагин ставит её у верхнего угла пузыря — тема ставит
-   её по середине пузыря сбоку, тихой кнопкой 24 r8 со значком 16, подложка только под курсором (владелец 16.11: «криво стоит») */
-html.th-clean .feed .row.mine > .b > .td-msg-star { top: 50%; right: calc(100% + 4px); transform: translateY(-50%); width: 24px; height: 24px; border-radius: 8px;
+   её сбоку у верхнего края пузыря в ряд с «Ответить» и «Реакцией», тихой кнопкой 24 r8 со значком 16, подложка только под курсором
+   (владелец 16.11: «криво стоит», потом «по верхнему краю») */
+html.th-clean .feed .row.mine > .b > .td-msg-star { top: 8px; right: calc(100% + 4px); transform: none; width: 24px; height: 24px; border-radius: 8px;
   background: none; }
 html.th-clean .feed .row.mine > .b > .td-msg-star:not(.on) { color: var(--c-t2); }
 html.th-clean .feed .row.mine > .b:has(> .reply-btn) > .td-msg-star { right: calc(100% + 32px); }
