@@ -26,9 +26,11 @@ html.th-clean {
   --c-preview: light-dark(rgb(0 0 0 / 0.55), rgb(255 255 255 / 0.50));   /* превью сообщения в «Подробном» списке: ≥4,5:1 к фону, к карточке и в тёмной (в светлой темой светлее нельзя: 50% даёт 3,9:1) */
   --c-ink: light-dark(#000, #fff);                                         /* точки «работает»: этим цветом с прозрачностью */
   --c-alert: light-dark(#ef4e4e, #cf3a3a);   /* красная заливка с белым текстом: в тёмной 4,9:1 */
-  --c-free: light-dark(#1fb141, #4cd46a); --c-free-bg: light-dark(#e7f9eb, #173a22);
+  --c-free: light-dark(#1fb141, #4cd46a); --c-free-bg: light-dark(rgb(31 177 65 / 0.10), rgb(76 212 106 / 0.16));   /* мягкие подложки — прозрачностью: на цветном фоне не серые */
   --c-eco: light-dark(#876200, #ffd60a);   /* жёлтый «режима экономии» в блоке расхода: тёмная охра на светлом (4,5:1+), яркий жёлтый на тёмном */
-  --c-busy: light-dark(#a35d1c, #f2b25a); --c-busy-bg: light-dark(#fffbea, #3a2c12);
+  --c-busy: light-dark(#a35d1c, #f2b25a); --c-busy-bg: light-dark(rgb(255 200 0 / 0.08), rgb(255 190 40 / 0.14));
+  --c-alert-tint: light-dark(rgb(239 78 78 / 0.07), rgb(207 58 58 / 0.07));   /* шапка карточки «ждёт вас» */
+  --c-alert-soft: light-dark(rgb(239 78 78 / 0.12), rgb(207 58 58 / 0.20)); --c-alert-soft-hover: light-dark(rgb(239 78 78 / 0.18), rgb(207 58 58 / 0.28));   /* Danger и красные бейджи: мягкая красная подложка, красный текст */
   --c-key: 0 0 0 1px light-dark(#18181b0d, #ffffff14), 0 1px 2px light-dark(#18181b0d, #0000004d);   /* белая клавиша */
   --c-field: 0 0 2px light-dark(#18181b12, #00000066), 0 2px 4px light-dark(#18181b0a, #0000004d), 0 8px 20px light-dark(#18181b1f, #00000080);
   --ease-io: cubic-bezier(0.77, 0, 0.175, 1);
@@ -44,6 +46,16 @@ html.th-clean.theme-font-all { --font-mono: var(--font-code); }
 html.th-clean body { font-variant-numeric: normal; letter-spacing: 0; }
 html.th-clean .app { --left-w: 272px; --gap: 8px; }
 html.th-clean main, html.th-clean .side { border-radius: 16px; box-shadow: none; }
+/* кнопки с подписью — один размер 24 везде (Figma Clean/Button; третий круг ревью 16.11: в окнах, карточках вопроса и
+   разрешения, расписании, настройках и шапке тоже 24, не 30). :where — чтобы частные правила ниже по файлу
+   (кнопки поля ввода, инструменты списка, ссылки-кнопки) оставались сильнее */
+html.th-clean .btn:where(:not(.round, .back, .quiet.linkbtn)) { min-height: 24px; padding: 3px 7px; gap: 4px;   /* 4/8 минус рамка 1 ядра */
+  font: 500 12px/16px var(--font); }
+/* Danger — мягкая красная подложка и красный текст, не серая */
+html.th-clean .btn.danger:where(:not(.round, .quiet)) { background: var(--c-alert-soft); color: var(--destructive); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .btn.danger:where(:not(.round, .quiet)):hover { background: var(--c-alert-soft-hover); }
+}
 
 /* ---- боковая панель: без своей заливки; поиск 36 серым, ☰ и лимиты — внизу ---- */
 html.th-clean aside { --row-plate: var(--c-fill); --row-plate-shadow: none; --ctl-h: 36px; padding: 4px 12px 8px; }
@@ -213,7 +225,7 @@ html.th-clean #list .g-tools .btn::before { content: ""; flex: none; width: 16px
   -webkit-mask: var(--g-ic) center / 16px no-repeat; mask: var(--g-ic) center / 16px no-repeat; }
 html.th-clean #list .g-tools .add-group { --g-ic: url("plus.svg"); }
 html.th-clean #list .g-tools .auto { --g-ic: url("sort.svg"); }
-html.th-clean #list .g-tools .btn:not(.add-group, .auto) { --g-ic: url("undo.svg"); }
+html.th-clean #list .g-tools .btn:not(.add-group, .auto) { --g-ic: url("close.svg"); }   /* «Сбросить группы» — крестик (Figma 03, Clean/List tools=With reset) */
 html.th-clean .srow { grid-template-columns: minmax(0, 1fr); align-content: center; align-items: center; gap: 12px; min-height: 40px; padding: 0 8px; border-radius: 8px; }
 html.th-clean .srow .txt { display: block; }
 /* имя: Regular, у активной (бейдж или статус) — Medium */
@@ -397,8 +409,9 @@ html.th-clean .reactions { margin-top: 6px; }
 html.th-clean .row.mine > .b:has(> .reactions > .react-chip:only-child) { position: relative; padding-bottom: 24px; margin-bottom: 6px; }
 html.th-clean .row.mine > .b > .reactions:has(> .react-chip:only-child) { position: absolute; right: -4px; bottom: -6px; margin: 0; }
 
-html.th-clean .gcount { height: 16px; min-width: 0; padding: 0 4px; border-radius: 4px; background: var(--c-badge); opacity: .4;
-  font: 500 12px/16px var(--font); color: var(--c-t1); }
+/* число в заголовке группы и секции «Сейчас» — тихий бейдж 16: серая подложка, цифра цветом заголовка (Figma 03, Group=Now · …) */
+html.th-clean .gcount { height: 16px; min-width: 0; padding: 0 4px; border-radius: 4px; background: var(--c-fill);
+  font: 400 12px/16px var(--font); color: var(--c-t3); }
 html.th-clean:not(.th-clean-counts) .gcount { display: none; }
 
 /* ---- баннер ядра («Хаб обновился…», «Нет связи…») — первая строка карточки чата, над шапкой, своя подложка --c-badge
@@ -487,7 +500,7 @@ html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn::after { margin: 
    раскрытая держит заливку сама, не только по :hover */
 html.th-clean .menu-btn { transition: none; }
 html.th-clean .menu-btn:active:not(:disabled) { transform: none; }
-html.th-clean main > .head .menu-wrap > .menu-btn[aria-expanded="true"] { background: var(--accent); }
+html.th-clean main > .head .menu-wrap > .menu-btn[aria-expanded="true"] { background: var(--c-fill); }   /* раскрытая — та же 5%, что при наведении (Figma 04, Clean/More button=Open) */
 html.th-clean :is(.stat-par, .stat-mod, .stat-eff) > .menu-btn[aria-expanded="true"]::after { margin: 0 0 0 4px; transform: rotate(180deg); }
 /* остальные кнопки шапки («Остановить», «Поднять») — в масштабе соседних контролов: 24, 12/16, серая подложка без рамки */
 html.th-clean main > .head > .btn:not(.quiet) { min-height: 0; height: 24px; padding: 4px 8px; gap: 4px; border: 0; border-radius: 8px;
@@ -568,12 +581,13 @@ html.th-clean .md ul { list-style: none; padding-left: 0; }
 html.th-clean .md ul > li { position: relative; padding-left: 18px; }
 html.th-clean .md ul > li::before { content: "-"; position: absolute; left: 0; width: auto; margin-left: 0; color: var(--c-t3); }
 html.th-clean .md li > :is(ul, ol) { margin: 4px 0 0; }
-/* ссылки — тихой плашкой, как упоминание в Slack: цвет текста, подложка 5%, r4, без подчёркивания; наведение — подложка 10%.
-   Имя сессии (ядро заворачивает его в code) — шрифтом текста, Medium; путь и адрес в code — моноширинным, цветом текста */
-html.th-clean a:not([class]):not(:has(img, video, svg)) { color: var(--c-t1); text-decoration: none; padding: 0 2px; border-radius: 4px;
-  background: var(--c-fill); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+/* ссылки везде (третий круг ревью 16.11) — цвет текста вокруг, подчёркивание 1px со сдвигом 3, линия --c-line (чёрный 10%,
+   в тёмной белый 12%); наведение — линия --c-line-strong. Имя сессии (ядро заворачивает его в code) — шрифтом текста,
+   Medium; путь и адрес в code — моноширинным, цветом текста */
+html.th-clean a:is(:not([class]), .plugin-repo):not(:has(img, video, svg)) { color: inherit; padding: 0; border-radius: 0; background: none;
+  text-decoration: underline 1px var(--c-line); text-underline-offset: 3px; }
 @media (hover: hover) and (pointer: fine) {
-  html.th-clean a:not([class]):not(:has(img, video, svg)):hover { background: var(--c-badge); color: var(--c-t1); }
+  html.th-clean a:is(:not([class]), .plugin-repo):not(:has(img, video, svg)):hover { background: none; color: inherit; text-decoration-color: var(--c-line-strong); }
 }
 html.th-clean .md a:not([class]) code { color: inherit; }
 /* ссылка-картинка (превью вложения): пока картинки нет (файл удалён, не загрузилась), браузер пишет её имя — серым, без
@@ -587,9 +601,9 @@ html.th-clean .linkbtn { color: var(--c-t2); }
   html.th-clean .linkbtn:hover { color: var(--c-t1); text-decoration: none; }
 }
 html.th-clean .clamp-more { margin-top: 4px; font: 400 12px/16px var(--font); }
-html.th-clean :is(.stat-dir, .sched-title .crumb, .job .who-when .who, .plugin-repo, .tool .call .arg a) { text-decoration: none; }
+html.th-clean :is(.stat-dir, .sched-title .crumb, .job .who-when .who, .tool .call .arg a) { text-decoration: none; }
 @media (hover: hover) and (pointer: fine) {
-  html.th-clean :is(.stat-dir, .sched-title .crumb, .job .who-when .who, .plugin-repo, .tool .call .arg a):hover, html.th-clean .tool:hover .call b, html.th-clean .steps-head:hover > span:last-child { text-decoration: none; }
+  html.th-clean :is(.stat-dir, .sched-title .crumb, .job .who-when .who, .tool .call .arg a):hover, html.th-clean .tool:hover .call b, html.th-clean .steps-head:hover > span:last-child { text-decoration: none; }
 }
 html.th-clean .row.older .btn { padding: 2px 8px; border: 0; border-radius: 8px; background: var(--c-fill); color: var(--c-t2); font: 400 12px/16px var(--font); }
 @media (hover: hover) and (pointer: fine) {
@@ -653,7 +667,22 @@ html.th-clean .row:is(:focus-within) > .b > .reply-btn ~ .react-add, html.th-cle
   html.th-clean .row > .b > .reply-btn, html.th-clean .row > .b > .reply-box > .meta > .reply-btn { opacity: 1; color: var(--c-t2); }
 }
 /* «Ответить» у своего сообщения — вне пузыря, слева у верхнего угла: не на времени и не на тексте; у ответа на карточку — сразу после строки */
-html.th-clean .row.mine > .b > .reply-btn { top: 8px; right: calc(100% + 4px); }
+html.th-clean .row.mine > .b > .reply-btn { top: 50%; right: calc(100% + 4px); transform: translateY(-50%); }
+/* «Реакция» у своего сообщения — рядом с «Ответить», тоже по центру пузыря (как в WhatsApp Web и Messenger: действия на наведении
+   стоят сбоку от пузыря на его середине, а не у верхнего угла) */
+html.th-clean .row.mine > .b > .reply-btn ~ .react-add { top: 50%; right: calc(100% + 32px); transform: translateY(-50%); }
+/* «В избранное» (звёздочка плагина todo, .td-msg-star) у своего сообщения: плагин ставит её у верхнего угла пузыря — тема ставит
+   её по середине пузыря сбоку, тихой кнопкой 24 r8 со значком 16, подложка только под курсором (владелец 16.11: «криво стоит») */
+html.th-clean .feed .row.mine > .b > .td-msg-star { top: 50%; right: calc(100% + 4px); transform: translateY(-50%); width: 24px; height: 24px; border-radius: 8px;
+  background: none; }
+html.th-clean .feed .row.mine > .b > .td-msg-star:not(.on) { color: var(--c-t2); }
+html.th-clean .feed .row.mine > .b:has(> .reply-btn) > .td-msg-star { right: calc(100% + 32px); }
+html.th-clean .feed .row.mine > .b:has(> .reply-btn):has(> .react-add) > .td-msg-star { right: calc(100% + 60px); }
+html.th-clean .feed .row.mine > .b > .td-msg-star :is(svg, .td-ic) { width: 16px; height: 16px; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .feed .row.mine > .b > .td-msg-star:hover { background: var(--c-fill); }
+  html.th-clean .feed .row.mine > .b > .td-msg-star:not(.on):hover { color: var(--c-t1); }
+}
 html.th-clean .row.answer > .b { position: relative; justify-self: start; padding-right: 28px; }
 html.th-clean .row.answer > .b > .reply-btn { top: -2px; }
 /* ваши сообщения: серый пузырь до 624, углы 20 20 4 20, время сверху справа */
@@ -726,8 +755,6 @@ html.th-clean .row.tool:focus-visible { outline: 0; }   /* кольцо — во
 html.th-clean .row.tool:focus-visible > .b { outline: 2px solid var(--c-ring); outline-offset: 3px; border-radius: 8px; }
 html.th-clean .row.sys + .row.tool { margin-top: -12px; }
 html.th-clean .steps-head { font: 400 12px/16px var(--font); }
-/* «Кому: …» над полем — без цветной точки */
-html.th-clean .to-line .to-dot { display: none; }
 /* переписка сессий в «Кратко»: строка 48, рамка точками (1,5 через 4,5), аватар 32, «Ядро» и превью 14/20 серым 55%,
    шеврон 12 справа с прозрачностью .4 */
 html.th-clean .chat-head { min-height: 48px; padding: 8px 12px 8px 8px; gap: 8px; border: 0; border-radius: 12px; font: 400 14px/20px var(--font);
@@ -794,9 +821,7 @@ html.th-clean .composer textarea { min-height: 28px; padding: 4px; font: 400 14p
 html.th-clean .composer textarea::placeholder { color: var(--c-t2); }
 html.th-clean .composer > .attach { top: auto; bottom: 12px; right: auto; left: 6px; }
 html.th-clean .composer .kbd-hint, html.th-clean .composer .bar > .hint { display: none !important; }
-html.th-clean .composer.hk .to-line { padding-right: 0; }
 html.th-clean .composer > .prompt { padding-right: 0 !important; }
-html.th-clean .composer .to-line { font: 400 12px/16px var(--font); color: var(--c-t2); }
 html.th-clean .composer .bar { padding-left: 30px; margin-top: 0; min-height: 32px; gap: 4px; }
 html.th-clean .composer .bar > .mic { order: -1; }
 /* «Ответ на «…»» над рядом кнопок — плашка DS 24 (серая, 12/16) во всю ширину поля, «Отмена» — тихой кнопкой внутри справа;
@@ -849,7 +874,7 @@ html.th-clean .btn.round.send { width: 32px; height: 32px; background: var(--for
 }
 /* send is the core's own button: it exists only with text or a file (an empty field shows the mic, as in the native client).
    The core icon takes the plugin's own send.svg: the theme file arrives later and the button stayed empty until it did */
-html.th-clean .btn.round.send { position: relative; border-radius: 9999px; }
+html.th-clean .btn.round.send { position: relative; border-radius: 8px; }   /* круглое → прямоугольное r8 (ревью 226:6107) */
 html.th-clean .btn.round.send .icon { width: 16px; height: 16px; }
 html.th-clean .btn.round.send .icon.kit-img {
   -webkit-mask-image: url("send.svg") !important; mask-image: url("send.svg") !important; }
@@ -1176,14 +1201,14 @@ html.th-clean .btn.primary, html.th-clean .btn.solid { background: var(--foregro
 html.th-clean .card { position: relative; border: 0; border-radius: 16px; box-shadow: none; --card-ring: color-mix(in srgb, var(--foreground) 14%, transparent); }
 html.th-clean .card::after { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 0 1px var(--card-ring); }
 html.th-clean .card .card-x { width: 24px; height: 24px; margin: 0; padding: 0; border-radius: 8px; }   /* padding 1px 6px кнопки сдвигал значок на 2px вправо */
-html.th-clean .card :is(legend, .opt, textarea.other, input[type="text"], .btns .btn, .btn.more, .card-why, .hint) { font: 400 14px/20px var(--font); }
+html.th-clean .card :is(legend, .opt, textarea.other, input[type="text"], .card-why, .hint) { font: 400 14px/20px var(--font); }   /* кнопки карточки — 24, 12/16 Medium, как везде */
 html.th-clean .card .card-head h3 { font: 500 14px/20px var(--font); }
 html.th-clean .card :is(.card-why, .hint) { color: var(--c-t2); }
 html.th-clean .card :is(.q-of, .opt small, .code) { font-size: 12px; line-height: 16px; }
 html.th-clean .card .code { font-family: var(--font-mono); }
 
 html.th-clean .card .card-head { border-radius: 0; }
-html.th-clean .card:not(.frozen, .sent) .card-head { gap: 8px; justify-content: flex-start; background: color-mix(in srgb, var(--c-alert) 7%, var(--background)); color: var(--c-t1); }
+html.th-clean .card:not(.frozen, .sent) .card-head { gap: 8px; justify-content: flex-start; background: var(--c-alert-tint); color: var(--c-t1); }
 html.th-clean .card:not(.frozen, .sent) .card-head::before { content: ""; width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--c-alert); }
 html.th-clean .card:not(.frozen, .sent) .card-head .card-x { margin-left: auto; color: var(--c-t2); }
 @media (hover: hover) and (pointer: fine) {
@@ -1364,8 +1389,9 @@ html.th-clean .lightbox.clean-tall.zoom .lb-img { width: auto; max-width: none; 
 html.th-clean .fs-row input:focus-visible { outline: 0; border-color: var(--c-line-strong); }
 /* кольцо с клавиатуры одного цвета везде: ядро красит outline в --ring (светлая тема — #c9c9d0, 1,6:1: у ссылок и чипов его не видно) */
 html.th-clean :is(:focus-visible, .opt.pick:has(input:focus-visible), .opt-preview:focus-visible, .limlink:focus-visible, .quote-bar .linkbtn:focus-visible, .ctx-menu button:focus-visible, .menu-item:focus-visible) { outline-color: var(--c-ring); }
-/* чип, «Все сессии» и лупа в шапке (на телефоне они у самого края окна), вкладки «Кратко/Подробно»: края обрезают всё, что вне (overflow: hidden) — кольцо внутрь */
-html.th-clean :is(main > .head :is(.chip, .back, .fs-lupa), .seg button):focus-visible { outline-offset: -2px; }
+/* чип, «Все сессии» и лупа в шапке (на телефоне они у самого края окна): края обрезают всё, что вне (overflow: hidden) — кольцо внутрь.
+   «Кратко | Подробно» — нет: кольцо снаружи кнопки, в зазоре дорожки (ревью 296:5441, ниже) */
+html.th-clean main > .head :is(.chip, .back, .fs-lupa):focus-visible { outline-offset: -2px; }
 /* полоса ширины списка: с клавиатуры — серой линией --c-ring, не цветом ядра */
 html.th-clean .grip:focus-visible::after { background: var(--c-ring); }
 
@@ -1387,11 +1413,12 @@ html.th-clean .board-card { gap: 4px; padding: 12px 16px; border: 0; border-radi
 html.th-clean .board-card.open { box-shadow: 0 0 0 1px var(--c-line-strong); }
 html.th-clean .board-card .meta { font: 400 12px/16px var(--font); color: var(--c-t2); overflow-wrap: anywhere; }
 html.th-clean .board-card .t { font: 400 14px/20px var(--font); overflow-wrap: anywhere; }
-/* «исполнителя нет» / «работает …» / «сдал, не принято»: плашка r8 внутри карточки, подпись 12/16 */
-html.th-clean .board-fact { gap: 0; margin: 4px -8px -4px; padding: 8px; border-radius: 8px; background: var(--c-fill); font: 400 12px/16px var(--font); color: var(--c-t2); overflow-wrap: anywhere; }
+/* «исполнителя нет» / «работает …» / «сдал, не принято» / «ждёт владельца»: плашка r8 во всю ширину текста карточки, поля 6/8,
+   первая строка 12/16 Medium, вторая (когда правили) — 12/16 серым. Подложка у всех одна, серая: что происходит, говорят слова
+   (Figma 04, Board card=Fact · working / handed in / no executor / waits for the owner) */
+html.th-clean .board-fact { gap: 0; margin: 4px 0 0; padding: 6px 8px; border-radius: 8px; background: var(--c-fill); font: 400 12px/16px var(--font); color: var(--c-t2); overflow-wrap: anywhere; }
 html.th-clean .board-fact b { font: 500 12px/16px var(--font); color: var(--c-t1); }
-html.th-clean .board-fact.working { background: var(--c-free-bg); }
-html.th-clean .board-fact.unsorted { background: var(--c-busy-bg); }
+html.th-clean .board-fact:is(.working, .unsorted) { background: var(--c-fill); }
 html.th-clean .board-detail { margin: 0; padding: 12px 16px; border: 0; border-radius: 12px; background: var(--c-fill); font: 400 14px/20px var(--font); overflow-wrap: anywhere; }
 /* «Без карточки»: «за сутки» — серым текстом, не бейджем; пояснение 12/16 целиком; длинная цель — до трёх строк */
 html.th-clean .board-unlinked h3 .n { height: auto; padding: 0; background: none; opacity: 1; font: 400 14px/20px var(--font); color: var(--c-t2); }
@@ -1429,44 +1456,66 @@ html.th-clean :is(button, .btn, [role="button"], summary, .menu-item, .gpop-i, .
   html.th-clean.th-clean .composer textarea { line-height: 24px; }
 }
 
-/* ---- "MCP waits for a login" above the chat (core mcpwait.js): a row per server. The tone comes from the status tokens:
-   waiting is the orange --c-busy-bg, "signed in" the green --c-free-bg (lighter than the grey shell, and set apart from
-   the white window); no frame and no lines between rows. The icon is Forma Regular, a key (a check once signed in),
-   drawn as a mask in the text color. Buttons and the field follow the theme: 32, r8, 12/16 and 14/20, the field on a
-   --c-fill plate, a grey frame instead of a ring on focus. In the dark theme the tone is halved toward the window ---- */
+/* ---- "MCP waits for a login" above the chat (core mcpwait.js; Figma 07, Clean/MCP wait): a row per server, 8/24, gap 12,
+   14/20. The tone comes from the status tokens: waiting is --c-busy-bg, "signed in" --c-free-bg, a failed sign-in
+   --c-alert-tint; no frame and no lines between rows. The icon is Forma Regular in t2: an arrow out of a box (shortcut)
+   while it waits, a check once signed in, a cross after a failure. Buttons 24 (Primary, Secondary «Send», Quiet «Open
+   the sign-in»), the field 32 on --c-fill, the dismiss cross 32 with a 16 icon. "Starting / checking the sign-in" reads
+   in the line right after the server name, as one sentence, with no spinner. In the dark theme the tone is halved
+   toward the window ---- */
 html.th-clean .mcpwait { border: 0; background: none; }
-html.th-clean .mcpwait-row { min-height: 48px; padding: 8px 24px; gap: 12px; border: 0;
+html.th-clean .mcpwait-row { min-height: 0; padding: 8px 24px; gap: 12px; border: 0;
   background: light-dark(var(--c-busy-bg), color-mix(in oklab, var(--c-busy-bg) 50%, var(--background)));
   font: 400 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .mcpwait-row + .mcpwait-row { border: 0; }
 html.th-clean .mcpwait-row:has(> .mcpwait-ok) { background: light-dark(var(--c-free-bg), color-mix(in oklab, var(--c-free-bg) 50%, var(--background))); }
-html.th-clean .mcpwait-ic { width: 16px; height: 16px; color: var(--c-busy); }
-html.th-clean .mcpwait-row:has(> .mcpwait-ok) .mcpwait-ic { color: color-mix(in oklch, var(--c-free) 75%, var(--c-ink)); }
+html.th-clean .mcpwait-row:has(> .mcpwait-err) { background: var(--c-alert-tint); }
+html.th-clean .mcpwait-ic { width: 16px; height: 16px; color: var(--c-t2); }
 html.th-clean .mcpwait-ic > * { display: none; }
 html.th-clean .mcpwait-ic::before { content: ""; width: 16px; height: 16px; background: currentColor;
-  -webkit-mask: url("key.svg") center / 16px no-repeat; mask: url("key.svg") center / 16px no-repeat; }
+  -webkit-mask: url("shortcut.svg") center / 16px no-repeat; mask: url("shortcut.svg") center / 16px no-repeat; }
 html.th-clean .mcpwait-row:has(> .mcpwait-ok) .mcpwait-ic::before { -webkit-mask-image: url("check.svg"); mask-image: url("check.svg"); }
+html.th-clean .mcpwait-row:has(> .mcpwait-err) .mcpwait-ic::before { -webkit-mask-image: url("failed.svg"); mask-image: url("failed.svg"); }
 html.th-clean .mcpwait-t b { font-weight: 500; }
 html.th-clean .mcpwait-who { color: var(--c-t2); }
-html.th-clean :is(.mcpwait-wait, .mcpwait-ok, .mcpwait-err) { font: 400 12px/16px var(--font); }
-html.th-clean :is(.mcpwait-wait, .mcpwait-ok) { color: var(--c-t2); }
-html.th-clean .mcpwait-err { color: color-mix(in oklch, var(--c-alert) 75%, var(--c-ink)); }
-html.th-clean .mcpwait-wait::before { border: 2px solid var(--c-line); border-top-color: var(--c-t2); }
-html.th-clean .mcpwait-row .btn { box-sizing: border-box; height: 32px; min-height: 0; padding: 0 12px; border: 0;
-  font: 500 12px/16px var(--font); }
-html.th-clean .mcpwait-row .btn.primary { background: var(--foreground); color: var(--background); }
+/* opening, checking, signed in: «figma checking the sign-in…» — the name and the state, the waiting details drop out
+   (font-size 0 hides the core's text nodes between the name and the status; the full line stays in the tooltip) */
+html.th-clean .mcpwait-row:has(> :is(.mcpwait-wait, .mcpwait-ok)) .mcpwait-t { flex: none; display: flex; font-size: 0; }
+html.th-clean .mcpwait-row:has(> :is(.mcpwait-wait, .mcpwait-ok)) .mcpwait-t b { font-size: 14px; }
+html.th-clean .mcpwait-row:has(> :is(.mcpwait-wait, .mcpwait-ok)) .mcpwait-who { display: none; }
+html.th-clean .mcpwait-row > :is(.mcpwait-wait, .mcpwait-ok) { flex: 1; min-width: 0; margin-left: -8px; overflow: hidden; text-overflow: ellipsis;
+  font: 400 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .mcpwait-wait::before { display: none; }
+html.th-clean .mcpwait-link .mcpwait-wait { font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .mcpwait-err { font: 400 12px/16px var(--font); color: color-mix(in oklch, var(--c-alert) 75%, var(--c-ink)); }
+html.th-clean .mcpwait-row .btn { box-sizing: border-box; flex: none; }
 @media (hover: hover) and (pointer: fine) {
   html.th-clean .mcpwait-row .btn.primary:hover { background: color-mix(in oklch, var(--foreground) 85%, var(--background)); }
 }
-html.th-clean .mcpwait-link input { box-sizing: border-box; height: 32px; padding: 0 12px; border: 0; border-radius: 8px;
+/* the link form: field, «Send», then «Open the sign-in» as a quiet button */
+html.th-clean .mcpwait-link { flex: 0 1 auto; gap: 8px; }
+html.th-clean .mcpwait-link > a.btn { order: 2; background: none; color: var(--c-t2); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .mcpwait-link > a.btn:hover { background: var(--c-fill); color: var(--c-t1); }
+}
+html.th-clean .mcpwait-link input { box-sizing: border-box; flex: 0 1 320px; width: 320px; height: 32px; padding: 0 12px; border: 0; border-radius: 8px;
   background: var(--c-fill); box-shadow: none; color: var(--c-t1); font: 400 14px/20px var(--font); }
-html.th-clean .mcpwait-link input::placeholder { color: var(--c-t2); }
+html.th-clean .mcpwait-link input::placeholder { color: var(--c-t3); }
 html.th-clean .mcpwait-link input:not(:placeholder-shown) { background: var(--background); box-shadow: 0 0 0 1px var(--c-line); }
 html.th-clean .mcpwait-link input:focus, html.th-clean .mcpwait-link input:focus-visible { background: var(--background); outline: 0;
   box-shadow: 0 0 0 1px var(--c-line-strong); }
+html.th-clean .mcpwait-x { width: 32px; height: 32px; margin: 0; border-radius: 8px; color: var(--c-t2); }
+html.th-clean .mcpwait-x .icon { width: 16px; height: 16px; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .mcpwait-x:hover { background: var(--c-fill); color: var(--c-t1); }
+}
+/* phone (Waiting · phone, Link and code · phone): 12/16, the line on top, the buttons under it from the left edge */
 @media (max-width: 760px) {
-  html.th-clean .mcpwait-row { padding: 12px 16px; row-gap: 8px; }
-  html.th-clean .mcpwait-row .btn { height: 40px; }
-  html.th-clean .mcpwait-link input { height: 40px; }
+  html.th-clean .mcpwait-row { padding: 12px 16px; gap: 8px 12px; }
+  html.th-clean .mcpwait-row > .btn, html.th-clean :is(.mcpwait-wait, .mcpwait-ok, .mcpwait-err, .mcpwait-link) { margin-inline-start: 0; }
+  html.th-clean .mcpwait-row > :is(.mcpwait-wait, .mcpwait-ok) { order: -2; margin-left: -8px; }
+  html.th-clean .mcpwait-x { width: 32px; height: 32px; margin: -6px -8px 0 0; }
+  html.th-clean .mcpwait-link input { flex: 1 1 100%; width: auto; height: 40px; background: var(--background); }
 }
 
 /* ---- «Аватарки у чатов» (настройка «Вид», по умолчанию включена; main.js rowFaces): тип строки — data-clean-k (agent / exec / other / dir / hub),
@@ -1508,3 +1557,1110 @@ html.th-clean.th-clean-detail.th-clean-av #list .sgroup.bare .srow:not([data-cle
 /* "Sort by last message": a chat that rises moves the rows under it. The browser's own scroll anchoring then guesses which row to
    hold and sometimes scrolls the list by a few rows; main.js (holdView) keeps the rows in view itself */
 html.th-clean.th-clean-recent #list { overflow-anchor: none; }
+
+/* ---- меню ☰ и кнопка ☰ (Figma 02 Foundations: Clean/Nav button, Menu=Navigation · Settings warn / no connection /
+   schedule paused / schedule ended / current section) ---- */
+/* ☰: в покое белая плашка, под курсором серая 5%, раскрытое меню — 10% (как у остальных выпадающих) */
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .navmenu:hover { background: var(--c-fill); }
+}
+html.th-clean .navmenu[aria-expanded="true"] { background: var(--c-badge); }
+html.th-clean .navmenu[aria-current="true"] { color: var(--c-t1); }   /* открыт раздел из меню: у ядра ☰ синеет (--primary), в Clean — без цвета, раздел виден подложкой пункта */
+/* лампочка «Настроек» — точка 6 у правого края пункта (поле пункта 6): жёлтая «есть о чём знать», красная «нет связи» */
+html.th-clean #conn .glyph .dot { right: 6px; }
+html.th-clean #conn .glyph .dot[data-s="warn"] { background: var(--warning); }
+html.th-clean #conn .glyph .dot[data-s="off"] { background: var(--c-alert); }
+html.th-clean #conn:has(.dot[data-s="warn"], .dot[data-s="off"]) .txt { padding-right: 14px; }   /* текст не заходит под точку */
+/* нет связи — что происходит, прямо в пункте: «Настройки · нет связи» (вторая строка ядра, у остальных состояний скрыта) */
+html.th-clean .nav-pop #conn .txt { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.th-clean .nav-pop #conn:has(.dot[data-s="off"]) .lb { display: inline; font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); }
+html.th-clean .nav-pop #conn:has(.dot[data-s="off"]) .lb::before { content: " · "; }
+/* «Расписание» с паузой или истёкшим заданием: имя обычным весом, метка — тихий бейдж 16 r4, слова 12/16 серым; пауза — на мягкой
+   жёлтой подложке, «истекло» — на серой (main.js nav tags → data-clean-tag) */
+html.th-clean .nav-pop .srow.nav .nm { font-weight: 400; }
+html.th-clean .nav-pop .srow.nav { grid-template-columns: 16px minmax(0, 1fr) auto; }
+html.th-clean .nav-pop .srow.nav > .tag:not(.soft) { order: 0; height: 16px; min-width: 0; margin: 0; padding: 0 6px; border-radius: 4px;
+  background: var(--c-busy-bg); color: var(--c-t2); font: 400 12px/16px var(--font); }
+html.th-clean .nav-pop .srow.nav > .tag[data-clean-tag="ended"] { background: var(--c-fill); }
+html.th-clean .nav-pop .srow.nav > .tag:not(.soft)[data-n] { font-size: 12px; }
+html.th-clean .nav-pop .srow.nav > .tag:not(.soft)[data-n]::after { content: none; }
+
+/* ---- «Ещё» в шапке: аудит стопов (Figma 02, Menu=More · tools and stops; ревью 292:5317) — без точки, мягкая красная плашка r6,
+   поля 8/6: текст на одной линии с пунктами выше; на кнопке «Ещё» точка 6 красным (Figma 04, Clean/More button=Alert) ---- */
+html.th-clean .menu .menu-text { padding: 4px 8px; }
+html.th-clean .menu .menu-text.bad { padding: 6px 8px; margin: 2px 0; border-radius: 6px; background: var(--c-alert-soft); color: var(--c-alert); }
+html.th-clean .menu .menu-sep { margin: 4px 0; background: var(--border); }
+html.th-clean main > .head .menu-wrap > .menu-btn.alert { background: var(--c-fill); }
+html.th-clean main > .head .menu-wrap > .menu-btn.alert::before { width: 6px; height: 6px; margin: 0 2px 0 0; background: var(--c-alert); }
+
+/* ---- кнопки-значки (Figma 02, Clean/Icon button; ревью I296:5401): в фокусе с клавиатуры значок тёмный, как при наведении ---- */
+html.th-clean :is(.fs-lupa, .gmore, .clean-fold, .clean-fold-show, .clean-x, .md .code-copy, .card-x, .mdp-acts .btn, .reply-btn, .react-add, .cm-more):focus-visible { color: var(--c-t1); }
+
+/* ---- «Кратко | Подробно», «Лента | Доска» (Figma 02, Clean/Segmented; ревью 296:5441, I270:5442): снаружи r8, внутри r6;
+   кольцо фокуса — снаружи кнопки, в зазоре 2 дорожки: кнопка не растёт ---- */
+html.th-clean .seg button:focus-visible { outline: 2px solid var(--c-ring); outline-offset: 0; }
+html.th-clean .seg:has(> button:focus-visible) { overflow: visible; }   /* дорожка режет всё, что вне неё (overflow: hidden) — кольцо целиком только без обрезки */
+
+/* ---- команды «/» (Figma 02, Menu=Commands · long list; ревью 300:5616, 300:5678): меню 240 r12, пункт «/имя: что делает» 14/20,
+   длинный — в две строки; список листается внутри (164), подсказка снизу переносится в 2–3 строки, ничего не обрезано ---- */
+html.th-clean .cmd-menu { width: min(240px, calc(100% - 16px)); padding: 4px; border: 0; border-radius: 12px; background: var(--background);
+  box-shadow: var(--shadow-lift), 0 0 0 1px var(--border); }
+html.th-clean .cmd-menu .cmd-rows { max-height: 164px; overscroll-behavior: contain; scrollbar-width: thin; }
+html.th-clean .cmd-row { display: block; min-height: 32px; padding: 6px 8px; border-radius: 8px; font: 400 14px/20px var(--font); letter-spacing: -0.1px;
+  color: var(--c-t1); white-space: normal; overflow-wrap: anywhere; cursor: pointer; }
+html.th-clean .cmd-row[aria-selected="true"] { background: var(--c-fill); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .cmd-row:hover { background: var(--c-fill); }
+}
+html.th-clean .cmd-row .nm { display: inline; font: inherit; color: var(--c-t1); white-space: nowrap; }
+html.th-clean .cmd-row .nm::after { content: ":"; }
+html.th-clean .cmd-row :is(.args, .by) { display: none; }
+html.th-clean .cmd-row .what { display: inline; margin-left: 4px; color: var(--c-t1); white-space: normal; overflow: visible; }
+html.th-clean .cmd-foot { margin: 0; padding: 6px 8px; border-top: 0; font: 400 12px/16px var(--font); color: var(--c-t3); white-space: normal; overflow-wrap: anywhere; }
+
+/* ---- значок сессии (Figma 02, Clean/Icon palette; ревью 300:5570): сетка 4×56 вплотную, картинка 44 r10, выбранная — кольцо 2 цветом
+   текста; «Убрать свой значок» — только при своём значке, 14/20 тёмным ---- */
+html.th-clean .gpop.palette { gap: 0; row-gap: 0; }
+html.th-clean .pal-reset { color: var(--c-t1); }
+
+/* ---- шапка на телефоне как в приложениях (Figma 04, Mobile header · app bar, Clean/Mobile header · working; ревью 270:5471,
+   282:4802, 284:4890): одна строка 52 — «назад» значком 36, название 18/24 со статусом рядом, справа «Остановить» 24 (пока идёт ход),
+   лупа 36 и «Ещё» значком 36. «Кратко | Подробно», «Лента | Доска» и «Остановить исполнителя» уходят в лист «Ещё» (main.js headFold
+   кладёт их пунктами; прячем только когда «Ещё» есть, иначе переключателю некуда деться) ---- */
+@media (max-width: 760px) {
+  html.th-clean main > .head { flex-wrap: nowrap; min-height: 52px; padding: 0 8px 0 4px; gap: 4px; container: none; }   /* без контейнера: у него лист «Ещё» (fixed) считался бы от шапки, а не от экрана */
+  html.th-clean main > .head > .btn.back { flex: none; width: 36px; height: 36px; min-height: 0; padding: 0; justify-content: center; border-radius: 8px;
+    font-size: 0; color: var(--c-t1); }
+  html.th-clean main > .head > .btn.back::before { content: ""; width: 20px; height: 20px; background: currentColor; transform: scaleX(-1);
+    -webkit-mask: url("next-page.svg") center / 20px no-repeat; mask: url("next-page.svg") center / 20px no-repeat; }
+  /* название важнее статуса: длинный статус («ждёт исполнителей · 1») ужимается первым и обрезается многоточием, название держит
+     хотя бы 8 знаков */
+  html.th-clean main > .head h2 { flex: 0 1 auto; min-width: min(8ch, max-content); }
+  html.th-clean main > .head > .pill { display: block; flex: 0 20 auto; min-width: 4ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  html.th-clean main > .head > :is(.chips, .clean-bg) { display: none; }   /* расписание и фоновая работа — в ленте и в «Ещё»; в строке 390 им места нет */
+  html.th-clean main > .head .spacer { display: block; flex: 1 1 0; min-width: 0; }
+  html.th-clean main > .head:has(> .menu-wrap) > :is(.seg, .btn.stop-exec) { display: none; }
+  html.th-clean main > .head > .seg { flex: none; }
+  html.th-clean main > .head > .fs-lupa { flex: none; width: 36px; height: 36px; color: var(--c-t1); }
+  html.th-clean main > .head > .fs-lupa .icon { width: 20px; height: 20px; }
+  /* «Остановить» (ход) — Secondary 24, как на компьютере, без значка; «Останавливаю…» — та же кнопка, выключенная */
+  html.th-clean main > .head > .btn:not(.quiet, .stop-exec) { flex: none; height: 24px; padding: 4px 8px; font: 500 12px/16px var(--font); }
+  html.th-clean main > .head > .btn:not(.quiet, .stop-exec) .icon { display: none; }
+  html.th-clean main > .head > .btn:not(.quiet, .stop-exec):disabled { color: var(--muted-foreground); opacity: 1; }
+  html.th-clean main > .head > .menu-wrap { flex: none; position: static; order: 3; }
+  html.th-clean main > .head > .fs-lupa { order: 2; }   /* как в макете: «Остановить», за ней лупа и «Ещё» */
+  html.th-clean main > .head > :is(.side-toggle, .slot) { order: 4; }
+  html.th-clean main > .head .menu-wrap > .menu-btn { width: 36px; height: 36px; padding: 0; justify-content: center; font-size: 0; }
+  html.th-clean main > .head .menu-wrap > .menu-btn::after { width: 20px; height: 20px; transform: none;
+    -webkit-mask: url("more.svg") center / 20px no-repeat; mask: url("more.svg") center / 20px no-repeat; }
+  html.th-clean main > .head .menu-wrap > .menu-btn[aria-expanded="true"]::after { transform: none; }
+  html.th-clean main > .head .menu-wrap > .menu-btn.alert { position: relative; }
+  html.th-clean main > .head .menu-wrap > .menu-btn.alert::before { position: absolute; top: 7px; right: 7px; margin: 0; }   /* точка аудита стопов — в углу значка */
+}
+
+/* ---- листы меню на телефоне (Figma 02, Clean/Mobile menu sheet, Mobile menu sheet=More · working, Context · More sheet /
+   Session sheet; ревью 282:4761): лист снизу во всю ширину, поля 8/8/24/8, заголовок 28 (чья это сессия или группа, 12/16 серым),
+   пункты 44 под палец, затемнение страницы под листом. «Ещё» шапки — тоже лист: заголовок — имя сессии (main.js headFold) ---- */
+@media (max-width: 760px) {
+  html.th-clean :is(.gpop:not(.palette), main > .head .menu-wrap > .menu) { position: fixed; inset: auto 0 0 0 !important; width: auto; min-width: 0; max-width: none;
+    max-height: calc(100dvh - 64px); overflow-y: auto; padding: 8px 8px calc(24px + env(safe-area-inset-bottom, 0px)); border-radius: 16px 16px 0 0;
+    background: var(--background); box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.45); }   /* затемнение — тенью листа: пустое место по-прежнему закрывает меню касанием */
+  html.th-clean .gpop.palette { box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.45); }
+  html.th-clean main > .head .menu-wrap > .menu { z-index: 100; }   /* над полем ввода и кнопкой «вниз», как листы .gpop ядра */
+  html.th-clean .gpop.menu > .gpop-t, html.th-clean main > .head .menu-wrap > .menu[data-clean-title]::before {
+    display: block; padding: 6px 12px; font: 400 12px/16px var(--font); color: var(--c-t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  html.th-clean main > .head .menu-wrap > .menu[data-clean-title]::before { content: attr(data-clean-title); }
+  html.th-clean :is(.gpop-i, main > .head .menu-wrap > .menu .menu-item) { min-height: 44px; padding: 12px; font-size: 14px; line-height: 20px; }
+  html.th-clean main > .head .menu-wrap > .menu .menu-text { padding: 8px 12px; }
+  html.th-clean main > .head .menu-wrap > .menu .menu-text.bad { padding: 8px 12px; }
+}
+
+/* ---- поиск по ленте на телефоне — в самой шапке, на всю ширину (Figma 04, Mobile header=Search / Search · found, Context · mobile ·
+   search found; ревью 324:7178, 324:7186): поле 36 серым r8 со значком 16 и счётом «3 из 12» внутри, стрелки 32, закрыть 32.
+   Пока ничего не ищется — только поле и «закрыть». Строка ядра лежит в main рядом со шапкой; здесь — в её ряду, поверх неё ---- */
+@media (max-width: 760px) {
+  html.th-clean main > .fsearch { grid-row: 3; align-self: stretch; align-content: center; min-height: 52px; box-sizing: border-box; padding: 8px 4px 8px 12px;
+    border-bottom: 1px solid var(--border); background: var(--background); }
+  html.th-clean main:has(> .fsearch) > .head { visibility: hidden; }
+  html.th-clean main:has(> .fsearch) > .feed { margin-top: 0; }
+  html.th-clean main > .fsearch .fs-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto auto auto; align-items: center; gap: 0; height: 36px; }
+  html.th-clean main > .fsearch .fs-row::before { content: ""; grid-area: 1 / 1 / 2 / 5; align-self: stretch; border-radius: 8px; background: var(--c-fill); }
+  html.th-clean main > .fsearch .fs-row > .icon { grid-area: 1 / 1; width: 16px; height: 16px; margin: 0 8px 0 10px; color: var(--c-t2); }
+  html.th-clean main > .fsearch .fs-row input { grid-area: 1 / 2; width: 100%; height: 36px; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none;
+    font: 400 16px/20px var(--font); color: var(--c-t1); }
+  html.th-clean main > .fsearch .fs-row input::placeholder { color: var(--c-t3); }
+  html.th-clean main > .fsearch .fs-row input:focus-visible { outline: 0; }
+  html.th-clean main > .fsearch .fs-row:has(input:focus-visible)::before { box-shadow: inset 0 0 0 1px var(--c-line-strong); }
+  html.th-clean main > .fsearch .fs-row > .btn.round.dictate { grid-area: 1 / 3; margin: 0; }
+  html.th-clean main > .fsearch .fs-row:has(.dictate.mini:not([hidden])) input { padding-inline-end: 0; }
+  html.th-clean main > .fsearch .fs-n { grid-area: 1 / 4; width: auto; height: 16px; contain: none; padding: 0 6px 0 4px; font: 400 12px/16px var(--font); color: var(--c-t2); }
+  html.th-clean main > .fsearch .fs-btn { grid-row: 1; width: 32px; height: 32px; min-width: 0; min-height: 0; padding: 0; justify-content: center; border-radius: 8px; color: var(--c-t1); }
+  html.th-clean main > .fsearch .fs-btn:nth-last-child(3) { grid-column: 5; margin-left: 4px; }
+  html.th-clean main > .fsearch .fs-btn:nth-last-child(2) { grid-column: 6; }
+  html.th-clean main > .fsearch .fs-btn:last-child { grid-column: 7; margin-left: 4px; }
+  html.th-clean main > .fsearch .fs-btn .icon { width: 16px; height: 16px; }
+  /* ↑ ↓ ядра — шевронами 16, как в макете */
+  html.th-clean main > .fsearch .fs-btn:is(:nth-last-child(2), :nth-last-child(3)) { font-size: 0; }
+  html.th-clean main > .fsearch .fs-btn:is(:nth-last-child(2), :nth-last-child(3))::before { content: ""; width: 16px; height: 16px; background: currentColor;
+    -webkit-mask: url("chevron-down.svg") center / 16px no-repeat; mask: url("chevron-down.svg") center / 16px no-repeat; }
+  html.th-clean main > .fsearch .fs-btn:nth-last-child(3)::before { transform: rotate(180deg); }
+  html.th-clean main > .fsearch .fs-row:has(> .fs-n:empty) > :is(.fs-n, .fs-btn:not(:last-child)) { display: none; }
+  html.th-clean main > .fsearch .fs-status:empty { display: none; }
+}
+
+/* ---- доска: выбор карточек (Figma 04, Board card=Pick · hover / Pick · on, Clean/Board selection bar; ревью I240:6102): кружок 20
+   в правом верхнем углу (12 от краёв), обводка 1,5 --c-line-strong; выбранный — залитый цветом текста с галочкой 12, карточка — на
+   серой подложке. Полоса выбора — карточка r12 с тенью поля, поля 12/16, между рядами 12; главная кнопка — тёмная, остальные серые ---- */
+html.th-clean .board-item .board-card .meta { padding-inline-end: 28px; }
+html.th-clean .pick-box { top: 12px; inset-inline-end: 12px; width: 20px; height: 20px; border: 1.5px solid var(--c-line-strong); background: var(--background); color: var(--background); }
+@media (pointer: coarse) { html.th-clean .pick-box { top: 12px; inset-inline-end: 12px; width: 20px; height: 20px; } }   /* под палец — невидимая зона ядра ±8 */
+html.th-clean .pick-box .icon { width: 12px; height: 12px; }
+html.th-clean .pick-box.on { background: var(--foreground); border-color: var(--foreground); color: var(--background); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .pick-box:not(.on):hover { border-color: var(--c-t2); }
+  html.th-clean .col-all:hover { color: var(--c-t1); }
+}
+html.th-clean .pick-box:focus-visible { outline: 2px solid var(--c-ring); outline-offset: 2px; }
+html.th-clean .pick-box:not(.on):focus-visible { border-color: var(--c-line-strong); }
+html.th-clean .board-card.picked { background: var(--c-fill); box-shadow: 0 0 0 1px var(--c-line); }
+html.th-clean .col-all { margin-inline-start: 4px; font: 400 12px/16px var(--font); color: var(--c-t2); text-decoration: none; }
+html.th-clean .select-foot { gap: 12px; margin-top: 16px; padding: 12px 16px; border: 0; border-radius: 12px; background: var(--background); box-shadow: var(--c-field); }
+html.th-clean .select-foot.slim { gap: 12px; }
+html.th-clean .select-foot :is(.hint, p) { margin: 0; font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t2); }
+html.th-clean .sel-top { gap: 12px; }
+html.th-clean .sel-top b { font: 500 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); }
+html.th-clean .sel-ids { font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean :is(.sel-row, .sel-confirm-row) { gap: 8px; }
+html.th-clean .select-foot .btn.send-ask { border-color: transparent; background: var(--foreground); color: var(--background); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .select-foot .btn.send-ask:hover:not(:disabled) { background: color-mix(in oklch, var(--foreground) 85%, var(--background)); }
+}
+html.th-clean .select-foot .btn.send-ask:disabled { background: var(--c-fill); color: var(--muted-foreground); opacity: 1; }
+html.th-clean .select-foot .btn.sel-act.on { background: var(--c-badge); border-color: transparent; }
+html.th-clean .sel-confirm { gap: 12px; padding-top: 0; border-top: 0; font: 400 14px/20px var(--font); }
+html.th-clean .select-foot .sel-msg { padding: 0; border: 0; font-weight: 500; color: var(--c-t1); }
+html.th-clean .select-foot .sel-error { color: var(--c-alert); }
+@media (max-width: 760px) {
+  html.th-clean .select-foot { margin: 0; border-radius: 16px 16px 0 0; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* ---- доска на телефоне — одна колонка (Figma 04, Phone · board): «Лента | Доска» — первой строкой тела доски, а не в «Ещё»
+   (на ленте он по-прежнему пунктом «Ещё»): шапка — одна строка, переключатель — под ней слева, тело доски начинается ниже на 56 ---- */
+@media (max-width: 760px) {
+  html.th-clean main:has(> .boards-body) > .head > .seg.clean-board { display: inline-flex; position: absolute; top: calc(100% + 16px); left: 16px; z-index: 2; }
+  html.th-clean main:has(> .boards-body) > .head::after { content: ""; position: absolute; left: 0; right: 0; top: calc(100% + 1px); height: 56px; z-index: 1;
+    background: var(--background); pointer-events: none; }   /* под переключателем — фон окна: тело доски листается под ним, а не сквозь него */
+  html.th-clean main > .boards-body { padding-top: 56px; }
+}
+
+/* ---- список: «ответ?», бейдж исполнителей, длинный заголовок группы, место падения строки (Figma 03, Session row=Reply? tag,
+   Session row=Executors · waiting / new, Group=Long title; ревью 291:5454 / 324:7166, 291:5462 / 324:7170, 211:6097) ---- */
+/* «ответ?» — догадка хаба, что строка ждёт ответа: тихий бейдж 16 r4 со словом 12/16 серым и крестиком 10 (клик убирает) */
+html.th-clean .srow > .tag.soft { order: 7; display: inline-flex; align-items: center; gap: 2px; height: 16px; margin: 0; padding: 0 4px 0 6px; align-self: center;
+  border: 0; border-radius: 4px; background: var(--c-badge); font: 400 12px/16px var(--font); color: var(--c-t2); white-space: nowrap; }
+html.th-clean .srow > .tag.soft.dismiss::after { content: ""; flex: none; width: 10px; height: 10px; background: currentColor;
+  -webkit-mask: url("close.svg") center / 10px no-repeat; mask: url("close.svg") center / 10px no-repeat; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .srow > .tag.soft.dismiss:hover { color: var(--c-t1); text-decoration: none; }
+}
+/* исполнители: без точек. Ждут ответа — мягкая красная подложка и красный шеврон; новое — бейдж в полную силу, шеврон тёмный */
+html.th-clean .fork-toggle .fdot { display: none; }
+html.th-clean li.has-forks > .srow.fw-dot::after { padding-right: 12px; }
+html.th-clean .fork-toggle:is(.wants, :has(.fdot.wants)) { opacity: 1; background: var(--c-alert-soft); color: var(--c-alert); }
+html.th-clean .fork-toggle:has(.fdot:not(.wants)) { opacity: 1; color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .fork-toggle:is(.wants, :has(.fdot.wants)):hover { background: var(--c-alert-soft-hover); }
+}
+/* длинное имя группы — одной строкой с многоточием, полное — в подсказке ядра */
+html.th-clean .sgroup-h .gt { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* место, куда упадёт строка: линия 3 с точкой, цветом текста (у ядра — синяя); группа под курсором — серой подложкой и рамкой */
+html.th-clean .drop-line, html.th-clean .drop-line::before { background: var(--foreground); }
+html.th-clean .sgroup.drop-target { background: var(--c-hover); box-shadow: 0 0 0 1px var(--c-line-strong); border-radius: 8px; }
+
+/* ---- чип расписания в шапке (Figma 04, Clean/Schedule chip=Paused): задание на паузе — мягкая жёлтая подложка, слова и часы
+   цветом «работает» (у ядра .warn — рамка Classic) ---- */
+html.th-clean main > .head .chip.sched.warn { background: var(--c-busy-bg); color: var(--c-busy); box-shadow: none; border: 0; }
+html.th-clean main > .head .chip.sched.warn .chip-glyph { color: inherit; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean main > .head .chip.sched.warn:hover { background: color-mix(in srgb, var(--c-busy-bg), var(--c-busy) 8%); }
+}
+
+/* ---- «Внешние хабы» в списке (Figma 03, Group=External hubs): отдельная секция через 24 после «Спят или упали», у строки — плитка
+   направления со значком компаса (как у направлений: строки хабов связи rowFaces не размечает — тот же рисунок прямо по классу ядра) ---- */
+html.th-clean #list > .bus-group { margin-top: 24px; }
+html.th-clean.th-clean-av #list .bus-srow { --av: 16px; --av-r: 4px; --av-gap: 8px; --av-left: 0px; --ic: 12px; }
+html.th-clean.th-clean-detail.th-clean-av #list .bus-srow { --av: 32px; --av-r: 8px; --av-gap: 12px; --ic: 20px; }
+html.th-clean.th-clean-av #list .bus-srow > .txt { position: relative; line-height: 20px; padding-left: calc(var(--av) + var(--av-gap) + var(--av-left)); }
+html.th-clean.th-clean-av #list .bus-srow > .txt::before { content: ""; position: absolute; left: var(--av-left); top: calc(50% - var(--av) / 2);
+  width: var(--av); height: var(--av); border-radius: var(--av-r); background: var(--c-fill); }
+html.th-clean.th-clean-av #list .bus-srow .nm::before { content: ""; position: absolute; left: calc(var(--av-left) + (var(--av) - var(--ic)) / 2);
+  top: calc(50% - var(--ic) / 2); width: var(--ic); height: var(--ic); background: var(--c-t2);
+  -webkit-mask: url("compass.svg") center / contain no-repeat; mask: url("compass.svg") center / contain no-repeat; }
+
+/* ---- меню сообщения с реакциями (Figma 02, Menu=Message context · reactions; плагин reactions, .ctx-menu): ряд эмодзи 32 r8 через 2,
+   эмодзи 16/20, «ещё» — кнопка-значок 32 с «⋯» вместо «＋»; пункты 32 без значков, как остальные меню темы ---- */
+html.th-clean .ctx-menu .cm-row { justify-content: flex-start; gap: 2px; }
+html.th-clean .ctx-menu :is(.cm-emoji, .cm-more) { width: 32px; height: 32px; font-size: 16px; line-height: 20px; }
+html.th-clean .ctx-menu .cm-more { font-size: 0; }
+html.th-clean .ctx-menu .cm-more::before { content: ""; width: 20px; height: 20px; background: currentColor;
+  -webkit-mask: url("more.svg") center / 20px no-repeat; mask: url("more.svg") center / 20px no-repeat; }
+html.th-clean .ctx-menu .cm-more[aria-expanded="true"] { background: var(--c-badge); color: var(--c-t1); }
+html.th-clean .ctx-menu .cm-item .icon { display: none; }
+/* ---- message of the composer (Figma 06, Clean/Composer notice 323:7094; владелец 16.11: «тосты перекрывают другие ui-элементы»):
+   не всплывающая карточка над полем, а плашка в самом поле, первой строкой — ничего не закрывает, поле растёт на её высоту.
+   Ошибка — мягкая красная (--c-alert-soft) с красным значком, ждём / готово — серая (--c-fill); значок 16, текст 14/20;
+   кнопки 24 (Secondary белая, затем Quiet) ---- */
+html.th-clean form.composer { position: relative; }
+html.th-clean form.composer > p.error-text:not(:empty) { order: -1; position: static; box-sizing: border-box; width: 100%; margin: 0;
+  padding: 6px 8px; display: flex; align-items: center; gap: 8px; border-radius: 8px; background: var(--c-alert-soft); box-shadow: none;
+  font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); }
+html.th-clean form.composer > p.error-text:is([data-clean-kind="wait"], [data-clean-kind="ok"]) { background: var(--c-fill); }
+html.th-clean form.composer > p.error-text:has(> :is(.btn, .linkbtn)) { padding: 4px 4px 4px 8px; flex-wrap: wrap; }
+html.th-clean form.composer > p.error-text::before { content: ""; flex: none; width: 16px; height: 16px; background: var(--destructive);
+  -webkit-mask: url("error.svg") center / 16px no-repeat; mask: url("error.svg") center / 16px no-repeat; }
+html.th-clean form.composer > p.error-text[data-clean-kind="wait"]::before { background: var(--c-t2);
+  -webkit-mask-image: url("i/clock.svg"); mask-image: url("i/clock.svg"); }
+html.th-clean form.composer > p.error-text[data-clean-kind="ok"]::before { background: var(--c-t2);
+  -webkit-mask-image: url("check.svg"); mask-image: url("check.svg"); }
+html.th-clean form.composer > p.error-text > span { flex: 1 1 auto; min-width: 0; }
+html.th-clean form.composer > p.error-text > :is(.btn, .linkbtn) { flex: none; box-sizing: border-box; min-height: 24px; height: 24px; padding: 4px 8px; border: 0;
+  border-radius: 6px; background: var(--card); box-shadow: none; color: var(--c-t1); font: 500 12px/16px var(--font); text-decoration: none; }
+html.th-clean form.composer > p.error-text > :is(.btn.quiet, .linkbtn ~ .linkbtn) { background: none; color: var(--c-t2); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean form.composer > p.error-text > :is(.btn, .linkbtn):hover { background: linear-gradient(var(--c-hover), var(--c-hover)), var(--card); color: var(--c-t1); }
+  html.th-clean form.composer > p.error-text > :is(.btn.quiet, .linkbtn ~ .linkbtn):hover { background: var(--c-fill); }
+}
+/* a file dragged over the composer (review 203:1454): dashes and the hover fill, no shadow and no accent colour */
+html.th-clean form.composer.dragging { padding: 11px; border: 1px dashed var(--c-line-strong); box-shadow: none;
+  background: linear-gradient(var(--c-hover), var(--c-hover)), var(--card); }
+/* a file just added: the focus frame for a moment, not the core's accent ring */
+html.th-clean form.composer.flash { box-shadow: 0 0 0 1px var(--c-line-strong), var(--c-field); }
+/* no composer (the session crashed or is closed): the reason in text size, grey (Figma 06, Composer states=Session failed) */
+html.th-clean .dock-inner > p.hint { margin: 0; padding: 0; font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t2); }
+
+/* ---- no connection (Figma 05, Status banner=Reconnecting · phone): the core's whole banner is the «Retry» button; the theme
+   draws the word (its title) as a Secondary 24 white on grey at the right end. On a phone the band is a plate r12 that floats over
+   the end of the feed, above the context tab (chat), and under the filter in the list ---- */
+html.th-clean :is(main > .banner, .connection-side)[title].on { display: flex; align-items: center; gap: 12px; }
+html.th-clean :is(main > .banner, .connection-side)[title].on > span[aria-hidden] { flex: 1 1 auto; min-width: 0; }
+html.th-clean :is(main > .banner, .connection-side)[title].on::after { content: attr(title); flex: none; box-sizing: border-box; height: 24px; padding: 4px 8px;
+  border-radius: 8px; background: var(--card); color: var(--c-t1); font: 500 12px/16px var(--font); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean :is(main > .banner, .connection-side)[title].on:hover::after { background: color-mix(in oklch, var(--card) 85%, var(--foreground)); }
+}
+html.th-clean :is(main > .banner, .connection-side)[title].on:focus-visible { outline: 2px solid var(--c-ring); outline-offset: -2px; }
+@media (max-width: 760px) {
+  html.th-clean main:has(> .banner.on[data-conn]) > * { grid-column: 1; }
+  html.th-clean main:has(> .banner.on[data-conn]) > .btn.jumpnew { margin-bottom: 80px; }   /* «К последнему» — над плашкой, не на её кнопке */   /* the plate shares the feed's cell: both placed explicitly, or the feed goes to a new column */
+  html.th-clean main > .banner.on[data-conn] { grid-row: 4; align-self: end; background: linear-gradient(var(--c-badge), var(--c-badge)), var(--background); position: relative; z-index: 5; margin: 0 16px 32px; padding: 8px 8px 8px 16px;
+    border-radius: 12px; }
+  html.th-clean .connection-side.on { margin: 4px 0; padding: 8px 8px 8px 16px; border: 0; border-radius: 12px; background: var(--c-badge); color: var(--c-t1);
+    font: 400 12px/16px var(--font); }
+}
+
+/* ---- board loading and load error (Figma 05, Area state=Board loading / Board load error): a 24 icon, the core's line as the
+   title 14/20 Medium; three dots while loading, the red-cross mark on an error (main.js data-clean-kind) ---- */
+html.th-clean .boards-body:not(:has(> .board)) > p.hint { display: grid; justify-items: start; gap: 12px; margin: 0; padding: 24px 0; max-width: 520px; box-sizing: border-box;
+  font: 500 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); }
+html.th-clean .boards-body:not(:has(> .board)) > p.hint::before { content: ""; width: 24px; height: 24px; background: var(--c-t2);
+  -webkit-mask: url("more.svg") center / 24px no-repeat; mask: url("more.svg") center / 24px no-repeat; }
+html.th-clean .boards-body:not(:has(> .board)) > p.hint[data-clean-kind="error"]::before { background: var(--destructive);
+  -webkit-mask-image: url("error.svg"); mask-image: url("error.svg"); }
+
+/* ---- turn error (review 263:6228): the cross in a 32 tile on the soft red, like an avatar; the line sits on the tile's axis ---- */
+html.th-clean .row.out.err > .g { height: 32px; align-items: center; border-radius: 6px; background: var(--c-alert-tint); }
+html.th-clean .row.out.err > .g::before { width: 16px; height: 16px; -webkit-mask-size: 16px; mask-size: 16px; }
+html.th-clean .row.out.err > .b { padding-top: 6px; }
+
+/* ---- служебные сообщения ленты (Figma 05, Message=Notification / urgent / Question / Answer line / Stopped / Terminal input /
+   Plugin badge / Jumped to; ревью I294:5446, I300:5776). Слева плашка 32 r6 на месте аватарки: серая со значком 16 серым
+   (уведомление, вопрос, ввод в терминале), у срочного — мягкая красная и красный ×: серых значков на цветной подложке нет.
+   Текст справа с отступом 6 сверху — его первая строка на оси плашки ---- */
+html.th-clean .row:is(.notify, [data-key*="ask"], [data-key*="terminal"]) > .g { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; margin: 0;
+  padding: 0; border-radius: 6px; background: var(--c-fill); font-size: 0; }
+html.th-clean .row:is(.notify, [data-key*="ask"], [data-key*="terminal"]) > .g > .g-img { display: none; }
+html.th-clean .row:is(.notify, [data-key*="ask"], [data-key*="terminal"]) > .g::before { content: ""; width: 16px; height: 16px; background: var(--c-t2);
+  -webkit-mask: url("i/bell.svg") center / 16px no-repeat; mask: url("i/bell.svg") center / 16px no-repeat; }
+html.th-clean .row[data-key*="ask"] > .g::before { -webkit-mask-image: url("question.svg"); mask-image: url("question.svg"); }
+html.th-clean .row[data-key*="terminal"] > .g::before { -webkit-mask-image: url("keyboard.svg"); mask-image: url("keyboard.svg"); }
+html.th-clean .row.notify.err > .g { background: var(--c-alert-tint); }
+html.th-clean .row.notify.err > .g::before { background: var(--destructive); -webkit-mask-image: url("failed.svg"); mask-image: url("failed.svg"); }
+html.th-clean .row.out:is(.notify, [data-key*="ask"]) > .b { display: grid; align-content: start; row-gap: 2px; padding-top: 6px; }
+html.th-clean .row.notify > .b > .md { color: var(--c-t2); }
+html.th-clean .row:is(.notify, [data-key*="ask"]) > .b > .md p:last-child { margin-bottom: 0; }
+/* ввод в терминале — не пузырь владельца, а строка у колонки аватарок: подпись 12/16, введённое серым 14/20 */
+html.th-clean .row.mine[data-key*="terminal"] { grid-template-columns: 32px minmax(0, 1fr); }
+html.th-clean .row.mine[data-key*="terminal"] > .b { justify-self: stretch; width: auto; padding: 6px 0 0; border-radius: 0; background: none; color: var(--c-t2); }
+html.th-clean .row.mine[data-key*="terminal"] > .b > .meta { order: 0; align-self: flex-start; }
+/* ответ на вопрос — «↳ Ответ: …» обычным кеглем серым, в колонке текста */
+html.th-clean .row.sys.answer { font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t2); }
+html.th-clean .row.sys.answer > .b::before { content: "↳ "; }
+/* стоп сессии — поступок владельца: аватарка ядра 32 и «остановлена» серым 14/20, без красной точки */
+html.th-clean .row.sys.stopped { font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t2); }
+html.th-clean .row.sys.stopped > .g { display: block; height: 32px; border-radius: 6px; background: url("avatar-core.png") center / cover; font-size: 0; }
+html.th-clean .row.sys.stopped > .b { padding-top: 6px; }
+/* бейдж модуля с правом core.write: серая плашка r4, моноширинный 12/18 */
+html.th-clean .mod-badge { justify-self: start; align-self: start; display: inline-flex; align-items: center; height: 18px; margin: 0 0 2px; padding: 0 4px;
+  border: 0; border-radius: 4px; background: var(--c-badge); color: var(--c-t2); font: 400 12px/18px var(--font-code); letter-spacing: 0; }
+/* переход по цитате: строка подсвечена мягким жёлтым r8 с полями 6/8 (тенью — без сдвига ленты); «К последнему» — то же серым */
+html.th-clean .row.flash { background: var(--c-busy-bg); border-radius: 2px; box-shadow: 0 0 0 6px var(--c-busy-bg); margin-inline: -2px; padding-inline: 2px; }
+html.th-clean .row.arrive { --muted-2: var(--c-fill); border-radius: 8px; }
+
+/* ---- код и пути (Figma 05, Formatting=Code · copied / copy failed / File path · checking): после нажатия «Копировать» —
+   галочка или × серым без подложки, видны 1,5 с и без наведения; путь, который ещё проверяется, — серым 28% ---- */
+html.th-clean .md .code-copy > .icon.kit-img { width: 16px; height: 16px; background: currentColor;
+  -webkit-mask: url("i/copy.svg") center / 16px no-repeat; mask: url("i/copy.svg") center / 16px no-repeat; }
+html.th-clean .md .code-copy > .icon.kit-img[style*="allow.svg"] { -webkit-mask-image: url("check.svg"); mask-image: url("check.svg"); }
+html.th-clean .md .code-copy > .icon.kit-img[style*="deny.svg"] { -webkit-mask-image: url("failed.svg"); mask-image: url("failed.svg"); }
+html.th-clean .md .code-copy:has(> .icon:is([style*="allow.svg"], [style*="deny.svg"])) { opacity: 1; background: none; color: var(--c-t2); }
+html.th-clean .md span.path-wait, html.th-clean .md span.path-wait code { color: var(--c-t3); }
+
+/* ---- картинки в ленте (Figma 05, Media=Mini thumbnails (Brief), Tool step=Image from Read): миниатюры «Кратко» 48 r6 через 6
+   с рамкой --c-line; картинка из Read в шаге — до 160×100 r8 ---- */
+html.th-clean .thumbs.mini { gap: 6px; }
+html.th-clean .thumbs.mini img:not(.broken) { width: 48px; height: 48px; max-width: none; max-height: none; object-fit: cover; border-radius: 6px;
+  outline: 1px solid var(--c-line); outline-offset: -1px; }
+html.th-clean .tool-img { max-width: 160px; max-height: 100px; margin-top: 2px; border-radius: 8px; outline: 1px solid var(--c-line); outline-offset: -1px; }
+
+/* ---- чипы задач (Figma 05, Message=Own · task chips; 06, Composer states=Task tray): «Про задачи:» 12/16 серым, чип 20 r6 на
+   --c-badge — номер Medium, название Regular, оба цветом текста; в поле ввода название до 120 с многоточием и × 12 ---- */
+html.th-clean .mention-bar { gap: 6px; }
+html.th-clean .mention-lead { font: 400 12px/16px var(--font); letter-spacing: 0; color: var(--c-t2); }
+html.th-clean .pchip.mchip { box-sizing: border-box; height: 20px; gap: 6px; padding: 2px 6px; border: 0; border-radius: 6px; background: var(--c-badge);
+  color: var(--c-t1); font: 400 12px/16px var(--font); letter-spacing: 0; }
+html.th-clean .pchip.mchip > b { font-weight: 500; }
+html.th-clean .composer .pchip.mchip { gap: 4px; padding-right: 4px; }
+html.th-clean .composer .pchip.mchip .nm { max-width: 120px; }
+html.th-clean .pchip.mchip .x { width: 12px; height: 12px; padding: 0; font-size: 0; color: var(--c-t2); background: currentColor;
+  -webkit-mask: url("close.svg") center / 12px no-repeat; mask: url("close.svg") center / 12px no-repeat; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .pchip.mchip .x:hover { color: var(--c-t1); }
+}
+html.th-clean .row.mine .mention-bar.sent { margin: 0 0 4px; }
+
+/* ---- переписка с другим хабом в ленте (Figma 05, Clean/Hub thread): в колонке текста, слева линия 2 --c-line-strong и поле 16;
+   шапка — бейдж «Другой хаб» 16 r4 на --c-badge, имя 14/20 Medium, счёт 12/16 серым; пузырь запроса справа до 560, r16 на
+   --muted, подпись 12/16 серым 28%; ответ — слева на --c-fill. Срок вышел и отказ — подпись красным ---- */
+html.th-clean .hubth-thread { gap: 8px; padding-left: 16px; border-left: 2px solid var(--c-line-strong); }
+html.th-clean .hubth-hd { gap: 8px; }
+html.th-clean .hubth-chip { box-sizing: border-box; height: 20px; padding: 2px 6px; border-radius: 4px; background: var(--c-badge); color: var(--c-t1);
+  font: 500 12px/16px var(--font); }
+html.th-clean .hubth-hd > b { color: var(--c-t1); font: 500 14px/20px var(--font); letter-spacing: -0.1px; }
+html.th-clean .hubth-dim { color: var(--c-t2); font: 400 12px/16px var(--font); letter-spacing: 0; }
+html.th-clean .hubth-m { max-width: min(560px, 100%); box-sizing: border-box; gap: 6px; padding: 12px 16px; border-radius: 16px; }
+html.th-clean .hubth-m.out { background: var(--muted); border-end-end-radius: 16px; }
+html.th-clean .hubth-m.in { background: var(--c-fill); border-end-start-radius: 16px; }
+html.th-clean .hubth-by { font: 400 12px/16px var(--font); letter-spacing: 0; color: var(--c-t3); }
+html.th-clean .hubth-m.in .hubth-by > b { color: var(--c-t1); font-weight: 500; }
+html.th-clean .hubth-txt { line-height: 20px; }
+html.th-clean .hubth-svc { font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .hubth-svc pre { border-radius: 8px; background: var(--c-fill); }
+
+/* ---- «Новое» в ленте (Figma 05, Clean/Feed status row, State=New divider): линии 1 красным по обе стороны, «Новое · N» 12/16
+   красным, «· с 14:20» серым; ни синей пилюли, ни синей линии. Счётчик «К последнему» — тот же красный бейдж ---- */
+html.th-clean .row.newdiv { --on-light: var(--c-alert); display: flex; gap: 12px; margin: 0; font: 400 12px/16px var(--font); letter-spacing: 0; color: var(--c-alert); }
+html.th-clean .row.newdiv::before { content: ""; flex: 1; height: 1px; background: var(--c-alert); }
+html.th-clean .row.newdiv .nlab { padding: 0; border-radius: 0; background: none; color: var(--c-alert); font: inherit; }
+html.th-clean .row.newdiv .nsince { margin-left: -6px; color: var(--c-t2); }
+html.th-clean .row.newdiv .nsince::before { content: "·"; margin: 0 6px; color: var(--c-t3); }
+html.th-clean main > .btn.jumpnew .n { background: var(--c-alert); }
+
+/* ---- кнопки на плашках статуса (ревью 295:5383, Figma 05 Status banner=Asks permission / Asks to connect / Questions folded /
+   Owner away · Back disabled / Recording not transcribed): обычная кнопка — Secondary 24 белой на сером, 12/16 Medium; вторая
+   ссылка («Скачать») — Quiet; недоступная — серая на --c-fill. Правило на все плашки: строки «Ждёт вас», «Не прочитано», «Не дошло»
+   на плашке очереди и баннер ядра над шапкой ---- */
+html.th-clean :is(.clean-queue .strip-row:is([data-clean="wait"], [data-clean="unread"], [data-clean="fail"]), main > .banner.on) :is(.btn, .linkbtn) {
+  flex: none; box-sizing: border-box; height: 24px; min-height: 24px; margin: 0; padding: 4px 8px; display: inline-flex; align-items: center; gap: 4px;
+  border: 0; border-radius: 8px; background: var(--card); box-shadow: none; color: var(--c-t1); font: 500 12px/16px var(--font); letter-spacing: 0;
+  text-decoration: none; opacity: 1; }
+html.th-clean :is(.clean-queue .strip-row:is([data-clean="wait"], [data-clean="unread"], [data-clean="fail"]), main > .banner.on) :is(.btn.quiet, .linkbtn ~ .linkbtn) {
+  background: none; color: var(--c-t2); }
+html.th-clean .clean-queue .strip-row:is([data-clean="unread"], [data-clean="fail"]) .btn.danger { background: var(--c-alert-soft); color: var(--destructive); }
+html.th-clean :is(.clean-queue .strip-row, main > .banner.on) .btn:disabled { background: var(--c-fill); color: var(--c-t3); cursor: default; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean :is(.clean-queue .strip-row:is([data-clean="wait"], [data-clean="unread"], [data-clean="fail"]), main > .banner.on) :is(.btn, .linkbtn):not(:disabled):hover {
+    background: color-mix(in oklch, var(--card) 85%, var(--foreground)); color: var(--c-t1); }
+  html.th-clean :is(.clean-queue .strip-row:is([data-clean="wait"], [data-clean="unread"], [data-clean="fail"]), main > .banner.on) :is(.btn.quiet, .linkbtn ~ .linkbtn):not(:disabled):hover {
+    background: var(--c-hover); color: var(--c-t1); }
+  html.th-clean .clean-queue .strip-row:is([data-clean="unread"], [data-clean="fail"]) .btn.danger:not(:disabled):hover { background: var(--c-alert-soft-hover); color: var(--destructive); }
+}
+html.th-clean .btn.fold-toggle-btn { border: 0; padding: 4px 8px; }
+html.th-clean main > .banner.on :is(.btn, .linkbtn) { margin-left: 12px; vertical-align: middle; }
+html.th-clean main > .banner.on .linkbtn ~ .linkbtn { margin-left: 4px; }
+/* «Ждёт вас» на плашке — текст цветом текста; строки с кнопкой 24 — 32 высотой, поля 4 */
+html.th-clean .clean-queue .strip-row[data-k="wait"] > .t { color: var(--c-t1); }
+html.th-clean .clean-queue .strip-row:is([data-clean="wait"], [data-clean="unread"], [data-clean="fail"]):has(.btn) { min-height: 32px; padding-block: 4px; }
+
+/* ---- очередь (ревью 237:6234): все строки на одной серой плашке; ошибки — «Не дошло» и «Не убралось» — на мягкой красной,
+   текст и значок красные; «шаг идёт дольше минуты» — не ошибка: обычный серый текст и кнопка «Прервать ход» ---- */
+html.th-clean .clean-queue .strip-row[data-clean="unread"] > .k { color: var(--c-t3); }
+html.th-clean .clean-queue .strip-row[data-clean="unread"] > .t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.th-clean .clean-queue .strip-row[data-clean="fail"] { background: var(--c-alert-soft); color: var(--destructive); }
+html.th-clean .clean-queue .strip-row[data-clean="fail"] > :is(.k, .t) { color: var(--destructive); }
+html.th-clean .clean-queue .strip-row[data-clean="fail"] > .k { font-weight: 500; }
+html.th-clean .clean-queue .strip-row[data-clean="fail"]::before { background: var(--destructive); -webkit-mask-image: url("error.svg"); mask-image: url("error.svg"); }
+html.th-clean .clean-queue .strip-row[data-clean="fail"] .btn.quiet { color: var(--destructive); }
+/* «Вы отошли» и «Очередь на паузе» над списком — та же плашка статуса: --c-badge r12, 12/16 цветом текста, без оранжевой рамки;
+   «Я на месте» — Secondary 24 белой, после нажатия — недоступной (Figma 05, Status banner=Owner away · Back disabled) */
+html.th-clean .away-strip { margin: 0 12px 8px; padding: 8px 8px 8px 12px; gap: 12px; border: 0; border-radius: 12px; background: var(--c-badge);
+  color: var(--c-t1); font: 400 12px/16px var(--font); letter-spacing: 0; }
+html.th-clean .away-strip.paused { padding-right: 12px; }
+html.th-clean .away-strip button { box-sizing: border-box; height: 24px; padding: 4px 8px; border: 0; border-radius: 8px; background: var(--card); color: var(--c-t1);
+  font: 500 12px/16px var(--font); }
+html.th-clean .away-strip button:disabled { background: var(--c-fill); color: var(--c-t3); cursor: default; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .away-strip button:not(:disabled):hover { background: color-mix(in oklch, var(--card) 85%, var(--foreground)); }
+}
+html.th-clean .away-strip button:focus-visible { outline: 2px solid var(--c-ring); outline-offset: 0; }
+
+/* ---- голос в стиле Manus (ревью 309:5890, Figma 06 Voice=Recording / Holding / Recognizing · Manus style, 203:2069/2180/2243):
+   поле остаётся на месте, справа в нижнем ряду — отмена 32 на --c-fill, волна 54×24 (14 полос 2 через 2: десять цветом текста,
+   четыре 28%), время 12/16 Medium серым и отправка 32 тёмной со стрелкой; пока держат — «Отпустите…» перед волной. Распознавание —
+   «Распознаю…» на месте времени и крутилка 14 в плашке 32 на --c-fill (ревью 316:6289): ширина ряда не прыгает. Кнопки «Готово»
+   (остановить без отправки) у ядра нет — см. core-needs.md ---- */
+html.th-clean .composer:is(.rec, .clean-vt-rec) .bar { grid-template-columns: minmax(0, 1fr) auto auto auto auto; grid-template-rows: 28px var(--row, 32px); }
+html.th-clean .composer.clean-vt-rec .bar > .spacer:has(> .recstrip) { display: contents; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) > .prompt { animation: none; visibility: visible; opacity: 1; filter: none; }
+html.th-clean .composer:is(.rec, .clean-vt-rec):has(.recstrip > .spin-dot) > .prompt textarea { color: var(--c-t2); }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .rec-dot { display: none; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .rec-cancel { grid-area: 2 / 2; justify-self: end; width: 32px; height: 32px; margin: 0; padding: 0;
+  display: grid; place-items: center; background: var(--c-fill); color: var(--c-t2); }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .rec-cancel .icon { width: 16px; height: 16px; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .hint { grid-area: 2 / 3; justify-self: end; font: 500 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .t { grid-area: 2 / 4; display: inline-flex; align-items: center; gap: 8px;
+  font: 500 12px/16px var(--font); font-variant-numeric: tabular-nums; color: var(--c-t2); }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .t[data-rec-clock]::before { content: ""; flex: none; width: 54px; height: 24px;
+  background: linear-gradient(to right, var(--c-t1) 0 38px, var(--c-t3) 38px);
+  -webkit-mask: var(--clean-wave) center / 54px 24px no-repeat; mask: var(--clean-wave) center / 54px 24px no-repeat; }
+html.th-clean { --clean-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 54 24'%3E%3Cg%3E%3Crect x='0' y='10' width='2' height='4' rx='1'/%3E%3Crect x='4' y='8' width='2' height='8' rx='1'/%3E%3Crect x='8' y='9' width='2' height='6' rx='1'/%3E%3Crect x='12' y='5' width='2' height='14' rx='1'/%3E%3Crect x='16' y='2' width='2' height='20' rx='1'/%3E%3Crect x='20' y='6' width='2' height='12' rx='1'/%3E%3Crect x='24' y='3' width='2' height='18' rx='1'/%3E%3Crect x='28' y='1' width='2' height='22' rx='1'/%3E%3Crect x='32' y='7' width='2' height='10' rx='1'/%3E%3Crect x='36' y='4' width='2' height='16' rx='1'/%3E%3Crect x='40' y='8' width='2' height='8' rx='1'/%3E%3Crect x='44' y='6' width='2' height='12' rx='1'/%3E%3Crect x='48' y='9' width='2' height='6' rx='1'/%3E%3Crect x='52' y='10' width='2' height='4' rx='1'/%3E%3C/g%3E%3C/svg%3E"); }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .spin-dot ~ .t { grid-area: 2 / 4; font-weight: 400; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round, html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round { grid-area: 2 / 5; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round:is(.stop, :disabled), html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round:is(.stop, :disabled) {
+  width: 32px; height: 32px; animation: none; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .btn.round.stop > .clean-bars { display: none; }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .btn.round.stop::before { display: block; right: 8px; color: inherit; animation: none;
+  -webkit-mask-image: url("send.svg"); mask-image: url("send.svg"); }
+html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round:disabled > .spin-dot, html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round:disabled > .spin-dot {
+  box-sizing: border-box; width: 14px; height: 14px; border-width: 1.5px; }
+@media (max-width: 760px) {
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .bar > .btn.round:is(.stop, :disabled), html.th-clean .composer.clean-vt-rec .bar > .spacer > .btn.round:is(.stop, :disabled) { width: 36px; height: 36px; }
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .recstrip > .rec-cancel { width: 36px; height: 36px; }
+  html.th-clean .composer:is(.rec, .clean-vt-rec) .btn.round.stop::before { right: 10px; }
+}
+
+/* ---- строки «Кому: …» над полем нет (владелец 16.11: «бейдж не нужен»): кому уходит сообщение, и так видно по шапке и подсказке
+   в поле («Сообщение hub-dev для исполнителя…») ---- */
+html.th-clean .composer .to-line { display: none !important; }
+
+/* ---- длинный текст в поле (ревью 203:1930 / 216:6102): поле до 200, дальше прокрутка; снизу текст уходит в градиент 32 цвета
+   поля — маской, пока есть что прокручивать вниз (scroll-timeline: в коротком поле и в конце текста градиента нет) ---- */
+@property --clean-fade { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@keyframes clean-fade { from, 96% { --clean-fade: 32px; } to { --clean-fade: 0px; } }
+html.th-clean .composer > .prompt textarea { max-height: 200px; -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--clean-fade)), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - var(--clean-fade)), transparent); }
+@supports (animation-timeline: scroll()) {
+  html.th-clean .composer > .prompt textarea { animation: clean-fade linear both; animation-timeline: scroll(self); }
+}
+
+/* ---- лайтбокс (ревью 297:5465, Figma 05 Clean/Lightbox): кнопки 32 r8 со значком 16; на компьютере без плашки — белый 12% только
+   при наведении и фокусе; на телефоне — белая плашка с тенью поля. Картинка r12, подпись 14/20. Длинный скрин (ревью 297:5438):
+   подпись тёмной пилюлей (выше), без своей полосы прокрутки ---- */
+html.th-clean .lb-btn { width: 32px; height: 32px; border-radius: 8px; background: none; }
+html.th-clean .lb-btn .icon { width: 16px; height: 16px; }
+html.th-clean .lb-btn:focus-visible { background: rgb(255 255 255 / 0.12); outline: 2px solid rgb(255 255 255 / 0.6); outline-offset: 0; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .lb-btn:hover { background: rgb(255 255 255 / 0.12); }
+}
+html.th-clean .lb-close { top: 16px; inset-inline-end: 16px; }
+html.th-clean .lb-prev { inset-inline-start: 16px; }
+html.th-clean .lb-next { inset-inline-end: 16px; }
+html.th-clean .lb-img { border-radius: 12px; }
+html.th-clean .lb-bar { gap: 16px; font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--primary-foreground); }
+html.th-clean .lightbox.clean-tall { scrollbar-width: none; }
+html.th-clean .lightbox.clean-tall::-webkit-scrollbar { display: none; }
+@media (max-width: 760px) {
+  html.th-clean .lb-btn { background: var(--background); color: var(--c-t1); box-shadow: var(--c-field); }
+  html.th-clean .lb-btn .icon.kit-img[data-clean-mask] { color: inherit; }
+}
+
+/* ---- страница связанного хаба (Figma 05, Clean/Linked hub bar; Clean/Hub thread): полосы над перепиской и под полем — во всю
+   ширину, 14/20 цветом текста на мягкой жёлтой (код пары, ждём ответа, письма после сверки), код — белой плашкой r6 моноширинным
+   12/18, «Совпадает» — Primary 24. Нити переписки — без синего края: серая линия 2, сообщения 14/20, подписи 12/16 серым ---- */
+html.th-clean .bus-vhead .bus-code { box-sizing: border-box; margin: 0 -24px -1px; padding: 8px 24px; gap: 12px; background: var(--c-busy-bg); font: 400 14px/20px var(--font);
+  letter-spacing: -0.1px; color: var(--c-t1); }
+html.th-clean .bus-vhead .bus-code > .hint { font: inherit; color: inherit; }
+html.th-clean .bus-code-line { box-sizing: border-box; height: 26px; padding: 4px 8px; border-radius: 6px; background: var(--background); color: var(--c-t1);
+  font: 400 12px/18px var(--font-code); letter-spacing: 0; }
+html.th-clean .bus-code-in { height: 26px; padding: 4px 8px; border: 0; border-radius: 6px; background: var(--background); font: 400 12px/18px var(--font-code); }
+html.th-clean .bus-dock .bus-unchecked { margin: 0 0 8px; padding: 8px 16px; border-radius: 12px; background: var(--c-busy-bg); color: var(--c-t1);
+  font: 400 14px/20px var(--font); letter-spacing: -0.1px; }
+html.th-clean .bus-feed > .hint { padding: 8px 24px; border-radius: 12px; background: var(--c-alert-tint); color: var(--c-t1); font: 400 14px/20px var(--font); }
+html.th-clean .bus-chip { height: 16px; padding: 0 4px; border-radius: 4px; font: 500 12px/16px var(--font); }
+html.th-clean .bus-chip.ok { background: var(--c-free-bg); color: var(--c-free); }
+html.th-clean .bus-chip.mute { background: var(--c-badge); color: var(--c-t2); }
+html.th-clean .bus-feed .day { font: 400 12px/16px var(--font); color: var(--c-t3); }
+html.th-clean .bus-ex { border: 0; border-left: 2px solid var(--c-line-strong); border-radius: 0; background: none; gap: 8px; }
+html.th-clean .bus-ex-head { padding: 0 0 0 16px; border: 0; background: none; color: var(--c-t2); font: 400 12px/16px var(--font); }
+html.th-clean .bus-ex-toggle { text-decoration: none; }
+html.th-clean .bus-m { padding: 0 0 0 16px; border: 0; gap: 2px; }
+html.th-clean .bus-m + .bus-m { border: 0; padding-top: 12px; }
+html.th-clean .bus-m .bus-by { font: 400 12px/16px var(--font); color: var(--c-t3); }
+html.th-clean .bus-m .bus-who { color: var(--c-t1); font-weight: 500; }
+html.th-clean .bus-m .bus-t { font: 400 14px/20px var(--font); letter-spacing: -0.1px; color: var(--c-t1); }
+/* ---- полоса настройки хаба над окном (Figma 07, Clean/Setup bar; ядро setup.js: .setupbar[data-level]) — та же строка, что у
+   MCP: 8/24, зазор 12, 14/20, значок 16 цвета t2 слева, кнопки 24 справа. Тон по уровню: hold (нужно действие) — --c-busy-bg
+   и шестерёнка, fail — --c-alert-tint и крестик, progress (ставится, ждёт перезапуска) — --muted и часы. Под строкой —
+   причина 12/16 t2, код устройства и команда — белыми плашками моноширинным 12/18, прогресс — дорожка 320×4 ---- */
+html.th-clean .setupbar { border: 0; background: light-dark(var(--c-busy-bg), color-mix(in oklab, var(--c-busy-bg) 50%, var(--background))); }
+html.th-clean .setupbar[data-level="fail"] { background: var(--c-alert-tint); }
+html.th-clean .setupbar[data-level="progress"] { background: var(--muted); }
+html.th-clean .setupbar-row { min-height: 0; padding: 8px 24px; gap: 12px; font: 400 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .setupbar-row::before { content: ""; flex: none; width: 16px; height: 16px; background: var(--c-t2);
+  -webkit-mask: url("settings.svg") center / 16px no-repeat; mask: url("settings.svg") center / 16px no-repeat; }
+html.th-clean .setupbar[data-level="fail"] .setupbar-row::before { -webkit-mask-image: url("failed.svg"); mask-image: url("failed.svg"); }
+html.th-clean .setupbar[data-level="progress"] .setupbar-row::before { -webkit-mask-image: url("i/clock.svg"); mask-image: url("i/clock.svg"); }
+html.th-clean .setupbar-t { gap: 4px; }
+html.th-clean .setupbar-why, html.th-clean .setupbar[data-level="fail"] .setupbar-why { font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean :is(.setupbar-device, .setupbar-cmd) { box-sizing: border-box; border: 0; background: var(--background); color: var(--c-t1);
+  font: 400 12px/18px var(--font-mono); letter-spacing: 0; }
+html.th-clean .setupbar-device { padding: 2px 8px; border-radius: 6px; }
+html.th-clean .setupbar-cmd { padding: 6px 10px; border-radius: 8px; }
+html.th-clean .setupbar-t .su-prog { max-width: 320px; grid-template-columns: minmax(0, 1fr); }
+html.th-clean .setupbar .su-bar { height: 4px; border-radius: 2px; background: var(--c-line); }
+html.th-clean .setupbar .su-bar > span { background: var(--c-t1); }
+html.th-clean .setupbar-acts { gap: 8px; }
+html.th-clean .setupbar-acts .btn.quiet { color: var(--c-t2); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .setupbar-acts .btn.quiet:hover { background: var(--c-fill); color: var(--c-t1); }
+}
+/* поле кода: 260×32 на --c-fill, «Отправить» — вторичная 24 */
+html.th-clean .setupbar-code { flex: 0 1 auto; gap: 8px; }
+html.th-clean .setupbar-code input { flex: 0 1 260px; width: 260px; height: 32px; padding: 0 12px; border: 0; border-radius: 8px;
+  background: var(--c-fill); box-shadow: none; color: var(--c-t1); font: 400 14px/20px var(--font); }
+html.th-clean .setupbar-code input::placeholder { color: var(--c-t3); }
+html.th-clean .setupbar-code input:focus, html.th-clean .setupbar-code input:focus-visible { background: var(--background); outline: 0;
+  box-shadow: 0 0 0 1px var(--c-line-strong); }
+/* телефон (Sign in · phone): 12/16, значок в строке текста, кнопки под ней от левого края */
+@media (max-width: 760px) {
+  html.th-clean .setupbar-row { flex-wrap: wrap; align-items: flex-start; padding: 12px 16px; gap: 8px 8px; }
+  html.th-clean .setupbar-row::before { margin-top: 2px; }
+  html.th-clean .setupbar-t { flex: 1 1 calc(100% - 24px); }
+  html.th-clean :is(.setupbar-acts, .setupbar-code) { flex: 1 1 100%; }
+  html.th-clean .setupbar-row .btn { min-height: 24px; }
+  html.th-clean .setupbar-code input { flex: 1 1 auto; height: 40px; background: var(--background); }
+}
+
+/* ---- пункт настройки хаба (Figma 09, Hub setup=Progress / Path / Check issues / Code form; ядро setup.js: .su-item[data-state]) —
+   белая карточка r12 с рамкой --border, 12/16, зазор 8, до 520. Шапка: точка 10 цвета состояния, название 14/20 Medium,
+   справа состояние 12/16 Medium (работает — t2 при серой точке, готово — зелёный, предупреждение — оранжевый, «ждёт
+   действия» — оранжевая подпись при серой точке, ошибка — красный). Текст 14/20 t2, путь — моноширинным 12/18; прогресс — дорожка 240×4 и подпись 12/16 через
+   12; проблемы проверки — строки 14/20 с точкой 6 цвета уровня; поле кода 280×32 на --c-fill и вторичная 24 ---- */
+html.th-clean .su { gap: 12px; }
+html.th-clean .su-sum { font: 500 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .su-item { max-width: 520px; box-sizing: border-box; padding: 12px 16px; gap: 8px; border: 1px solid var(--border); border-radius: 12px;
+  background: var(--background); }
+html.th-clean .su-item:is([data-state="failed"], [data-state="fail"], [data-state="todo"]) { border-color: var(--border); }   /* рамка ядра красная и синяя — у Clean одна, состояние несут точка и подпись */
+html.th-clean .su-head { gap: 8px; align-items: flex-start; }
+/* точка и состояние — по центру строки заголовка (20), а не всей шапки: длинное название в две строки их не сдвигает (ревью 16.11) */
+html.th-clean .su-head > .su-dot { margin-top: 5px; }
+html.th-clean .su-head > .su-state { margin-top: 2px; }
+html.th-clean .su-dot { width: 10px; height: 10px; background: var(--c-t3); }
+html.th-clean .su-item[data-state="ok"] .su-dot { background: var(--c-free); }
+html.th-clean .su-item[data-state="todo"] .su-dot { background: var(--c-t3); }   /* «ждёт действия» — точка серая, оранжевая только подпись */
+html.th-clean .su-item[data-state="warn"] .su-dot { background: var(--c-busy); }
+/* «работает» — серая точка, как в Figma: ход показывают полоса и подпись, второй индикатор (спиннер ядра) не нужен */
+html.th-clean .su-item[data-state="running"] .su-dot { width: 10px; height: 10px; border: 0; background: var(--c-t3); animation: none; }
+html.th-clean .su-item:is([data-state="failed"], [data-state="fail"]) .su-dot { background: var(--c-alert); }
+html.th-clean .su-title { font: 500 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .su-state { font: 500 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .su-item[data-state="ok"] .su-state { color: var(--c-free); }
+html.th-clean .su-item:is([data-state="todo"], [data-state="warn"]) .su-state { color: var(--c-busy); }
+html.th-clean .su-item:is([data-state="failed"], [data-state="fail"]) .su-state { color: var(--destructive); }
+html.th-clean :is(.su-text, .su-wait) { font: 400 14px/20px var(--font); color: var(--c-t2); }
+html.th-clean :is(.su-hint, .su-err) { font: 400 12px/16px var(--font); }
+html.th-clean .su-hint { color: var(--c-t2); }
+html.th-clean .su-err { color: var(--destructive); }
+html.th-clean .su-path { font: 400 12px/18px var(--font-mono); color: var(--c-t1); }
+html.th-clean .su-item .su-prog { max-width: 368px; grid-template-columns: 240px auto; gap: 12px; }
+html.th-clean .su-item .su-bar { height: 4px; border-radius: 2px; background: var(--c-line); }
+html.th-clean .su-item .su-bar > span { background: var(--c-t1); }
+html.th-clean .su-pct { font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .su-doc { padding: 0; list-style: none; gap: 4px; font: 400 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .su-doc li { position: relative; padding-left: 14px; }   /* не flex: иначе «Порт 8787» и текст расходятся колонками */
+html.th-clean .su-doc li::before { content: ""; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--c-busy); }
+html.th-clean .su-doc li[data-level="fail"]::before { background: var(--c-alert); }
+html.th-clean .su-doc li :is(b) { font-weight: 500; color: var(--c-t1); }
+html.th-clean .su-doc li[data-level] b { color: var(--c-t1); }
+html.th-clean .su-acts { gap: 8px; }
+html.th-clean .su-acts .btn.quiet { color: var(--c-t2); }
+html.th-clean .su-item .su-code { gap: 8px; max-width: 334px; }
+html.th-clean .su-item .su-code input { flex: 0 1 280px; height: 32px; padding: 0 12px; border: 0; border-radius: 8px; background: var(--c-fill);
+  color: var(--c-t1); font: 400 14px/20px var(--font); }
+html.th-clean .su-item .su-code input::placeholder { color: var(--c-t3); }
+html.th-clean .su-item .su-code input:focus, html.th-clean .su-item .su-code input:focus-visible { background: var(--background); outline: 0; box-shadow: 0 0 0 1px var(--c-line-strong); }
+html.th-clean .su-device-code:not(.setupbar-device) { border: 0; border-radius: 8px; background: var(--c-fill); font: 500 16px/24px var(--font-mono); letter-spacing: 0.12em; }
+
+/* ---- «Аккаунты» (Figma 09, Clean/Account, Clean/Limit row, Setting field=Gateway; ядро accounts.js, codex.js) — карточка аккаунта
+   белая r12 с рамкой --c-line-soft, 12/16, зазор 8; имя 14/20 Medium, «сейчас» — бейдж DS r4 на --c-free-bg. Строка лимита:
+   название 64 (14/20 t2), дорожка 4 r2 на --c-fill, доля 36 (14/20 Medium; t1 у предупреждения и у края), сброс
+   12/16 t2; цвет полосы по уровню — зелёный, оранжевый, красный. Нет замера — серым 12/16 t3 вместо полосы. Шлюз —
+   обычная серая плашка настройки (7/9, r8), без своей рамки; строка состояния 12/16 под описанием, цвет по уровню ---- */
+html.th-clean .ac { gap: 16px; }
+html.th-clean .ac-sum { font: 400 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean :is(.ac-note, .ac .ac-muted) { color: var(--c-t2); }
+html.th-clean .ac-note { font: 400 12px/16px var(--font); }
+html.th-clean .ac-stop { border-radius: 8px; background: var(--c-alert-soft); color: var(--destructive); font: 500 14px/20px var(--font); }
+html.th-clean .ac-list { gap: 12px; }
+html.th-clean :is(.ac-card, .ac-card.on) { padding: 12px 16px; gap: 8px; border: 1px solid var(--c-line-soft); border-radius: 12px; background: var(--background); }
+html.th-clean .ac-head { min-height: 24px; gap: 8px; }
+html.th-clean .ac-title { gap: 4px; }
+html.th-clean .ac-num { font: 400 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .ac-num::after { content: " ·"; }
+html.th-clean .ac-name { font: 500 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .ac-kind { font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .ac-badge { padding: 4px; border-radius: 4px; background: var(--c-free-bg); color: var(--c-free); font: 500 12px/16px var(--font); }
+html.th-clean .ac-badge.busy { background: var(--c-busy-bg); color: var(--c-busy); }
+html.th-clean .ac-lim { --lim: var(--c-free); grid-template-columns: 64px minmax(60px, 1fr) 36px auto; gap: 8px; font: 400 14px/20px var(--font); }
+html.th-clean .ac-lim[data-level="warn"] { --lim: var(--c-busy); }
+html.th-clean .ac-lim[data-level="high"] { --lim: var(--c-alert); }
+html.th-clean .ac-lim-name { color: var(--c-t2); }
+html.th-clean .ac-bar { height: 4px; border-radius: 2px; background: var(--c-fill); }   /* ревью 16.11: 4, скругление 2 */
+html.th-clean .ac-pct { font-weight: 500; color: var(--c-t2); text-align: right; }
+html.th-clean .ac-lim:is([data-level="warn"], [data-level="high"]) .ac-pct { color: var(--c-t1); }
+html.th-clean .ac-lim .ac-muted { font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .ac-lim .ac-lim-note { color: var(--c-t3); }
+html.th-clean .ac-probe-err { color: var(--destructive); }
+/* шлюз: одна плашка настройки, состояние — строкой под описанием (отступ галочки 13 + 8) */
+html.th-clean .ac-gw { gap: 0; padding: 7px 9px; border: 0; border-radius: 8px; background: var(--c-fill); }
+html.th-clean .ac-gw > .opt { padding: 0; border: 0; background: none; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .ac-gw > .opt:hover { background: none; }
+}
+html.th-clean .ac-gw-note { color: var(--c-busy) !important; }
+html.th-clean .ac-gw-state { padding-left: 21px; font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .ac-gw-state[data-level="ok"] { color: var(--c-free); }
+html.th-clean .ac-gw-state[data-level="warn"] { color: var(--c-busy); }
+html.th-clean .ac-gw-state[data-level="bad"] { padding: 0 0 0 21px; border-radius: 0; background: none; color: var(--destructive); font-weight: 400; }
+/* Codex: строка аккаунта — той же карточкой, состояние 12/16 по цвету */
+html.th-clean .cx-row { gap: 12px; padding: 8px 12px; border: 1px solid var(--c-line-soft); border-radius: 8px; background: var(--background); }
+html.th-clean .cx-state { font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .cx-row[data-state="active"] .cx-state { color: var(--c-free); font-weight: 500; }
+html.th-clean .cx-row:is([data-state="lost"], [data-state="no"]) .cx-state { color: var(--c-busy); }
+html.th-clean :is(.cx-code) { border: 1px solid var(--c-line-soft); border-radius: 12px; background: var(--background); }
+html.th-clean .cx-usercode { font: 500 16px/24px var(--font-mono); }
+
+/* ---- вкладки настроек (Figma 09, Clean/Settings tabs): «есть о чём знать» — точка 6 цвета предупреждения через 4 после
+   названия, вместо « ·» ядра (main.js tabMarks: знак остаётся в кнопке для скринридера, здесь его не видно) ---- */
+html.th-clean [data-settings-tab] .clean-att { display: inline-block; width: 6px; height: 6px; margin-left: 4px; border-radius: 50%;
+  background: var(--warning); font-size: 0; vertical-align: 1px; overflow: hidden; }
+
+/* ---- «О хабе» (Figma 09, Clean/About facts, Settings · About; ядро settings.js aboutSection) — факты карточкой r12 с рамкой
+   --c-line, 12/16, до 640: подпись 160 серым, значение t1, строки 14/20 через 8. «Что нового» — такой же карточкой во всю
+   ширину: дата 14/20 Medium, пункты 14/20 через 8 без маркеров. «История обновлений» — ссылка с подчёркиванием, как
+   подсказки рядом (12/16 серым), а не плашка-ссылка ленты ---- */
+html.th-clean .about .about-facts { max-width: 640px; box-sizing: border-box; margin: 0; padding: 12px 16px; grid-template-columns: 160px minmax(0, 1fr);
+  gap: 8px 12px; border: 1px solid var(--c-line); border-radius: 12px; background: var(--background); font: 400 14px/20px var(--font); }
+html.th-clean .about .about-facts dt { color: var(--c-t2); }
+html.th-clean .about .about-facts dd { color: var(--c-t1); }
+html.th-clean .about .set-more[open] > .about-facts { margin-top: 0; }
+html.th-clean .about :is(.upd-check, .claude-compat) .hint { font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .about .hint.warn { color: var(--c-busy); }   /* «старая версия», «нужен перезапуск», Claude Code старше нужного */
+html.th-clean .about > a:not([class]) { padding: 0; border-radius: 0; background: none; color: var(--c-t2); font: 400 12px/16px var(--font);
+  text-decoration: underline 1px var(--c-line); text-underline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .about > a:not([class]):hover { background: none; color: var(--c-t2); text-decoration-color: var(--c-line-strong); }
+}
+html.th-clean .about .upd { display: grid; gap: 8px; margin: 0 0 12px; padding: 12px 16px; border: 1px solid var(--c-line); border-radius: 12px;
+  background: var(--background); color: var(--c-t1); font: 400 14px/20px var(--font); }
+html.th-clean .about .upd-head { font-weight: 500; }
+html.th-clean .about .upd ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+html.th-clean .about .upd li { margin: 0; }
+html.th-clean .about .upd .upd-date { margin: 0; font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .about .upd .why { margin: 0; color: var(--c-busy); }
+html.th-clean .about .set-more > summary { padding: 0; color: var(--c-t2); font: 400 14px/20px var(--font); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .about .set-more > summary:hover { color: var(--c-t1); }
+}
+
+/* ---- «Плагины» (Figma 09, Clean/Plugins toolbar, Clean/Marketplace row, Settings · Plugins; ядро plugins.js) — поиск 520×32
+   на --c-fill со значком 16 и выбор категорий в одну строку через 8 (селекты 32 на --c-fill без рамки); итог действия —
+   плашка 8/12 r8 на мягком зелёном или оранжевом, текст 14/20 t1, «Скрыть» тихой 24. Списки — карточкой r12 с рамкой
+   --c-line; маркетплейс — строка 12/16 без значка-буквы: имя 14/20 Medium, метка 16 r4 (официальный — зелёная подложка,
+   сторонний — оранжевая), источник 12/16 серым, проблема — оранжевым, ошибка — красным. Ссылка на GitHub из поиска —
+   та же карточка, без синей рамки ядра ---- */
+html.th-clean .plugins { position: relative; grid-template-columns: minmax(0, 520px) auto minmax(0, 1fr); column-gap: 8px; }
+html.th-clean .plugins > :not(.plugin-filter, .plugin-filters) { grid-column: 1 / -1; }
+html.th-clean .plugins > .plugin-filter { grid-column: 1; height: 32px; min-height: 32px; box-sizing: border-box; padding: 0 12px 0 36px; border: 0;
+  border-radius: 8px; background: var(--c-fill); color: var(--c-t1); font: 400 14px/20px var(--font); }
+html.th-clean .plugins > .plugin-filter::placeholder { color: var(--c-t3); }
+html.th-clean .plugins > .plugin-filter:focus, html.th-clean .plugins > .plugin-filter:focus-visible { outline: 0; background: var(--background);
+  box-shadow: 0 0 0 1px var(--c-line-strong); }
+html.th-clean .plugins::before { content: ""; position: absolute; left: 12px; top: 8px; z-index: 1; width: 16px; height: 16px; pointer-events: none;
+  background: var(--c-t3); -webkit-mask: url("search.svg") center / 16px no-repeat; mask: url("search.svg") center / 16px no-repeat; }
+html.th-clean .plugins > .plugin-filters { grid-column: 2; align-self: center; flex-wrap: nowrap; gap: 8px; }
+html.th-clean .plugin-filters .plugin-sort { field-sizing: content; height: 32px; box-sizing: border-box; padding: 6px 28px 6px 12px; border: 0; border-radius: 8px;
+  background-color: var(--c-fill); color: var(--c-t1); font: 400 14px/20px var(--font); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .plugin-filters .plugin-sort:hover { background-color: var(--c-badge); }
+}
+html.th-clean .plugins > .plugin-notice-slot:empty { display: none; }
+html.th-clean .plugin-notice { margin: 0; padding: 8px 12px; gap: 12px; border: 0; border-radius: 8px; background: var(--c-free-bg); color: var(--c-t1);
+  font: 400 14px/20px var(--font); }
+html.th-clean .plugin-notice.warn { background: var(--c-busy-bg); }
+html.th-clean .plugin-section { margin: 16px 0 8px; font: 600 14px/20px var(--font); color: var(--c-t2); }
+html.th-clean .plugin-list { border: 1px solid var(--c-line); border-radius: 12px; background: var(--background); }
+html.th-clean .plugin-row { padding: 12px 16px; }
+html.th-clean .plugin-row + .plugin-row { border-top-color: var(--c-line-soft); }
+html.th-clean .plugin-title h4 { font: 500 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .plugin-title .chip { min-height: 16px; padding: 0 6px; border-radius: 4px; background: var(--c-fill); color: var(--c-t1); font: 400 12px/16px var(--font); }
+html.th-clean .plugin-title .chip.ok { background: var(--c-free-bg); }
+html.th-clean .plugin-title .chip.warn { background: var(--c-busy-bg); }
+html.th-clean :is(.plugin-what, .plugin-why) { font: 400 14px/20px var(--font); }
+html.th-clean .plugin-what { color: var(--c-t1); }
+html.th-clean :is(.plugin-why, .plugin-meta, .plugin-note, .plugin-author) { color: var(--c-t2); }
+html.th-clean :is(.plugin-meta, .plugin-note, .plugin-author, .plugin-warn, .plugin-lack) { font: 400 12px/16px var(--font); }
+html.th-clean :is(.plugin-warn, .plugin-lack, .plugin-full, .plugin-note.warn) { color: var(--c-busy); }
+html.th-clean .plugin-icon { border-radius: 8px; outline-color: var(--c-line-soft); }
+/* маркетплейс: без значка-буквы, своя карточка до 640 */
+html.th-clean .plugin-list:has(> .plugin-mp) { max-width: 640px; }
+html.th-clean .plugin-row.plugin-mp { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+html.th-clean .plugin-mp > :is(.plugin-icon, .plugin-actions:empty) { display: none; }
+html.th-clean .plugin-mp .plugin-main { display: grid; gap: 8px; }
+html.th-clean .plugin-mp .plugin-title .chip:not(.ok) { background: var(--c-busy-bg); }   /* сторонний */
+html.th-clean .plugin-mp .plugin-warn { margin: 0; }
+html.th-clean .plugins > .plugin-warn { color: var(--destructive); }   /* каталоги не загрузились */
+/* ссылка на GitHub из поиска: карточка r12 с рамкой --c-line вместо синей рамки ядра */
+html.th-clean .plugin-link { margin: 0; padding: 12px 16px; gap: 8px; border: 1px solid var(--c-line); border-radius: 12px; background: var(--background);
+  font: 400 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .plugin-review { border-radius: 8px; background: var(--c-fill); font: 400 14px/20px var(--font); }
+html.th-clean .plugin-review.ok b { color: var(--c-free); }
+html.th-clean .plugin-review.warn b { color: var(--c-busy); }
+@media (max-width: 760px) {
+  html.th-clean .plugins { grid-template-columns: minmax(0, 1fr); }
+  html.th-clean .plugins > .plugin-filters { grid-column: 1; flex-wrap: wrap; }
+  html.th-clean .plugins > .plugin-filter { height: 40px; }
+  html.th-clean .plugins::before { top: 12px; }
+}
+
+/* ---- «Вид»: ошибка темы (Figma 09, Clean/Theme error; ядро themes.js: p.hint.warn в .theme-list) — плашка r12 12/16 на
+   --c-alert-tint, текст 14/20 красным, на всю ширину списка тем (560) ---- */
+html.th-clean .theme-list .hint.warn { margin: 0; padding: 12px 16px; border-radius: 12px; background: var(--c-alert-tint); color: var(--destructive);
+  font: 400 14px/20px var(--font); overflow-wrap: anywhere; }
+html.th-clean .theme-row .lb.warn { color: var(--c-busy); }
+/* «Найти темы в каталоге плагинов» — ссылкой под списком (Figma 09, Settings · Look), как «История обновлений» */
+html.th-clean .theme-list + .btn.quiet { min-height: 20px; margin-top: 8px; padding: 0; border-radius: 0; background: none; color: var(--c-t2);
+  font: 400 12px/20px var(--font); text-decoration: underline 1px var(--c-line); text-underline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .theme-list + .btn.quiet:hover { background: none; color: var(--c-t2); text-decoration-color: var(--c-line-strong); }
+}
+
+/* ---- «Хабы на этом компьютере» (Figma 09, Browser and local hub=Job running / Job failed; ядро instances.js) — список
+   карточкой r8 на --card с рамкой --c-line, строки 8/12 с точкой 8 (работает — зелёная, остановлен — t3); ход установки — без своей
+   рамки, 16 внутри, через 12: строка 14/20 серым (не вышло — красным), журнал — плашка 8/12 r8 на --muted моноширинным
+   12/18, кнопка 24 ---- */
+html.th-clean .inst-list { border: 1px solid var(--c-line); border-radius: 8px; background: var(--card); }   /* подложка как у остальных карточек настроек (ревью 16.11) */
+html.th-clean .inst-row + .inst-row { border-top-color: var(--c-line-soft); }
+html.th-clean .inst-dot { background: var(--c-free); }
+html.th-clean .inst-row.off .inst-dot { background: var(--c-t3); opacity: 1; }
+html.th-clean .inst-name { font: 400 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .inst-name b { font-weight: 500; }
+html.th-clean .inst-name .chip { min-height: 16px; padding: 0 6px; border-radius: 4px; font: 400 12px/16px var(--font); }
+html.th-clean .inst-name .chip.ok { background: var(--c-free-bg); }
+html.th-clean .inst-meta { font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .inst-input { height: 32px; padding: 6px 12px; border: 0; border-radius: 8px; background: var(--c-fill); color: var(--c-t1); font: 400 14px/20px var(--font); }
+html.th-clean .inst-input:focus, html.th-clean .inst-input:focus-visible { outline: 0; background: var(--background); box-shadow: 0 0 0 1px var(--c-line-strong); }
+html.th-clean .inst-field > span { font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .inst-job, html.th-clean .inst-job:is(.failed, .lost) { max-width: 520px; box-sizing: border-box; gap: 12px; padding: 16px; border: 0; border-radius: 12px;
+  background: none; font: 400 14px/20px var(--font); color: var(--c-t2); }
+html.th-clean .inst-job:is(.failed, .lost) > p:first-child { color: var(--destructive); }
+html.th-clean .inst-log { box-sizing: border-box; width: 100%; padding: 8px 12px; border-radius: 8px; background: var(--muted); color: var(--c-t1);
+  font: 400 12px/18px var(--font-mono); }
+html.th-clean .instances .hint.warn { color: var(--c-busy); }
+html.th-clean .inst-job .btn { color: var(--c-t1); }
+
+/* ---- «Основное»: строка настройки (Figma 09, Settings · General) — карточка r8 с рамкой --c-line, 8, зазор 16; поле и
+   список справа 32 на --c-fill с рамкой --c-line, 6/8, текст 14/20 ---- */
+html.th-clean .set-row:not(.set-agent .set-row) { padding: 8px; gap: 8px 16px; border-color: var(--c-line); border-radius: 8px; background: var(--background); }
+html.th-clean .set-row :is(input:not([type="checkbox"], [type="radio"]), select) { min-height: 32px; height: 32px; box-sizing: border-box;
+  padding-block: 6px; padding-inline-start: 8px; border: 1px solid var(--c-line); border-radius: 8px; background-color: var(--c-fill); color: var(--c-t1);
+  font: 400 14px/20px var(--font); }
+html.th-clean .set-row input:not([type="checkbox"], [type="radio"]) { padding-inline-end: 8px; }
+html.th-clean .set-row :is(input:not([type="checkbox"], [type="radio"]), select):focus-visible { outline: 0; background-color: var(--background);
+  box-shadow: 0 0 0 1px var(--c-line-strong); }
+html.th-clean .set-label { font: 400 14px/20px var(--font); color: var(--c-t1); }
+
+/* ---- «Модули» (Figma 09, Clean/Module and plugin, Settings · Modules; ядро modules.js: .module-card[data-state]) —
+   карточка r8 с рамкой --c-line-soft, 12/16, зазор 8, до 820; название 14/20 Medium; состояние — бейдж DS r4 справа,
+   рядом «Включить» вторичной (серая подложка, не тёмная главная); описание 14/20 серым, «Как включить» 12/16 ---- */
+html.th-clean .modules { display: grid; gap: 12px; }
+html.th-clean .module-card { display: grid; gap: 8px; max-width: 820px; box-sizing: border-box; padding: 12px 16px; border: 1px solid var(--c-line-soft);
+  border-radius: 8px; background: var(--background); }
+html.th-clean .module-card[data-state="off"] { opacity: 1; }
+html.th-clean .module-card.third-party { border-style: dashed; border-color: var(--c-line); }
+html.th-clean .module-head { min-height: 24px; gap: 8px; }
+html.th-clean .module-head h3 { flex: 1 1 auto; font: 500 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .module-head .pill { padding: 4px; border-radius: 4px; background: var(--c-fill); color: var(--c-t2); font: 400 12px/16px var(--font); }
+html.th-clean .module-card[data-state="on"] .module-head .pill { background: var(--c-free-bg); color: var(--c-free); }
+html.th-clean .module-card[data-state="part"] .module-head .pill { background: var(--c-busy-bg); color: var(--c-busy); }
+html.th-clean .module-head .module-toggle { margin-inline-start: 0; }
+html.th-clean .module-head .module-toggle.primary { background: var(--c-fill); color: var(--c-t1); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .module-head .module-toggle.primary:hover { background: var(--c-badge); }
+}
+html.th-clean .module-card :is(p, details) { margin: 0; }
+html.th-clean .module-gives { font: 400 14px/20px var(--font); color: var(--c-t2); }
+html.th-clean .module-card > .hint { font: 400 12px/16px var(--font); color: var(--c-t2); }
+html.th-clean .module-card details > summary { color: var(--c-t2); font: 400 12px/16px var(--font); }
+html.th-clean .stats-peek pre { border-color: var(--c-line); border-radius: 8px; background: var(--muted); color: var(--c-t1); font: 400 12px/18px var(--font-mono); }
+html.th-clean .module-card[data-state="bad"] .module-state { color: var(--destructive); }
+
+/* ---- «Внешние хабы» (Figma 09, Settings · External hubs; ядро hubs.js) — панели r8 с рамкой --c-line, 14/16, до 820;
+   имя хаба 16/20, метки — бейджи DS 16 r4 (12/16, 0/4); тихие кнопки серым t2, «Отвязать» — красным; поле имени 32 на
+   --c-fill с рамкой; код пары и подписи 12/16 серым; ошибки красным, команды — плашкой --muted r8 ---- */
+html.th-clean .bus-panel { max-width: 820px; box-sizing: border-box; padding: 14px 16px; border-color: var(--c-line); border-radius: 8px; background: var(--background); }
+html.th-clean .bus-ex { border-color: var(--c-line); border-radius: 12px; background: var(--background); }
+html.th-clean .bus-hubname > b { font: 400 14px/20px var(--font); color: var(--c-t1); }
+html.th-clean .bus-name { font: 400 16px/20px var(--font); color: var(--c-t1); }
+html.th-clean .bus-chip { padding: 0 4px; border-radius: 4px; font: 400 12px/16px var(--font); }
+html.th-clean .bus-chip.ok { background: var(--c-free-bg); color: var(--c-free); }
+html.th-clean .bus-chip.warn { background: var(--c-busy-bg); color: var(--c-busy); }
+html.th-clean .bus-chip.bad { background: var(--c-alert-soft); color: var(--destructive); }
+html.th-clean .bus-chip.mute { background: var(--c-fill); color: var(--c-t2); }
+html.th-clean :is(.bus-head, .bus-panel) .btn.quiet:not(.danger) { color: var(--c-t2); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean :is(.bus-head, .bus-panel) .btn.quiet:not(.danger):hover { color: var(--c-t1); }
+}
+html.th-clean :is(.bus-hubname-in, .bus-invite-name, .bus-person, .bus-person-new) { height: 32px; box-sizing: border-box; padding: 6px 8px; border: 1px solid var(--c-line);
+  border-radius: 8px; background: var(--c-fill); color: var(--c-t1); font: 400 14px/20px var(--font); }
+html.th-clean :is(.bus-hubname-in, .bus-invite-name, .bus-person, .bus-person-new):focus-visible { outline: 0; background: var(--background); box-shadow: 0 0 0 1px var(--c-line-strong); }
+html.th-clean :is(.bus-code-line.quiet, .bus-person-name, .bus-personrow > .bus-row > span) { color: var(--c-t2); }
+html.th-clean .bus-code-line.quiet { font-size: 12px; line-height: 16px; }
+html.th-clean .bus-err { color: var(--destructive); font: 400 14px/20px var(--font); }
+html.th-clean .bus-wait { border-top-color: var(--c-line-soft); color: var(--c-t2); font: 400 14px/20px var(--font); }
+html.th-clean .bus-cmd { border-radius: 8px; background: var(--muted); color: var(--c-t1); font: 400 12px/18px var(--font-mono); }
+
+/* ---- расписание: «Часы ждут, пока поднимется ядро» (Figma 08, Panel and view=Clock waiting) — обычное ожидание при
+   старте, не авария: нейтральный бейдж вместо красного (тон ядра «dialog» тот же, что у «ждёт вас») ---- */
+html.th-clean main > .head:has(> .sched-title) .pill[data-s="dialog"] { color: var(--c-t1); background: var(--c-fill); }
+
+/* ---- карточка вопроса (Figma 07, Question=With previews; ревью 204:2892 / 270:5795 / 316:6097; ядро cards.js) —
+   свой ответ — одна плашка 44 на --c-fill r8: поле 14/20 (подсказка t2), справа скрепка и микрофон 24 со значком 16
+   через 12; в фокусе плашка белая с рамкой --c-line-strong. Вариант с превью: 8/8/8/9, миниатюра 112×72 r8 с рамкой
+   --c-line справа; кружка выбора нет — выбранный вариант обведён 2px цветом текста (фокус с клавиатуры — кольцом).
+   «Выбрать» / «Ответить» — без галочки ---- */
+html.th-clean form.ask-card .other-row { align-items: center; gap: 12px; min-height: 44px; box-sizing: border-box; padding-right: 12px; border-radius: 8px;
+  background: var(--c-fill); }
+html.th-clean form.ask-card .other-row textarea.other { min-height: 44px; padding: 12px 0 12px 12px; border: 0; border-radius: 8px; background: none;
+  color: var(--c-t1); line-height: 20px; box-shadow: none; }
+html.th-clean form.ask-card .other-row textarea.other::placeholder { color: var(--c-t2); }
+html.th-clean form.ask-card .other-row textarea.other:focus { outline: 0; }
+html.th-clean form.ask-card .other-row:has(textarea.other:focus) { background: var(--background); box-shadow: inset 0 0 0 1px var(--c-line-strong); }
+html.th-clean form.ask-card .other-row > .btn.round:is(.attach, .dictate:not(.stop)) { width: 24px; height: 24px; min-width: 0; min-height: 24px; padding: 0; border: 0;
+  border-radius: 8px; background: none; box-shadow: none; color: var(--c-t2); }
+html.th-clean form.ask-card .other-row > .btn.round.dictate.err { color: var(--destructive); }
+html.th-clean form.ask-card .other-row > .btn.round :is(.icon, .spin-dot) { width: 16px; height: 16px; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean form.ask-card .other-row > .btn.round:is(.attach, .dictate:not(.stop)):not(:disabled):hover { background: var(--c-badge); color: var(--c-t1); }
+}
+/* микрофон поля (Figma 07, Clean/Field mic): запись — плашка 56×24 на --c-fill с четырьмя полосками уровня цвета текста
+   (3 через 3, высотой 6/12/9/4), удержание — темнее (--c-badge); значок «стоп» ядра не нужен — нажатие и так вставит */
+html.th-clean .btn.round.dictate.mini.stop { width: 56px; height: 24px; min-height: 24px; padding: 0; border: 0; border-radius: 8px; background: var(--c-fill);
+  color: var(--c-t1); box-shadow: none; }
+html.th-clean .btn.round.dictate.mini.stop:active { background: var(--c-badge); }
+html.th-clean .btn.round.dictate.mini.stop .icon { display: none; }
+html.th-clean .btn.round.dictate.mini.stop::before { content: ""; width: 21px; height: 12px; margin: auto;
+  background: linear-gradient(currentColor, currentColor) 0 50% / 3px 6px no-repeat, linear-gradient(currentColor, currentColor) 6px 50% / 3px 12px no-repeat,
+    linear-gradient(currentColor, currentColor) 12px 50% / 3px 9px no-repeat, linear-gradient(currentColor, currentColor) 18px 50% / 3px 4px no-repeat; }
+/* вариант с превью */
+html.th-clean form.ask-card .opt.has-preview:has(> input[type="radio"]) { grid-template-columns: minmax(0, 1fr) auto; }
+html.th-clean form.ask-card .opt.has-preview { position: relative; column-gap: 8px; padding: 8px 8px 8px 9px; }
+/* вопрос с превью и одиночным выбором: кружков нет у всех его вариантов (и у тех, что без превью), выбор — обводкой */
+html.th-clean form.ask-card fieldset:has(> .opt.has-preview) > .opt:has(> input[type="radio"]) { position: relative; }
+html.th-clean form.ask-card fieldset:has(> .opt.has-preview) > .opt > input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+html.th-clean form.ask-card fieldset:has(> .opt.has-preview) > .opt:has(> input[type="radio"]:checked),
+html.th-clean form.ask-card .opt.has-preview:has(> input[type="checkbox"]:checked) { box-shadow: inset 0 0 0 2px var(--foreground); }
+html.th-clean form.ask-card fieldset:has(> .opt.has-preview) > .opt:has(> input[type="radio"]:focus-visible) { outline: 2px solid var(--c-ring); outline-offset: 2px; }
+html.th-clean form.ask-card .opt.has-preview > span { align-self: center; }
+html.th-clean form.ask-card .opt-thumb { border-color: var(--c-line); border-radius: 8px; }
+html.th-clean form.ask-card .btns .btn.primary > .icon { display: none; }
+@media (max-width: 760px) {
+  html.th-clean form.ask-card .opt.has-preview:has(> input[type="radio"]) { grid-template-columns: minmax(0, 1fr); }
+  html.th-clean form.ask-card .opt.has-preview:has(> input[type="radio"]) .opt-thumb { grid-column: 1; }
+  html.th-clean form.ask-card .other-row > .btn.round:is(.attach, .dictate:not(.stop)) { width: 32px; height: 32px; }
+}
+
+/* ---- «К последнему» на телефоне (Figma 07, Select and copy=Latest · phone) — белая кнопка 40 r10 с тенью поля ввода
+   (как плавающие кнопки поверх ленты), значок 24; счётчик новых — бейджем в углу, как у ядра. :not(.round) — сильнее общего
+   правила кнопок (r8, без тени) ---- */
+@media (max-width: 760px) {
+  html.th-clean main > .btn.jumpnew:not(.round) { width: 40px; height: 40px; min-height: 40px; padding: 0; border: 0; border-radius: 10px; background: var(--background);
+    box-shadow: var(--c-field); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  html.th-clean main > .btn.jumpnew > .icon { width: 24px; height: 24px; }
+}
+
+/* ---- окно подтверждения (Figma 07, Dialog=Restart hub; ядро dialogs.js #confirm-dlg) — 460, 24, между заголовком, текстом
+   и кнопками по 16: заголовок 19.2/24 Bold, текст 14/20 серым (у ядра — 12.8 и лишние поля 12 у заголовка и текста) ---- */
+html.th-clean #confirm-dlg { padding: 24px; border-radius: 12px; }
+html.th-clean #confirm-dlg h2 { margin: 0; font-weight: 700; line-height: 24px; }
+html.th-clean #confirm-text { margin: 0; font: 400 14px/20px var(--font); color: var(--c-t2); }
+
+/* ---- карточка ожидания: строки после ответа и ошибки (Figma 07, Clean/Question: Sending / Queued / Answered / Answered
+   elsewhere / Error; ядро cards.js, dock.js) — ошибка ответа — плашка 12 r8 на --c-alert-tint, текст 12/16 красным;
+   «отправлен» / «в очереди» — одна строка 8/16 r16, текст 14/20 серым; заморожена — шапка без точки на --c-fill,
+   заметка 12/16 серым на плашке --c-fill ---- */
+html.th-clean .card .error-text:not(:empty) { padding: 12px; border-radius: 8px; background: var(--c-alert-tint); color: var(--destructive); font: 400 12px/16px var(--font); }
+html.th-clean .card.sent { padding: 8px 16px; }
+html.th-clean .card .sent-line { font: 400 14px/20px var(--font); color: var(--c-t2); }
+html.th-clean .card.frozen .card-head { background: var(--c-fill); color: var(--c-t1); }
+html.th-clean .card.frozen .frozen-bar .frozen-note { font: 400 12px/16px var(--font); color: var(--c-t2); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .card.frozen .opt:hover { background: var(--c-fill); }
+}
+
+/* ---- тихие кнопки внутри карточек настроек («Подробнее», «Обновить», «Перейти», «Сменить контакт», «Файл для поддержки»…;
+   Figma 09, Clean/Module and plugin, Clean/Account, Hub setup; третий круг ревью 16.11) — без боковых полей: текст стоит по
+   сетке карточки, как соседний текст; наведение — текст темнее, без подложки (её некуда класть без полей) ---- */
+html.th-clean :is(.module-card, .plugin-row, .ac-card, .su-item, .bus-panel, .inst-row, .inst-job, .upd)
+  .btn.quiet:not(.round, .back, .card-x, .module-toggle, .bus-acts > *, .plugin-actions > :nth-child(1 of .btn.quiet:not(.danger))) {
+  padding-inline: 0; background: none; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean :is(.module-card, .plugin-row, .ac-card, .su-item, .bus-panel, .inst-row, .inst-job, .upd)
+    .btn.quiet:not(.round, .back, .card-x, .module-toggle, .bus-acts > *, .plugin-actions > :nth-child(1 of .btn.quiet:not(.danger))):hover {
+    background: none; color: var(--c-t1); }
+  html.th-clean :is(.module-card, .plugin-row, .ac-card, .su-item, .bus-panel, .inst-row, .inst-job, .upd) .btn.quiet.danger:not(.bus-acts > *):hover { color: var(--destructive); }
+}
+
+/* ---- тоггл вместо «Включить / Выключить» (Figma 09, Clean/Toggle в Clean/Module and plugin, Setting field=Gateway,
+   Settings · External hubs; третий круг ревью 16.11) — та же кнопка ядра, только видом: дорожка 32×18 r9 (::before),
+   включено — --foreground, выключено — --c-line-strong; ручка 14 цвета --background с тенью, отступ 2 (::after). Подпись
+   «Включить» / «Выключить» спрятана для глаз (font-size 0), скринридер её читает. Состояние — из данных карточки: у модуля
+   класс кнопки (.quiet — включён, .primary — выключен), у плагина .plugin-row.off, «Внешние хабы» — кнопка есть только у
+   включённой шины. Пока идёт запрос (кнопка disabled) или модуль поднимается — неактивный, прозрачность .4. Бейдж «вкл /
+   выкл» рядом прячем; бейдж, который сообщает другое (частично, ошибка, поднимается, обновление), остаётся ---- */
+html.th-clean :is(.module-head > .module-toggle,
+  .plugin-row:not(.plugin-entry, .plugin-mp) > .plugin-actions > .btn.quiet:not(.danger):nth-child(1 of .btn.quiet:not(.danger)),
+  .bus-head > .btn) {
+  position: relative; flex: none; align-self: center; box-sizing: border-box; width: 32px; min-width: 32px; height: 18px; min-height: 18px;
+  margin: 0; padding: 0; border: 0; border-radius: 9px; background: none; box-shadow: none; color: transparent; font-size: 0; line-height: 0;
+  white-space: nowrap; --tg: var(--foreground); --tg-x: 14px; }
+html.th-clean :is(.module-head > .module-toggle.primary, .plugin-row.off > .plugin-actions > .btn.quiet:not(.danger):nth-child(1 of .btn.quiet:not(.danger))) {
+  --tg: var(--c-line-strong); --tg-x: 0px; }
+html.th-clean :is(.module-head > .module-toggle,
+  .plugin-row:not(.plugin-entry, .plugin-mp) > .plugin-actions > .btn.quiet:not(.danger):nth-child(1 of .btn.quiet:not(.danger)),
+  .bus-head > .btn)::before { content: ""; position: absolute; inset: 0; border-radius: 9px; background: var(--tg); transition: background-color 120ms ease-out; }
+html.th-clean :is(.module-head > .module-toggle,
+  .plugin-row:not(.plugin-entry, .plugin-mp) > .plugin-actions > .btn.quiet:not(.danger):nth-child(1 of .btn.quiet:not(.danger)),
+  .bus-head > .btn)::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--background);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.15); transform: translateX(var(--tg-x)); transition: transform 120ms ease-out; }
+html.th-clean :is(.module-head > .module-toggle,
+  .plugin-row:not(.plugin-entry, .plugin-mp) > .plugin-actions > .btn.quiet:not(.danger):nth-child(1 of .btn.quiet:not(.danger)),
+  .bus-head > .btn):is(:disabled, .module-card[data-state="wait"] *) { opacity: 0.4; }
+html.th-clean .module-card[data-state="wait"] .module-head > .module-toggle { pointer-events: none; }   /* модуль поднимается */
+html.th-clean :is(.module-head > .module-toggle,
+  .plugin-row:not(.plugin-entry, .plugin-mp) > .plugin-actions > .btn.quiet:not(.danger):nth-child(1 of .btn.quiet:not(.danger)),
+  .bus-head > .btn):focus-visible { outline: 2px solid var(--c-ring); outline-offset: 2px; }
+html.th-clean :is(.module-head > .module-toggle,
+  .plugin-row:not(.plugin-entry, .plugin-mp) > .plugin-actions > .btn.quiet:not(.danger):nth-child(1 of .btn.quiet:not(.danger)),
+  .bus-head > .btn):active:not(:disabled) { transform: none; }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean :is(.module-head > .module-toggle,
+    .plugin-row:not(.plugin-entry, .plugin-mp) > .plugin-actions > .btn.quiet:not(.danger):nth-child(1 of .btn.quiet:not(.danger)),
+    .bus-head > .btn):hover { background: none; color: transparent; }
+}
+/* бейдж «вкл / выкл» рядом с тогглом не нужен: модуль (включён / выключен; «частично» остаётся), сторонний модуль (работает /
+   выключен; «поднимается», «на паузе», «остановлен» остаются), плагин (стоит / выключен; «обновление» — .warn — остаётся),
+   «Внешние хабы» («включена») */
+html.th-clean .module-card:is([data-state="on"], [data-state="off"]):has(> .module-head > .module-toggle) > .module-head > .pill:not(.third-badge),
+html.th-clean .plugin-row:not(.plugin-entry, .plugin-mp) > .plugin-main > .plugin-title > .chip:not(.warn),
+html.th-clean .bus-head > .bus-chip.ok { display: none; }
+/* шлюз аккаунтов: галочка ядра — тоггл справа от названия; строка «выключен» под описанием не нужна, другие состояния
+   («включается», «включён: N аккаунтов», «не работает») — остаются, без отступа под галочку */
+html.th-clean .ac-gw > .opt { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px; align-items: start; }
+html.th-clean .ac-gw > .opt > span { grid-column: 1; grid-row: 1; }
+html.th-clean .ac-gw > .opt > input[type="checkbox"] { grid-column: 2; grid-row: 1; position: relative; box-sizing: border-box; width: 32px; height: 18px;
+  margin: 1px 0 0; padding: 0; border: 0; border-radius: 9px; -webkit-appearance: none; appearance: none; background: var(--c-line-strong);
+  cursor: pointer; transition: background-color 120ms ease-out; }
+html.th-clean .ac-gw > .opt > input[type="checkbox"]:checked { background: var(--foreground); }
+html.th-clean .ac-gw > .opt > input[type="checkbox"]::before { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--background); box-shadow: 0 1px 2px rgb(0 0 0 / 0.15); transition: transform 120ms ease-out; }
+html.th-clean .ac-gw > .opt > input[type="checkbox"]:checked::before { transform: translateX(14px); }
+html.th-clean .ac-gw > .opt > input[type="checkbox"]:disabled,
+html.th-clean .ac-gw:has(> .ac-gw-state[data-level="warn"]) > .opt > input[type="checkbox"] { opacity: 0.4; cursor: default; }
+html.th-clean .ac-gw:has(> .ac-gw-state[data-level="warn"]) > .opt > input[type="checkbox"] { pointer-events: none; }   /* хаб проверяет шлюз */
+html.th-clean .ac-gw > .opt > input[type="checkbox"]:focus-visible { outline: 2px solid var(--c-ring); outline-offset: 2px; }
+html.th-clean .ac-gw-state, html.th-clean .ac-gw-state[data-level="bad"] { padding-left: 0; }
+html.th-clean .ac-gw-state[data-level="off"] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  html.th-clean :is(.module-head > .module-toggle, .plugin-actions > .btn, .bus-head > .btn)::before,
+  html.th-clean :is(.module-head > .module-toggle, .plugin-actions > .btn, .bus-head > .btn)::after,
+  html.th-clean .ac-gw > .opt > input[type="checkbox"], html.th-clean .ac-gw > .opt > input[type="checkbox"]::before { transition: none; }
+}
+
+/* ---- описание раздела настроек (Figma 09, Settings · General / Look; третий круг ревью 16.11) — ближе к заголовку: 4 от
+   заголовка, 12 до контролов (было ~21: поля абзаца ядра плюс зазор сетки). В сетке .settings-sec зазор 8 уже есть —
+   поля считаем от него ---- */
+html.th-clean :is(.settings, .settings-groups) :is(h3.day, h4.set-sub, h5.set-sub):has(+ p.hint) { margin-bottom: 0; }
+html.th-clean :is(.settings, .settings-groups) :is(h3.day, h4.set-sub, h5.set-sub) + p.hint { margin: 4px 0 12px; }
+html.th-clean :is(.settings, .settings-groups) .settings-sec > :is(h3.day, h4.set-sub, h5.set-sub) + p.hint { margin: -4px 0 4px; }
+
+/* ---- выбор темы (Figma 09, Settings · Look; третий круг ревью 16.11) — без кружков палитры: превью, название, подпись ---- */
+html.th-clean .theme-row .swatches { display: none; }
+
+/* ---- раскрывашки настроек («Дополнительно», «Ещё», «Настройка», «Подробнее»; Figma 09, третий круг ревью 16.11) — без
+   треугольника ▸ браузера: после текста шеврон chevron-down 16 маской цветом текста, раскрыто — повёрнут на 180° ---- */
+html.th-clean :is(.settings, .settings-groups) details > summary { display: flex; align-items: center; gap: 4px; width: fit-content; list-style: none; cursor: pointer; }
+html.th-clean :is(.settings, .settings-groups) details > summary::-webkit-details-marker { display: none; }
+html.th-clean :is(.settings, .settings-groups) details > summary::after { content: ""; flex: none; width: 16px; height: 16px; background: currentColor;
+  -webkit-mask: url("chevron-down.svg") center / 16px no-repeat; mask: url("chevron-down.svg") center / 16px no-repeat;
+  transition: transform var(--dur-fast, 120ms) var(--ease-out, ease-out); }
+html.th-clean :is(.settings, .settings-groups) details[open] > summary::after { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { html.th-clean :is(.settings, .settings-groups) details > summary::after { transition: none; } }
+
+/* ---- карточка связанного хаба (Figma 09, Settings · External hubs, Clean/Linked hub card; третий круг ревью 16.11): слева
+   имя, статус и код — первая строка, «Хаб человека: …» и «Сменить контакт» — вторая; справа «Переименовать», «Написать»
+   (главная), «Отвязать» (Danger: мягкая красная) — по центру карточки, без распорок. Ядро кладёт «Переименовать» сразу
+   после имени, а «Хаб человека» отдельным блоком под шапкой: шапка (.bus-chead) занимает обе строки сетки, её левые
+   элементы прижаты к первой строке, правые — по центру; блок человека ложится во вторую строку слева. «· имя человека» в
+   первой строке не показываем — его называет вторая. Пока хаб не сверен (поле кода) или открыт выбор контакта — карточка
+   растёт вниз, как в ядре, меняется только порядок кнопок ---- */
+html.th-clean .bus-contact .bus-chead > .btn.quiet:not(.bus-acts > *) { order: 10; margin-inline-start: auto; }   /* «Переименовать» — к кнопкам справа */
+html.th-clean .bus-contact .bus-chead > .bus-acts { order: 11; margin-inline-start: 0; gap: 8px; }
+html.th-clean .bus-contact .bus-chead > .bus-person-name { display: none; }
+html.th-clean .bus-contact .bus-chead > .bus-code-line.quiet { padding: 0; }   /* сверенный код — строкой 12/16, без полей плашки */
+html.th-clean .bus-contact .bus-acts > .btn.danger { background: var(--c-alert-soft); color: var(--destructive); }
+@media (hover: hover) and (pointer: fine) {
+  html.th-clean .bus-contact .bus-acts > .btn.danger:hover { background: var(--c-alert-soft-hover); color: var(--destructive); }
+}
+@media (min-width: 761px) {
+  html.th-clean .bus-contact:not(:has(> .bus-code, > .bus-personrow > :nth-child(2))) { grid-template-columns: minmax(0, 1fr); grid-template-rows: 24px auto;
+    row-gap: 4px; }
+  html.th-clean .bus-contact:not(:has(> .bus-code, > .bus-personrow > :nth-child(2))) > .bus-chead { grid-row: 1 / 3; grid-column: 1; flex-wrap: nowrap;
+    align-items: center; column-gap: 8px; }
+  html.th-clean .bus-contact:not(:has(> .bus-code, > .bus-personrow > :nth-child(2))) > .bus-chead > :not(.btn, .bus-acts) {
+    align-self: flex-start; margin-top: calc((24px - 1lh) / 2); white-space: nowrap; }
+  html.th-clean .bus-contact:not(:has(> .bus-code, > .bus-personrow > :nth-child(2))) > .bus-chead > .bus-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  html.th-clean .bus-contact:not(:has(> .bus-code, > .bus-personrow > :nth-child(2))) > .bus-personrow { grid-row: 2; grid-column: 1; justify-self: start;
+    max-width: calc(100% - 280px); }   /* справа — три кнопки */
+}
+
+/* ---- предупреждения плагинов (Figma 09, Clean/Module and plugin; третий круг ревью 16.11): вместо символа «⚠» ядра — значок
+   error 16 цветом текста. Символ стоит в начале строки ядра; без JS его прячет ::first-letter (кегль 0), пробел после него
+   остаётся зазором до текста. Значок — ::before вне потока, на первой строке ---- */
+html.th-clean :is(p.plugin-warn, .plugin-full) { position: relative; padding-left: 16px; }
+html.th-clean .plugin-full { display: inline-block; }
+html.th-clean :is(p.plugin-warn, .plugin-full)::first-letter { font-size: 0; }
+html.th-clean :is(p.plugin-warn, .plugin-full)::before { content: ""; position: absolute; left: 0; top: calc((1lh - 16px) / 2); width: 16px; height: 16px;
+  background: currentColor; -webkit-mask: url("error.svg") center / 16px no-repeat; mask: url("error.svg") center / 16px no-repeat; }
+
+/* ---- метка «официальный» у каталога плагинов (Figma 09, Clean/Marketplace row; третий круг ревью 16.11) — нейтральный
+   бейдж 16 r4 на --c-badge, 12/16 Medium --c-t2, а не зелёный; «сторонний» остаётся оранжевым ---- */
+html.th-clean .plugin-mp .plugin-title .chip.ok { min-height: 16px; padding: 0 4px; border-radius: 4px; background: var(--c-badge); color: var(--c-t2);
+  font: 500 12px/16px var(--font); }
+
+/* ---- «открыть» на миниатюре варианта ответа (Figma 07, Question=With previews; третий круг ревью 16.11) — вместо значка
+   «⤢» ядра в нижнем углу: плашка 24×24 r6 тёмная 55% у правого верхнего угла (4 от краёв), значок expand 16 белым.
+   Кнопка — сама миниатюра ядра (по нажатию открывает превью), плашка — её ::after, значок — ::before ---- */
+html.th-clean .opt-thumb:not(.missing)::after { content: ""; inset-inline-end: 4px; top: 4px; bottom: auto; z-index: 1; width: 24px; height: 24px; border-radius: 6px;
+  background: rgb(0 0 0 / 0.55); }
+html.th-clean .opt-thumb:not(.missing)::before { content: ""; position: absolute; inset-inline-end: 8px; top: 8px; z-index: 2; width: 16px; height: 16px;
+  background: rgb(255 255 255); -webkit-mask: url("expand.svg") center / 16px no-repeat; mask: url("expand.svg") center / 16px no-repeat; pointer-events: none; }
