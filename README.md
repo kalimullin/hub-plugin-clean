@@ -44,7 +44,7 @@ Reload the page after a change. No map, or a chat that is not in it — the comp
 
 ## Detailed session list
 
-Settings → Look → Clean theme → “Detailed session list” (off by default, so the list stays compact). Each row then
+Settings → Look → Clean theme → “Detailed session list” (on by default; untick it for a compact list). Each row then
 shows the start of the session's last message under the name (one line, plain text, like a messenger preview) and the
 time of the last activity on the right (now, 2m, 3h, 5d). The open session is a card. A session with no message yet has
 no second line. The text comes from the session snapshot the core already sends (`out_head`, or `gist` when the session has not written to you); the working directory
