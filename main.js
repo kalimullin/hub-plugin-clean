@@ -31,6 +31,7 @@
 //   message with the draft and its files (voicetext.js).
 import { mountFit } from "./fit.js";
 import { mountVoiceText } from "./voicetext.js";
+import { mountWave } from "./wave.js";
 import { AGO, byRecent, detailOf, sessionIndex } from "./rows.js";
 
 const MINE = /(^|:)clean:clean(-dark)?\.json$/;
@@ -41,6 +42,7 @@ export default function register(hub) {
   hub.addStyle("clean.css");
   const fit = mountFit(on);   // composer bottom row: room is shared by the real width (fit.js)
   const voiceText = mountVoiceText(hub, on);   // the mic next to send over a draft (voicetext.js)
+  const wave = mountWave(on);   // the live waveform in the recording strip (wave.js)
   const T = (k, fb) => { try { const v = hub.t?.(k); return v && v !== k ? v : fb; } catch { return fb; } };
   // sessions by name: every row and every byline asks for its session on each redraw, so the snapshot's sessions are put into
   // maps once per sessions array (the core hands out a new array only when a session changed), not scanned per row
@@ -760,6 +762,7 @@ export default function register(hub) {
     boardRecap(); rowFaces(); recentOrder(); keepList();
     fit.hook();
     voiceText.sweep();
+    wave.sweep();
     holdView(); fade(); feedEnd();
     headFold();   // reads computed style (is a switch hidden by the narrow header?) — after the layout the reads above already paid for
   };
@@ -959,7 +962,7 @@ export default function register(hub) {
       if (!on()) {
         for (const b of document.querySelectorAll(".lightbox.clean-tall")) b.classList.remove("clean-tall");
         for (const x of document.querySelectorAll("[data-settings-tab] .clean-att")) x.replaceWith(" ·");
-        unmaskIcons(); unAvatars(); fade(); feedEnd(); unPlaceholders(); unPlate(); fit.reset(); voiceText.reset();
+        unmaskIcons(); unAvatars(); fade(); feedEnd(); unPlaceholders(); unPlate(); fit.reset(); voiceText.reset(); wave.reset();
         for (const h of document.querySelectorAll(".chat-head[data-clean-label]")) { h.removeAttribute("aria-label"); h.removeAttribute("title"); delete h.dataset.cleanLabel; }
 
         for (const x of document.querySelectorAll(".search-row .clean-x, .clean-bg, .clean-fold, .clean-fold-show, .clean-bars, .ce-n, .clean-recap")) x.remove();
