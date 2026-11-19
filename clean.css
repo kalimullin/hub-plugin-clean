@@ -26,6 +26,7 @@ html.th-clean {
   --c-preview: light-dark(rgb(0 0 0 / 0.55), rgb(255 255 255 / 0.50));   /* превью сообщения в «Подробном» списке: ≥4,5:1 к фону, к карточке и в тёмной (в светлой темой светлее нельзя: 50% даёт 3,9:1) */
   --c-ink: light-dark(#000, #fff);                                         /* точки «работает»: этим цветом с прозрачностью */
   --c-alert: light-dark(#c92a2a, #cf3a3a);   /* красная заливка с белым текстом: 5,5:1 в светлой (было #ef4e4e, 3,6:1; владелец 16.11, q405788), в тёмной 4,9:1 */
+  --c-alert-text: light-dark(#8d1d1d, #f4898c);   /* красный текст (срочность «high» в очереди): --destructive как текст даёт 3,2:1, этот ≥4,5:1 на плашке в светлой и тёмной */
   --c-free: light-dark(#1fb141, #4cd46a); --c-free-bg: light-dark(rgb(31 177 65 / 0.10), rgb(76 212 106 / 0.16));   /* мягкие подложки — прозрачностью: на цветном фоне не серые */
   --c-eco: light-dark(#876200, #ffd60a);   /* жёлтый «режима экономии» в блоке расхода: тёмная охра на светлом (4,5:1+), яркий жёлтый на тёмном */
   --c-busy: light-dark(#a35d1c, #f2b25a); --c-busy-bg: light-dark(rgb(255 200 0 / 0.08), rgb(255 190 40 / 0.14));
@@ -1265,6 +1266,8 @@ html.th-clean .clean-queue .strip-row[data-clean="item"] > .k { display: none; }
 html.th-clean .clean-queue .strip-row > .t { flex: 1 1 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--c-t2); }
 html.th-clean .clean-queue .strip-row > button.t { color: var(--c-t2); font: inherit; }
 html.th-clean .clean-queue .strip-row > .strip-urg { color: var(--c-t2); font: 400 12px/16px var(--font); }
+html.th-clean .clean-queue .strip-row > .strip-urg[data-level="mid"] { color: var(--c-busy); }   /* жёлтая и красная срочность ядра — своими цветами, а не общим --c-t2 */
+html.th-clean .clean-queue .strip-row > .strip-urg[data-level="high"] { color: var(--c-alert-text); font-weight: 500; }
 /* тихие кнопки очереди — Quiet 24 без боковых полей, r8, 12/16 Medium (аудит Figma 16.11, правило «у тихих кнопок полей по бокам нет») */
 html.th-clean .clean-queue .strip-row .btn { flex: none; box-sizing: border-box; height: 24px; min-height: 0; padding: 4px 0; gap: 4px; border: 0; border-radius: 8px; box-shadow: none;
   background: none; color: var(--c-t2); font: 500 12px/16px var(--font); letter-spacing: 0; display: inline-flex; align-items: center; margin-inline: 0; }
